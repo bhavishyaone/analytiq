@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ProjectProvider } from './context/ProjectContext.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
+import { AppLayout } from './components/AppLayout.jsx'
 import { Register } from './pages/Register.jsx'
 import { Login } from './pages/Login.jsx'
 
@@ -20,7 +21,7 @@ function App() {
                             path="/app/*"
                             element={
                                 <ProtectedRoute>
-                                    <div></div>
+                                    <AppLayout />
                                 </ProtectedRoute>
                             }
                         />
@@ -30,5 +31,6 @@ function App() {
             </ProjectProvider>
         </AuthProvider>
     )
-  }
+}
+
 export default App
