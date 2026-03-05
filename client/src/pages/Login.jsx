@@ -162,7 +162,6 @@ export function Login() {
               )}
             </div>
 
-            {/* PASSWORD */}
             <div className="space-y-1">
               <Label
                 htmlFor="password"
@@ -184,7 +183,6 @@ export function Login() {
               )}
             </div>
 
-            {/* SUBMIT */}
             <Button
               type="submit"
               disabled={loading}
@@ -195,7 +193,6 @@ export function Login() {
 
           </form>
 
-          {/* Forgot password */}
           <p className="text-center">
             <button
               type="button"
@@ -206,7 +203,6 @@ export function Login() {
             </button>
           </p>
 
-          {/* OR CONTINUE WITH divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -218,7 +214,6 @@ export function Login() {
             </div>
           </div>
 
-          {/* GitHub + Google */}
           <div className="grid grid-cols-2 gap-3">
 
             <Button

@@ -1,62 +1,124 @@
-import { useState } from "react";
-import api from "@/services/api.js";
-import { Button } from "@/components/ui/button";
+import { use, useState } from "react";
+import { Link,useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext.jsx'
+import toast from 'react-hot-toast'
 
-export function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export function Register(){
+  const [name,setName] = useState('')
+  const [email,setEmail]=useState('')
+  const [password,setPassword]=useState('')
+  const [errors, setErrors] = useState({ name: '', email: '', password: '' })
+  const [loading, setLoading]   = useState(false)
 
-  const submit = async () => {
-    try {
-      const res = await api.post("/auth/register", { email, password });
-      localStorage.setItem("token", res.data.token);
-      alert("Registration successful!");
-    } catch (error) {
-      alert("Registration failed: " + (error.response?.data?.message || error.message));
+
+  const navigate = useNavigate()
+
+  const { register } = useAuth()
+
+  const validate = ()=>{
+     
+    const newErrors = { name: '', email: '', password: '' }
+    let valid = true
+
+    if(!name.trim()){
+      newErrors.name = "Full name is required"
+      valid =false
     }
-  };
+
+    if (!email) {
+      newErrors.email = "Email is required"
+      valid = false
+    } 
+    else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Enter a valid email address"
+      valid = false
+    }
+
+
+    if (!password) {
+      newErrors.password = 'Password is required'
+      valid = false
+    } 
+    else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 6 characters'  
+
+    }
+
+    setErrors(newErrors)
+    return valid
+
+  }
+
+  const handleSubmit = async(e)=>{
+    e.preventDefault()
+    if (!validate()){ return}
+    setLoading(true)
+
+    try {
+      await register(name, email, password)   
+      toast.success('Account created! Welcome.')
+      navigate('/app')
+    }
+    catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed. Try again.')
+    } 
+    finally {
+      setLoading(false)
+    }
+  }
+
+
+
+
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2 style={{ marginBottom: '20px' }}>Register</h2>
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
-        <input 
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          style={{ 
-            width: '100%', 
-            padding: '8px', 
-            border: '1px solid #ccc',
-            borderRadius: '4px'
-          }}
-        />
-      </div>
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-        <input 
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Enter your password"
-          style={{ 
-            width: '100%', 
-            padding: '8px', 
-            border: '1px solid #ccc',
-            borderRadius: '4px'
-          }}
-        />
-      </div>
-      <Button onClick={submit}>Register</Button>
-      <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '14px' }}>
-        Already have an account?{' '}
-        <a href="/login" style={{ color: '#0066cc', textDecoration: 'none' }}>
-          Login
-        </a>
-      </div>
+    <div>
+      <h2>Create your account</h2>
+      <p>Already have an account? <Link to="/login">Sign in →</Link></p>
+      <form onSubmit={handleSubmit}>
+
+        <div>
+          <label htmlFor="name">Full Name</label><br />
+          <input
+            id="name" type="text" value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Enter Your Name"
+          />
+          {errors.name && <span style={{ color: 'red', fontSize: '12px', display: 'block' }}>{errors.name}</span>}
+        </div>
+
+        <div>
+          <label htmlFor="email">Email Address</label><br />
+          <input
+            id="email" type="email" value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Enter Youe Email Address"
+          />
+          {errors.email && <span style={{ color: 'red', fontSize: '12px', display: 'block' }}>{errors.email}</span>}
+        </div>
+
+        <div>
+          <label htmlFor="password">Password</label><br />
+          <input
+            id="password" type="password" value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Enter your password"
+          />
+          {errors.password && <span style={{ color: 'red', fontSize: '12px', display: 'block' }}>{errors.password}</span>}
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating account...' : 'Create account →'}
+        </button>
+      </form>
     </div>
-  );
+  )
 }
+
+
+
+
+
+
+
+
 
