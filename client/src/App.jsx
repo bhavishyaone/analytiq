@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import { AppLayout } from './components/AppLayout.jsx'
 import { Register } from './pages/Register.jsx'
 import { Login } from './pages/Login.jsx'
+import { Dashboard } from './pages/Dashboard.jsx'
 
 function App() {
     return (
@@ -18,13 +19,17 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route
-                            path="/app/*"
+                            path="/app"
                             element={
                                 <ProtectedRoute>
                                     <AppLayout />
                                 </ProtectedRoute>
                             }
-                        />
+                        >
+                            
+                            <Route index element={<Dashboard />} />
+                        </Route>
+
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </BrowserRouter>
