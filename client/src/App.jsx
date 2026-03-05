@@ -7,6 +7,7 @@ import { AppLayout } from './components/AppLayout.jsx'
 import { Register } from './pages/Register.jsx'
 import { Login } from './pages/Login.jsx'
 import { Dashboard } from './pages/Dashboard.jsx'
+import { Settings } from './pages/Settings.jsx'
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                         >
                             
                             <Route index element={<Dashboard />} />
+                            <Route path="settings" element={<Settings />} />
                         </Route>
 
                         <Route path="*" element={<Navigate to="/" replace />} />
