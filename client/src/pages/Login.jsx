@@ -193,15 +193,7 @@ export function Login() {
 
           </form>
 
-          <p className="text-center">
-            <button
-              type="button"
-              onClick={() => toast('Password reset coming soon.', { icon: '🔑' })}
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Forgot your password?
-            </button>
-          </p>
+          
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
