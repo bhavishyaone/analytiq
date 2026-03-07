@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Download, Calendar, BarChart2, Layers } from 'lucide-react'
 import api from '../services/api.js'
@@ -110,19 +111,7 @@ export function Events() {
   const handleSearch = (v) => { setSearch(v); setPage(1) }
   const handleDays   = (v)  => { setDays(v);  setPage(1); setDateOpen(false) }
 
-  if (!projectId) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-12">
-        <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <BarChart2 className="w-6 h-6 text-gray-400" />
-        </div>
-        <p className="text-gray-900 font-semibold text-lg">No project selected</p>
-        <p className="text-gray-500 text-sm mt-1">
-          Create or select a project in Settings to start seeing events.
-        </p>
-      </div>
-    )
-  }
+  if (!projectId) return <Navigate to="/projects" replace />
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
