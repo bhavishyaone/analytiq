@@ -12,31 +12,31 @@ export function Settings() {
   const queryClient = useQueryClient()
   const { activeProject, setActiveProject } = useProject()
 
-  // Form state — create new project
+
   const [projectName, setProjectName]   = useState('')
   const [nameError, setNameError]       = useState('')
 
-  // API key UI state
+
   const [showKey, setShowKey]           = useState(false)
   const [copied, setCopied]             = useState(false)
   const [rotateConfirm, setRotateConfirm] = useState(false)
 
-  // ── Fetch all projects owned by the user ─────────────────────────────
-  // GET /api/projects — returns array of project objects
+
+
   const { data: projectsRes, isLoading: projectsLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => api.get('/projects').then(r => r.data),
   })
-  const projects = projectsRes?.data ?? []
+  const projects = projectsRes?.projects ?? []
 
-  // ── Create project ────────────────────────────────────────────────────
-  // POST /api/projects { name } → returns new project with apiKey
+
+
   const createMutation = useMutation({
     mutationFn: (name) => api.post('/projects', { name }).then(r => r.data),
     onSuccess: (res) => {
-      const newProject = res.data
+      const newProject = res.project
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      setActiveProject(newProject)    // auto-select the new project
+      setActiveProject(newProject)    
       setProjectName('')
       setNameError('')
       toast.success(`Project "${newProject.name}" created!`)
@@ -46,13 +46,13 @@ export function Settings() {
     },
   })
 
-  // ── Rotate API key ────────────────────────────────────────────────────
-  // PATCH /api/projects/:id/rotate-key → returns { newApiKey }
+
+
   const rotateMutation = useMutation({
     mutationFn: (id) => api.patch(`/projects/${id}/rotate-key`).then(r => r.data),
     onSuccess: (res) => {
-      // Update the active project with the new key
-      const updatedProject = { ...activeProject, apiKey: res.data.newApiKey }
+
+      const updatedProject = { ...activeProject, apiKey: res.apiKey }
       setActiveProject(updatedProject)
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setRotateConfirm(false)
@@ -64,22 +64,22 @@ export function Settings() {
     },
   })
 
-  // ── Validate + submit create form ─────────────────────────────────────
+
   const handleCreate = (e) => {
     e.preventDefault()
     if (!projectName.trim()) {
       setNameError('Project name is required')
       return
     }
-    if (projectName.trim().length < 3) {
-      setNameError('Name must be at least 3 characters')
+    if (projectName.trim().length < 5) {
+      setNameError('Name must be at least 5 characters')
       return
     }
     setNameError('')
     createMutation.mutate(projectName.trim())
   }
 
-  // ── Copy API key to clipboard ─────────────────────────────────────────
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(activeProject.apiKey)
@@ -91,7 +91,7 @@ export function Settings() {
     }
   }
 
-  // ── Masked key display ────────────────────────────────────────────────
+
   const maskedKey = activeProject?.apiKey
     ? `${activeProject.apiKey.slice(0, 8)}${'•'.repeat(24)}`
     : ''
@@ -99,7 +99,7 @@ export function Settings() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
 
-      {/* ── PAGE HEADER ── */}
+
       <div className="flex items-center gap-3 px-8 py-5 bg-white border-b border-gray-100 shrink-0">
         <SettingsIcon className="w-5 h-5 text-gray-400" />
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
@@ -107,7 +107,7 @@ export function Settings() {
 
       <div className="flex-1 overflow-y-auto p-8 space-y-8 max-w-2xl">
 
-        {/* ── CREATE NEW PROJECT ── */}
+
         <section className="bg-white rounded-xl border border-gray-100 p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-1">Create a new project</h2>
           <p className="text-sm text-gray-500 mb-5">
@@ -142,7 +142,7 @@ export function Settings() {
           </form>
         </section>
 
-        {/* ── EXISTING PROJECTS ── */}
+
         {projects.length > 0 && (
           <section className="bg-white rounded-xl border border-gray-100 p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Your Projects</h2>
@@ -186,7 +186,7 @@ export function Settings() {
               </p>
             </div>
 
-            {/* Key display + copy + show/hide */}
+
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                 {activeProject.name}
@@ -212,7 +212,7 @@ export function Settings() {
               </div>
             </div>
 
-            {/* SDK snippet */}
+
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">
                 SDK Usage
@@ -226,7 +226,7 @@ track('button_clicked', { page: 'dashboard' })`}
               </pre>
             </div>
 
-            {/* Rotate key */}
+
             <div className="pt-2 border-t border-gray-50">
               <h3 className="text-sm font-semibold text-gray-900 mb-1">Rotate API Key</h3>
               <p className="text-xs text-gray-500 mb-3">

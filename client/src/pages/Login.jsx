@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
@@ -33,8 +33,12 @@ export function Login() {
   const [loading, setLoading]   = useState(false)
   const [errors, setErrors]     = useState({ email: '', password: '' })
 
-  const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
+
+
+
+
+  if (isAuthenticated) return <Navigate to="/app" replace />
 
   const validate = () => {
     const newErrors = { email: '', password: '' }
@@ -72,7 +76,7 @@ export function Login() {
     try {
       await login(email, password)
       toast.success('Welcome back!')
-      navigate('/app')
+
     } 
     catch (err) {
       toast.error(err.response?.data?.message || 'Login failed. Try again.')
