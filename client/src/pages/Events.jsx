@@ -94,7 +94,7 @@ export function Events() {
     enabled: !!projectId,
   })
 
-  const allEvents   = topEventsData ?? []
+  const allEvents   = Array.isArray(topEventsData) ? topEventsData : []
   const filtered    = search.trim()
     ? allEvents.filter(e => e.eventName.toLowerCase().includes(search.trim().toLowerCase()))
     : allEvents
