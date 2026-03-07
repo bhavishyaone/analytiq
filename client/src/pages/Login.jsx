@@ -2,7 +2,7 @@ import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Clock, Filter, Users } from 'lucide-react'
+import { Clock, Filter, Users, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,7 +33,7 @@ export function Login() {
   const [loading, setLoading]   = useState(false)
   const [errors, setErrors]     = useState({ email: '', password: '' })
   const [loginError, setLoginError] = useState('')
-
+  const [showPassword, setShowPassword] = useState(false)
   const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
 
@@ -177,15 +177,27 @@ export function Login() {
               >
                 Password
               </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                placeholder="Enter Your Password"
-                autoComplete="current-password"
-                className={`h-11 text-sm ${errors.password ? 'border-red-400' : ''}`}
-                onChange={e => { setPassword(e.target.value); setLoginError('') }}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  placeholder="Enter Your Password"
+                  autoComplete="current-password"
+                  className={`h-11 text-sm pr-10 ${errors.password ? 'border-red-400' : ''}`}
+                  onChange={e => { setPassword(e.target.value); setLoginError('') }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword
+                    ? <EyeOff className="w-4 h-4" />
+                    : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-xs text-red-500">{errors.password}</p>
               )}
