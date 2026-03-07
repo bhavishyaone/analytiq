@@ -63,9 +63,9 @@ export function AppLayout() {
             onClick={() => navigate('/projects')}
             className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
           >
-            <div className="w-5 h-5 rounded-full bg-gray-800 shrink-0" />
+
             <span className="text-sm text-gray-700 font-medium truncate flex-1 text-left">
-              {activeProject?.name || 'Select project'}
+              Project - {activeProject?.name }
             </span>
             <ChevronUp className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           </button>
