@@ -13,11 +13,13 @@ export function AccountSettings() {
 
   const [name,  setName]  = useState(user?.name  ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
+  const [profileError, setProfileError] = useState('')
 
 
   const [currentPw,  setCurrentPw]  = useState('')
   const [newPw,      setNewPw]      = useState('')
   const [confirmPw,  setConfirmPw]  = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
 
   const [copied, setCopied] = useState(false)
@@ -48,8 +50,9 @@ export function AccountSettings() {
     onSuccess: (res) => {
       updateUser({ name: res.user.name, email: res.user.email })
       toast.success('Profile updated!')
+      setProfileError('')
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update profile'),
+    onError: (err) => setProfileError(err.response?.data?.message || 'Failed to update profile'),
   })
 
 
@@ -63,23 +66,30 @@ export function AccountSettings() {
     onSuccess: () => {
       toast.success('Password updated!')
       setCurrentPw(''); setNewPw(''); setConfirmPw('')
+      setPasswordError('')
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update password'),
+    onError: (err) => {
+      const msg = err.response?.data?.message || 'Failed to update password'
+      setPasswordError(msg)
+    },
   })
 
   const handleProfileSave = (e) => {
     e.preventDefault()
-    if (!name.trim())  { toast.error('Name is required');  return }
-    if (!email.trim()) { toast.error('Email is required'); return }
+    setProfileError('')
+    if (!name.trim())  { setProfileError('Name is required');  return }
+    if (!email.trim()) { setProfileError('Email is required'); return }
+    if (!/\S+@\S+\.\S+/.test(email)) { setProfileError('Invalid email address'); return }
     profileMutation.mutate()
   }
 
   const handlePasswordSave = (e) => {
     e.preventDefault()
-    if (!currentPw) { toast.error('Enter your current password'); return }
-    if (!newPw)     { toast.error('Enter a new password');        return }
-    if (newPw !== confirmPw) { toast.error('Passwords do not match'); return }
-    if (newPw.length < 8)   { toast.error('Password must be at least 8 characters'); return }
+    setPasswordError('')
+    if (!currentPw) { setPasswordError('Enter your current password'); return }
+    if (!newPw)     { setPasswordError('Enter a new password');        return }
+    if (newPw !== confirmPw) { setPasswordError('Passwords do not match'); return }
+    if (newPw.length < 8)   { setPasswordError('Password must be at least 8 characters'); return }
     passwordMutation.mutate()
   }
 
@@ -124,7 +134,7 @@ export function AccountSettings() {
         <section className="mb-10">
           <h2 className="text-lg font-bold text-gray-900 mb-3">Profile</h2>
           <div className="border-t border-gray-200 pt-5">
-            <form onSubmit={handleProfileSave} className="space-y-4 max-w-sm">
+            <form onSubmit={handleProfileSave} noValidate className="space-y-4 max-w-sm">
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5">Full name</label>
@@ -154,6 +164,10 @@ export function AccountSettings() {
                 {profileMutation.isPending ? 'Saving…' : 'Save changes'}
               </button>
 
+              {profileError && (
+                <p className="text-sm text-red-500 mt-1">{profileError}</p>
+              )}
+
             </form>
           </div>
         </section>
@@ -164,7 +178,7 @@ export function AccountSettings() {
         <section className="mb-10">
           <h2 className="text-lg font-bold text-gray-900 mb-3">Change Password</h2>
           <div className="border-t border-gray-200 pt-5">
-            <form onSubmit={handlePasswordSave} className="space-y-4 max-w-sm">
+            <form onSubmit={handlePasswordSave} noValidate className="space-y-4 max-w-sm">
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5">Current password</label>
@@ -205,35 +219,11 @@ export function AccountSettings() {
                 {passwordMutation.isPending ? 'Updating…' : 'Update password'}
               </button>
 
+              {passwordError && (
+                <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+              )}
+
             </form>
-          </div>
-        </section>
-
-        <div className="border-t border-gray-100 mb-10" />
-
-
-        <section>
-          <h2 className="text-lg font-bold text-gray-900 mb-3">API &amp; Developer</h2>
-          <div className="border-t border-gray-200 pt-5">
-
-            <div className="max-w-sm">
-              <label className="block text-sm text-gray-600 mb-1.5">Your user ID</label>
-              <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                <div className="flex-1 h-10 px-3 flex items-center font-mono text-sm text-gray-700 bg-gray-50">
-                  {shortId}
-                </div>
-                <button
-                  onClick={handleCopyId}
-                  className="h-10 w-10 flex items-center justify-center border-l border-gray-200 bg-white hover:bg-gray-50 text-gray-500 transition-colors"
-                >
-                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <p className="mt-2 text-xs text-gray-400">
-                Use this ID when reporting bugs or contacting support.
-              </p>
-            </div>
-
           </div>
         </section>
 
