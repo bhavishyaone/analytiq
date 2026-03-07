@@ -52,7 +52,6 @@ export function Projects() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setActiveProject(res.project)
-      toast.success(`Project "${res.project.name}" created!`)
       navigate('/app')
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to create project'),

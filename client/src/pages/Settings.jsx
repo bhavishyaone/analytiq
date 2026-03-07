@@ -51,7 +51,6 @@ export function Settings() {
       setActiveProject(res.project)
       setNewProjectName('')
       setNewProjectError('')
-      toast.success(`Project "${res.project.name}" created!`)
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to create project'),
   })
@@ -63,7 +62,6 @@ export function Settings() {
       const updated = res.project ?? { ...activeProject, name: editedName }
       setActiveProject(updated)
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success('Project name updated!')
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to update project'),
   })
@@ -76,7 +74,6 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setRotateConfirm(false)
       setShowKey(true)
-      toast.success('API key rotated. Old key is now invalid.')
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to rotate API key'),
   })
@@ -88,7 +85,6 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setActiveProject(null)
       setDeleteConfirm(false)
-      toast.success('Project deleted.')
       navigate('/projects')
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to delete project'),
@@ -105,7 +101,6 @@ export function Settings() {
     try {
       await navigator.clipboard.writeText(activeProject.apiKey)
       setCopied(true)
-      toast.success('API key copied!')
       setTimeout(() => setCopied(false), 2000)
     } catch {
       toast.error('Copy failed — please copy manually')
@@ -123,7 +118,7 @@ export function Settings() {
   const handleSaveChanges = () => {
     if (!editedName.trim()) { toast.error('Project name cannot be empty'); return }
     if (editedName.trim().length < 5) { toast.error('Name must be at least 5 characters'); return }
-    if (editedName.trim() === activeProject.name) { toast('No changes to save'); return }
+    if (editedName.trim() === activeProject.name) { return }
     updateMutation.mutate({ id: activeProject._id, name: editedName.trim() })
   }
 

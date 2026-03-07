@@ -77,7 +77,6 @@ export function Login() {
 
     try {
       await login(email, password)
-      toast.success('Welcome back!')
       navigate('/projects')
 
     } 

@@ -70,7 +70,6 @@ export function Register(){
 
     try {
       await register(name, email, password)   
-      toast.success('Account created! Welcome.')
       navigate('/projects')
     }
     catch (err) {

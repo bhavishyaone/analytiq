@@ -37,7 +37,6 @@ export function AccountSettings() {
     try {
       await navigator.clipboard.writeText(userId)
       setCopied(true)
-      toast.success('User ID copied!')
       setTimeout(() => setCopied(false), 2000)
     } catch {
       toast.error('Copy failed')
@@ -49,7 +48,6 @@ export function AccountSettings() {
     mutationFn: () => api.patch('/auth/me', { name: name.trim(), email: email.trim() }).then(r => r.data),
     onSuccess: (res) => {
       updateUser({ name: res.user.name, email: res.user.email })
-      toast.success('Profile updated!')
       setProfileError('')
     },
     onError: (err) => setProfileError(err.response?.data?.message || 'Failed to update profile'),
@@ -64,7 +62,6 @@ export function AccountSettings() {
         confirmPassword: confirmPw,
       }).then(r => r.data),
     onSuccess: () => {
-      toast.success('Password updated!')
       setCurrentPw(''); setNewPw(''); setConfirmPw('')
       setPasswordError('')
     },
