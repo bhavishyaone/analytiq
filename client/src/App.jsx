@@ -9,6 +9,7 @@ import { Login } from './pages/Login.jsx'
 import { Dashboard } from './pages/Dashboard.jsx'
 import { Settings } from './pages/Settings.jsx'
 import { Events } from './pages/Events.jsx'
+import { Funnels } from './pages/Funnels.jsx'
 
 function App() {
     return (
@@ -32,6 +33,7 @@ function App() {
                             <Route index element={<Dashboard />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="events" element={<Events />} />
+                            <Route path="funnels" element={<Funnels />} />
                         </Route>
 
                         <Route path="*" element={<Navigate to="/" replace />} />
