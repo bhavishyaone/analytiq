@@ -1,29 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Copy, Eye, EyeOff, RefreshCw, Plus, Check, Settings as SettingsIcon } from 'lucide-react'
+import { Copy, Eye, EyeOff, RefreshCw, Plus, Check, Key, SlidersHorizontal, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
+
+
+
 
 export function Settings() {
   const queryClient = useQueryClient()
   const { activeProject, setActiveProject } = useProject()
 
 
-  const [projectName, setProjectName]   = useState('')
-  const [nameError, setNameError]       = useState('')
-
-
-  const [showKey, setShowKey]           = useState(false)
-  const [copied, setCopied]             = useState(false)
+  const [showKey, setShowKey]             = useState(false)
+  const [copied, setCopied]               = useState(false)
   const [rotateConfirm, setRotateConfirm] = useState(false)
 
 
+  const [editedName, setEditedName] = useState('')
 
-  const { data: projectsRes, isLoading: projectsLoading } = useQuery({
+
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+
+
+  const [newProjectName, setNewProjectName]   = useState('')
+  const [newProjectError, setNewProjectError] = useState('')
+
+
+  useEffect(() => {
+    if (activeProject?.name) setEditedName(activeProject.name)
+  }, [activeProject?._id])
+
+
+  const { data: projectsRes } = useQuery({
     queryKey: ['projects'],
     queryFn: () => api.get('/projects').then(r => r.data),
   })
@@ -31,54 +41,63 @@ export function Settings() {
 
 
 
+
   const createMutation = useMutation({
     mutationFn: (name) => api.post('/projects', { name }).then(r => r.data),
     onSuccess: (res) => {
-      const newProject = res.project
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      setActiveProject(newProject)    
-      setProjectName('')
-      setNameError('')
-      toast.success(`Project "${newProject.name}" created!`)
+      setActiveProject(res.project)
+      setNewProjectName('')
+      setNewProjectError('')
+      toast.success(`Project "${res.project.name}" created!`)
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to create project')
-    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to create project'),
   })
 
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, name }) => api.patch(`/projects/${id}`, { name }).then(r => r.data),
+    onSuccess: (res) => {
+      const updated = res.project ?? { ...activeProject, name: editedName }
+      setActiveProject(updated)
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      toast.success('Project name updated!')
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update project'),
+  })
 
 
   const rotateMutation = useMutation({
     mutationFn: (id) => api.patch(`/projects/${id}/rotate-key`).then(r => r.data),
     onSuccess: (res) => {
-
-      const updatedProject = { ...activeProject, apiKey: res.apiKey }
-      setActiveProject(updatedProject)
+      setActiveProject({ ...activeProject, apiKey: res.apiKey })
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setRotateConfirm(false)
       setShowKey(true)
       toast.success('API key rotated. Old key is now invalid.')
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Failed to rotate key')
-    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to rotate API key'),
   })
 
 
-  const handleCreate = (e) => {
-    e.preventDefault()
-    if (!projectName.trim()) {
-      setNameError('Project name is required')
-      return
-    }
-    if (projectName.trim().length < 5) {
-      setNameError('Name must be at least 5 characters')
-      return
-    }
-    setNameError('')
-    createMutation.mutate(projectName.trim())
-  }
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/projects/${id}`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      const remaining = projects.filter(p => p._id !== activeProject._id)
+      setActiveProject(remaining[0] ?? null)
+      setDeleteConfirm(false)
+      toast.success('Project deleted.')
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to delete project'),
+  })
 
+
+  const maskedKey = activeProject?.apiKey
+    ? `pk_live_${'•'.repeat(16)}`
+    : ''
+
+  const displayKey = showKey ? activeProject?.apiKey : maskedKey
 
   const handleCopy = async () => {
     try {
@@ -91,177 +110,313 @@ export function Settings() {
     }
   }
 
+  const handleCreate = (e) => {
+    e.preventDefault()
+    if (!newProjectName.trim()) { setNewProjectError('Project name is required'); return }
+    if (newProjectName.trim().length < 3) { setNewProjectError('Name must be at least 3 characters'); return }
+    setNewProjectError('')
+    createMutation.mutate(newProjectName.trim())
+  }
 
-  const maskedKey = activeProject?.apiKey
-    ? `${activeProject.apiKey.slice(0, 8)}${'•'.repeat(24)}`
-    : ''
+  const handleSaveChanges = () => {
+    if (!editedName.trim()) { toast.error('Project name cannot be empty'); return }
+    if (editedName.trim().length < 5) { toast.error('Name must be at least 5 characters'); return }
+    if (editedName.trim() === activeProject.name) { toast('No changes to save'); return }
+    updateMutation.mutate({ id: activeProject._id, name: editedName.trim() })
+  }
+
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
 
 
-      <div className="flex items-center gap-3 px-8 py-5 bg-white border-b border-gray-100 shrink-0">
-        <SettingsIcon className="w-5 h-5 text-gray-400" />
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+      <div className="px-8 py-5 bg-white border-b border-gray-100 shrink-0">
+        <h1 className="text-2xl font-bold text-gray-900">Project Settings</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Manage your project configuration, API keys, and danger zones.
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 space-y-8 max-w-2xl">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-8 py-8 space-y-10">
 
 
-        <section className="bg-white rounded-xl border border-gray-100 p-6">
-          <h2 className="text-base font-semibold text-gray-900 mb-1">Create a new project</h2>
-          <p className="text-sm text-gray-500 mb-5">
-            Each project has its own API key and event stream.
-          </p>
-
-          <form onSubmit={handleCreate} className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="project-name" className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                Project Name
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="project-name"
+          {!activeProject && (
+            <section className="bg-white rounded-xl border border-gray-100 p-6">
+              <h2 className="text-base font-semibold text-gray-900 mb-1">Create your first project</h2>
+              <p className="text-sm text-gray-500 mb-5">
+                Each project has its own API key and isolated event stream.
+              </p>
+              <form onSubmit={handleCreate} className="flex gap-2">
+                <input
                   type="text"
-                  value={projectName}
-                  onChange={e => setProjectName(e.target.value)}
+                  value={newProjectName}
+                  onChange={e => setNewProjectName(e.target.value)}
                   placeholder="e.g. Acme SaaS App"
-                  className={`h-10 text-sm flex-1 ${nameError ? 'border-red-400' : ''}`}
+                  className="flex-1 h-10 px-4 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-                <Button
+                <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shrink-0"
+                  className="flex items-center gap-1.5 h-10 px-4 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {createMutation.isPending ? 'Creating…' : 'Create'}
-                </Button>
-              </div>
-              {nameError && <p className="text-xs text-red-500">{nameError}</p>}
-            </div>
-          </form>
-        </section>
+                </button>
+              </form>
+              {newProjectError && <p className="mt-2 text-xs text-red-500">{newProjectError}</p>}
+            </section>
+          )}
 
 
-        {projects.length > 0 && (
-          <section className="bg-white rounded-xl border border-gray-100 p-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Your Projects</h2>
-            {projectsLoading ? (
-              <p className="text-sm text-gray-400">Loading…</p>
-            ) : (
-              <ul className="space-y-2">
-                {projects.map(project => (
-                  <li
-                    key={project._id}
-                    onClick={() => setActiveProject(project)}
-                    className={`flex items-center justify-between px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                      activeProject?._id === project._id
+          {projects.length > 1 && (
+            <section className="bg-white rounded-xl border border-gray-100 p-6">
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Switch Project</h2>
+              <div className="space-y-2">
+                {projects.map(p => (
+                  <button
+                    key={p._id}
+                    onClick={() => setActiveProject(p)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-left transition-colors ${
+                      activeProject?._id === p._id
                         ? 'border-indigo-300 bg-indigo-50'
                         : 'border-gray-100 hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        activeProject?._id === project._id ? 'bg-indigo-500' : 'bg-gray-300'
-                      }`} />
-                      <span className="text-sm font-medium text-gray-900">{project.name}</span>
+                      <div className={`w-2 h-2 rounded-full ${activeProject?._id === p._id ? 'bg-indigo-500' : 'bg-gray-300'}`} />
+                      <span className="text-sm font-medium text-gray-900">{p.name}</span>
                     </div>
-                    {activeProject?._id === project._id && (
+                    {activeProject?._id === p._id && (
                       <span className="text-xs text-indigo-600 font-semibold">Active</span>
                     )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
-
-        {/* ── API KEY SECTION — only shown when a project is selected ── */}
-        {activeProject && (
-          <section className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-            <div>
-              <h2 className="text-base font-semibold text-gray-900">API Key</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Use this key to send events from your app. Keep it secret.
-              </p>
-            </div>
-
-
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                {activeProject.name}
-              </Label>
-              <div className="flex gap-2">
-                <div className="flex-1 flex items-center bg-gray-50 border border-gray-200 rounded-lg px-4 h-10 font-mono text-sm text-gray-700">
-                  {showKey ? activeProject.apiKey : maskedKey}
-                </div>
-                <button
-                  onClick={() => setShowKey(v => !v)}
-                  title={showKey ? 'Hide key' : 'Show key'}
-                  className="h-10 w-10 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-500 transition-colors"
-                >
-                  {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-                <button
-                  onClick={handleCopy}
-                  title="Copy API key"
-                  className="h-10 w-10 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-500 transition-colors"
-                >
-                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                SDK Usage
-              </Label>
-              <pre className="bg-gray-950 text-green-400 text-xs rounded-lg p-4 overflow-x-auto leading-relaxed">
-{`import { init, track } from '@analytiq/sdk'
-
-init('${showKey ? activeProject.apiKey : maskedKey}')
-
-track('button_clicked', { page: 'dashboard' })`}
-              </pre>
-            </div>
-
-
-            <div className="pt-2 border-t border-gray-50">
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">Rotate API Key</h3>
-              <p className="text-xs text-gray-500 mb-3">
-                Generates a new key instantly. Your old key will stop working immediately.
-              </p>
-              {!rotateConfirm ? (
-                <button
-                  onClick={() => setRotateConfirm(true)}
-                  className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Rotate key
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-red-500 font-medium">Are you sure? Old key stops working.</p>
-                  <Button
-                    size="sm"
-                    onClick={() => rotateMutation.mutate(activeProject._id)}
-                    disabled={rotateMutation.isPending}
-                    className="bg-red-500 hover:bg-red-600 text-white h-8"
-                  >
-                    {rotateMutation.isPending ? 'Rotating…' : 'Yes, rotate'}
-                  </Button>
-                  <button
-                    onClick={() => setRotateConfirm(false)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Cancel
                   </button>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
 
+          {activeProject && (
+            <>
+
+              <section>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <Key className="w-5 h-5 text-indigo-600" />
+                  <h2 className="text-lg font-bold text-indigo-700">API Keys</h2>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-6">
+
+
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Public API Key</p>
+                    <div className="flex items-center gap-0 border border-gray-200 rounded-lg overflow-hidden">
+
+                      <div className="flex-1 flex items-center gap-2 px-4 h-10 bg-gray-50 font-mono text-sm text-gray-700">
+                        <Eye className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        {displayKey}
+                      </div>
+
+                      <button
+                        onClick={() => setShowKey(v => !v)}
+                        className="h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                      >
+                        {showKey ? 'Hide' : 'Reveal'}
+                      </button>
+
+                      <button
+                        onClick={handleCopy}
+                        className="flex items-center gap-1.5 h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        Copy
+                      </button>
+                    </div>
+                    <p className="mt-2 text-xs text-gray-400">
+                      This key is visible client-side. Do not use it for administrative tasks.
+                    </p>
+                  </div>
+
+
+                  <div className="border-t border-gray-100" />
+
+
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Quick Installation</p>
+                    <div className="bg-gray-50 border border-gray-100 rounded-lg overflow-hidden">
+
+
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-[9px] text-gray-500 font-mono">$</span>
+                          </div>
+                          <span className="text-xs text-gray-400 font-medium">bash</span>
+                        </div>
+                        <code className="text-sm text-purple-600 font-mono">
+                          npm install @bhavishyaone/sdk
+                        </code>
+                      </div>
+
+
+                      <div className="px-4 py-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-4 h-4 bg-yellow-100 rounded flex items-center justify-center">
+                            <span className="text-[9px] text-yellow-600 font-mono">JS</span>
+                          </div>
+                          <span className="text-xs text-gray-400 font-medium">javascript</span>
+                        </div>
+                        <div className="font-mono text-sm space-y-1">
+                          <p>
+                            <span className="text-blue-600">analytiq</span>
+                            <span className="text-gray-700">.init(</span>
+                            <span className="text-green-600">'{showKey ? activeProject.apiKey : 'pk_live_your_key_here'}'</span>
+                            <span className="text-gray-700">)</span>
+                          </p>
+                          <p>
+                            <span className="text-blue-600">analytiq</span>
+                            <span className="text-gray-700">.track(</span>
+                            <span className="text-green-600">'page_view'</span>
+                            <span className="text-gray-700">, {'{ path: '}</span>
+                            <span className="text-green-600">'/home'</span>
+                            <span className="text-gray-700"> {'}'}</span>
+                            <span className="text-gray-700">)</span>
+                          </p>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+
+                  <div className="border-t border-gray-100" />
+
+
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">Rotate API Key</p>
+                    <p className="text-xs text-gray-400 mb-3">
+                      Generates a new key immediately. Your old key will stop working right away.
+                    </p>
+                    {!rotateConfirm ? (
+                      <button
+                        onClick={() => setRotateConfirm(true)}
+                        className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" /> Rotate key
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm text-red-500 font-medium">Are you sure? Old key stops working.</p>
+                        <button
+                          onClick={() => rotateMutation.mutate(activeProject._id)}
+                          disabled={rotateMutation.isPending}
+                          className="h-8 px-4 text-xs font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50"
+                        >
+                          {rotateMutation.isPending ? 'Rotating…' : 'Yes, rotate'}
+                        </button>
+                        <button
+                          onClick={() => setRotateConfirm(false)}
+                          className="text-sm text-gray-500 hover:text-gray-700"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </section>
+
+
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <SlidersHorizontal className="w-5 h-5 text-indigo-600" />
+                  <h2 className="text-lg font-bold text-indigo-700">General</h2>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Project Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={e => setEditedName(e.target.value)}
+                      className="w-full h-10 px-4 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+
+
+
+
+                  <button
+                    onClick={handleSaveChanges}
+                    disabled={updateMutation.isPending}
+                    className="h-10 px-6 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  >
+                    {updateMutation.isPending ? 'Saving…' : 'Save Changes'}
+                  </button>
+
+                </div>
+              </section>
+
+
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  <h2 className="text-lg font-bold text-red-500">Danger Zone</h2>
+                </div>
+
+                <div className="bg-red-50 rounded-xl border border-red-100 p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-red-700">Delete this project</p>
+                      <p className="text-xs text-red-500 mt-1 max-w-sm">
+                        Deleting this project will permanently remove all events, funnels, and retention data
+                        associated with it. This action cannot be undone.
+                      </p>
+                    </div>
+
+                    {!deleteConfirm ? (
+                      <button
+                        onClick={() => setDeleteConfirm(true)}
+                        className="shrink-0 h-9 px-4 text-sm font-semibold text-red-600 border border-red-300 rounded-lg bg-white hover:bg-red-50 transition-colors"
+                      >
+                        Delete Project
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => deleteMutation.mutate(activeProject._id)}
+                          disabled={deleteMutation.isPending}
+                          className="h-9 px-4 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {deleteMutation.isPending ? 'Deleting…' : 'Confirm Delete'}
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(false)}
+                          className="text-sm text-gray-500 hover:text-gray-700"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </section>
+
+
+
+
+            </>
+          )}
+
+        </div>
       </div>
     </div>
   )
