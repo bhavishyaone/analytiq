@@ -71,7 +71,7 @@ export function Register(){
     try {
       await register(name, email, password)   
       toast.success('Account created! Welcome.')
-      navigate('/app')
+      navigate('/projects')
     }
     catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed. Try again.')
@@ -156,7 +156,7 @@ export function Register(){
           </div>
 
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
 
             <div className="space-y-1">
