@@ -11,6 +11,8 @@ import { Settings } from './pages/Settings.jsx'
 import { Events } from './pages/Events.jsx'
 import { Funnels } from './pages/Funnels.jsx'
 import { Retention } from './pages/Retention.jsx'
+import { Projects } from './pages/Projects.jsx'
+import { AccountSettings } from './pages/AccountSettings.jsx'
 
 function App() {
     return (
@@ -37,6 +39,25 @@ function App() {
                             <Route path="funnels" element={<Funnels />} />
                             <Route path="retention" element={<Retention />} />
                         </Route>
+
+
+                        <Route
+                            path="/projects"
+                            element={
+                                <ProtectedRoute>
+                                    <Projects />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/account-settings"
+                            element={
+                                <ProtectedRoute>
+                                    <AccountSettings />
+                                </ProtectedRoute>
+                            }
+                        />
 
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
