@@ -191,7 +191,7 @@ export function Projects() {
                     type="text"
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
-                    placeholder="e.g. Landing Page"
+                    placeholder="Enter Your Project Name."
                     className="h-9 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {nameError && <p className="text-xs text-red-500">{nameError}</p>}
