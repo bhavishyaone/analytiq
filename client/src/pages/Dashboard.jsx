@@ -86,14 +86,32 @@ export function Dashboard() {
     enabled: !!projectId,
   })
 
+  const { data: retentionRes } = useQuery({
+    queryKey: ['retention-mini', projectId],
+    queryFn: () => api.get(`/analytics/${projectId}/retention?days=90`).then(r => r.data),
+    enabled: !!projectId,
+  })
+
 
   const totalEvents = overviewRes?.data?.totalEvents ?? 0
   const uniqueUsers = overviewRes?.data?.uniqueUsers ?? 0
   const dau         = activeUsersRes?.data?.dau       ?? 0
   const wau         = activeUsersRes?.data?.wau       ?? 0
   const mau         = activeUsersRes?.data?.mau       ?? 0
-  const chartData   = timelineRes?.data               ?? [] 
-  const topEvents   = topEventsRes?.data              ?? []  
+  const chartData   = timelineRes?.data               ?? []
+  const topEvents   = topEventsRes?.data              ?? []
+
+  const retentionCohorts = retentionRes?.data ?? []
+  const latestCohort     = retentionCohorts[retentionCohorts.length - 1]
+  const retentionCurve   = latestCohort
+    ? [
+        { label: 'D0',  pct: 100 },
+        { label: 'D1',  pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day1  / latestCohort.totalUsers) * 100) : 0 },
+        { label: 'D7',  pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day7  / latestCohort.totalUsers) * 100) : 0 },
+        { label: 'D14', pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day14 / latestCohort.totalUsers) * 100) : 0 },
+        { label: 'D30', pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day30 / latestCohort.totalUsers) * 100) : 0 },
+      ]
+    : []
 
 
   if (!projectId) {
@@ -151,10 +169,10 @@ export function Dashboard() {
 
 
         <div className="grid grid-cols-4 gap-4">
-          <MetricCard label="Total Events"  value={totalEvents} loading={overviewLoading} trend={12.4} trendUp />
-          <MetricCard label="Unique Users"  value={uniqueUsers} loading={overviewLoading} trend={8.1}  trendUp />
-          <MetricCard label="DAU"           value={dau}         loading={false}           trend={2.3}  trendUp={false} />
-          <MetricCard label="MAU"           value={mau}         loading={false}           trend={5.7}  trendUp />
+          <MetricCard label="Total Events"  value={totalEvents} loading={overviewLoading} />
+          <MetricCard label="Unique Users"  value={uniqueUsers} loading={overviewLoading} />
+          <MetricCard label="DAU"           value={dau}         loading={false} />
+          <MetricCard label="MAU"           value={mau}         loading={false} />
         </div>
 
 
@@ -291,15 +309,21 @@ export function Dashboard() {
             </div>
 
             <div className="h-36 flex items-end gap-2 mt-2">
-              {[100, 72, 58, 48, 40, 35, 30, 27].map((v, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full bg-indigo-500 rounded-t transition-all"
-                    style={{ height: `${(v / 100) * 130}px` }}
-                  />
-                  <span className="text-[10px] text-gray-400">D{i}</span>
+              {retentionCurve.length === 0 ? (
+                <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
+                  Not enough data yet
                 </div>
-              ))}
+              ) : (
+                retentionCurve.map(({ label, pct }) => (
+                  <div key={label} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      className="w-full bg-indigo-500 rounded-t transition-all"
+                      style={{ height: `${(pct / 100) * 130}px` }}
+                    />
+                    <span className="text-[10px] text-gray-400">{label}</span>
+                  </div>
+                ))
+              )}
             </div>
             <p className="text-xs text-gray-400 mt-3 text-center">
               Based on most recent cohort data
