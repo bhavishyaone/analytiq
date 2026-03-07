@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -114,25 +114,7 @@ export function Dashboard() {
     : []
 
 
-  if (!projectId) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-12">
-        <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4">
-          <BarChart className="w-6 h-6 text-indigo-500" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900">No project selected</h2>
-        <p className="text-gray-500 text-sm mt-2 mb-6">
-          Create a project in Settings to start tracking events.
-        </p>
-        <Link
-          to="/app/settings"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          Go to Settings →
-        </Link>
-      </div>
-    )
-  }
+  if (!projectId) return <Navigate to="/projects" replace />
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -184,14 +166,6 @@ export function Dashboard() {
               <div>
                 <h3 className="text-base font-semibold text-gray-900">Events over time</h3>
                 <p className="text-xs text-gray-400 mt-0.5">Last {days} days</p>
-              </div>
-              <div className="flex items-center gap-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-indigo-500 inline-block" /> Current
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-gray-200 inline-block" /> Previous
-                </span>
               </div>
             </div>
 
