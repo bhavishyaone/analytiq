@@ -160,7 +160,6 @@ export function Login() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
                 placeholder="Enter Your Email Address"
                 autoComplete="email"
                 className={`h-11 text-sm ${errors.email ? 'border-red-400' : ''}`}
@@ -182,7 +181,6 @@ export function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
                 placeholder="Enter Your Password"
                 autoComplete="current-password"
                 className={`h-11 text-sm ${errors.password ? 'border-red-400' : ''}`}
