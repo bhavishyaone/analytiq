@@ -210,6 +210,29 @@ export function Login() {
               {loading ? 'Signing in…' : 'Sign in →'}
             </Button>
 
+            <button
+              type="button"
+              disabled={loading}
+              onClick={async () => {
+                setEmail('demo@gmail.com')
+                setPassword('demo123')
+                setLoginError('')
+                setErrors({ email: '', password: '' })
+                setLoading(true)
+                try {
+                  await login('demo@gmail.com', 'demo123')
+                  navigate('/projects')
+                } catch {
+                  setLoginError('Demo login failed. Run npm run seed first.')
+                } finally {
+                  setLoading(false)
+                }
+              }}
+              className="w-full h-11 border border-indigo-200 text-indigo-600 text-sm font-semibold rounded-md hover:bg-indigo-50 transition-colors disabled:opacity-50"
+            >
+              Try Demo →
+            </button>
+
             {loginError && (
               <p className="text-sm text-red-500 text-center">{loginError}</p>
             )}
