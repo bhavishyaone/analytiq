@@ -1,23 +1,21 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
-import { Plus, TrendingDown, Download, GitBranch } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Plus, TrendingDown, Download, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
 
-const DATE_RANGES = [
-  { label: 'Last 7 days',  value: 7  },
-  { label: 'Last 30 days', value: 30 },
-  { label: 'Last 90 days', value: 90 },
-]
-
 export function Funnels() {
-  const { activeProject } = useProject()
+  const { activeProject, selectedDays: days } = useProject()
   const projectId = activeProject?._id
+  const queryClient = useQueryClient()
 
-  const [steps, setSteps] = useState(['', ''])
-  const [days, setDays]   = useState(30)
-  const [error, setError] = useState('')
+
+  const [steps, setSteps]           = useState(['', ''])
+  const [funnelName, setFunnelName]  = useState('')
+  const [error, setError]            = useState('')
+  const [selectedFunnelId, setSelectedFunnelId] = useState(null)
 
   const updateStep = (index, value) =>
     setSteps(prev => prev.map((s, i) => (i === index ? value : s)))
@@ -31,6 +29,57 @@ export function Funnels() {
   }
 
 
+  const loadFunnel = (funnel) => {
+    setSteps(funnel.steps)
+    setFunnelName(funnel.name)
+    setDays(funnel.timeWindowDays)
+    setSelectedFunnelId(funnel._id)
+    reset()
+    setError('')
+  }
+
+  const clearBuilder = () => {
+    setSteps(['', ''])
+    setFunnelName('')
+    setSelectedFunnelId(null)
+    reset()
+    setError('')
+  }
+
+
+  const { data: savedFunnelsData } = useQuery({
+    queryKey: ['funnels', projectId],
+    queryFn: () => api.get(`/funnel?projectId=${projectId}`).then(r => r.data.funnels),
+    enabled: !!projectId,
+  })
+  const savedFunnels = savedFunnelsData ?? []
+
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      api.post('/funnel', {
+        projectId,
+        name: funnelName.trim(),
+        steps: steps.map(s => s.trim()),
+        timeWindowDays: days,
+      }).then(r => r.data),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['funnels', projectId] })
+      setSelectedFunnelId(res.funnel._id)
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to save funnel'),
+  })
+
+
+  const deleteMutation = useMutation({
+    mutationFn: (funnelId) =>
+      api.delete(`/funnel/${funnelId}?projectId=${projectId}`).then(r => r.data),
+    onSuccess: (_, funnelId) => {
+      queryClient.invalidateQueries({ queryKey: ['funnels', projectId] })
+      if (selectedFunnelId === funnelId) clearBuilder()
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to delete funnel'),
+  })
 
 
   const {
@@ -41,7 +90,7 @@ export function Funnels() {
     reset,
   } = useMutation({
     mutationFn: () =>
-      api.post(`/funnel/${projectId}?days=${days}`, {
+      api.post(`/funnel/${projectId}/run?days=${days}`, {
         steps: steps.map(s => s.trim()),
       }).then(r => r.data.data),
   })
@@ -56,7 +105,12 @@ export function Funnels() {
     runFunnel()
   }
 
-  const handleDaysChange = (v) => { setDays(v); reset() }
+  const handleSave = () => {
+    if (!funnelName.trim()) { setError('Give this funnel a name before saving.'); return }
+    if (steps.map(s => s.trim()).some(s => s === '')) { setError('All steps must have an event name.'); return }
+    setError('')
+    saveMutation.mutate()
+  }
 
 
   const results    = funnelResult ?? []
@@ -82,25 +136,7 @@ export function Funnels() {
           <h1 className="text-2xl font-bold text-gray-900">Funnels</h1>
           <span className="text-sm text-gray-400 font-medium">Analysis Board</span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-            {DATE_RANGES.map(r => (
-              <button
-                key={r.value}
-                onClick={() => handleDaysChange(r.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  days === r.value
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
-
 
       <div className="flex flex-1 overflow-hidden">
 
@@ -108,14 +144,61 @@ export function Funnels() {
         <div className="w-80 shrink-0 border-r border-gray-100 bg-white flex flex-col">
 
 
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="border-b border-gray-100">
+            <div className="flex items-center justify-between px-5 py-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                Saved Funnels
+              </span>
+              <button
+                onClick={clearBuilder}
+                className="flex items-center gap-1 text-xs text-indigo-600 font-medium hover:text-indigo-700"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New
+              </button>
+            </div>
+
+            {savedFunnels.length === 0 ? (
+              <p className="px-5 pb-4 text-xs text-gray-400 italic">
+                No saved funnels yet. Build one below.
+              </p>
+            ) : (
+              <ul className="max-h-44 overflow-y-auto pb-2">
+                {savedFunnels.map(f => (
+                  <li key={f._id} className="flex items-center gap-2 px-3">
+                    <button
+                      onClick={() => loadFunnel(f)}
+                      className={`flex-1 text-left px-3 py-2 text-sm rounded-lg transition-colors ${
+                        selectedFunnelId === f._id
+                          ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="font-medium truncate">{f.name}</div>
+                      <div className="text-xs text-gray-400">{f.steps.length} steps · {f.timeWindowDays}d</div>
+                    </button>
+                    <button
+                      onClick={() => deleteMutation.mutate(f._id)}
+                      className="p-1.5 text-gray-300 hover:text-rose-500 transition-colors shrink-0"
+                      title="Delete funnel"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+
+          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
             <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
-              Funnel Builder
+              {selectedFunnelId ? 'Editing Funnel' : 'Funnel Builder'}
             </span>
             <button
-              onClick={() => { setSteps(['', '']); reset() }}
+              onClick={clearBuilder}
               className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
-              title="Reset"
+              title="Reset builder"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -124,56 +207,73 @@ export function Funnels() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Steps</p>
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
 
 
-            <div className="space-y-2">
-              {steps.map((step, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
-                    {index + 1}
-                  </div>
-                  <input
-                    type="text"
-                    value={step}
-                    onChange={e => updateStep(index, e.target.value)}
-                    placeholder="Event name..."
-                    className="flex-1 h-9 px-3 text-sm font-mono bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                  <button
-                    onClick={() => removeStep(index)}
-                    disabled={steps.length <= 2}
-                    className="text-gray-300 hover:text-gray-500 text-lg leading-none disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Name</p>
+              <input
+                type="text"
+                value={funnelName}
+                onChange={e => setFunnelName(e.target.value)}
+                placeholder="e.g. Checkout Flow"
+                className="w-full h-9 px-3 text-sm bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
 
 
-            <button
-              onClick={addStep}
-              disabled={steps.length >= 20}
-              className="flex items-center gap-1.5 text-sm text-indigo-600 font-medium hover:text-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus className="w-4 h-4" />
-              Add Step
-            </button>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Steps</p>
+              <div className="space-y-2">
+                {steps.map((step, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      {index + 1}
+                    </div>
+                    <input
+                      type="text"
+                      value={step}
+                      onChange={e => updateStep(index, e.target.value)}
+                      placeholder="Event name..."
+                      className="flex-1 h-9 px-3 text-sm font-mono bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <button
+                      onClick={() => removeStep(index)}
+                      disabled={steps.length <= 2}
+                      className="text-gray-300 hover:text-gray-500 text-lg leading-none disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
 
-
-            
+              <button
+                onClick={addStep}
+                disabled={steps.length >= 20}
+                className="mt-3 flex items-center gap-1.5 text-sm text-indigo-600 font-medium hover:text-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4" />
+                Add Step
+              </button>
+            </div>
 
             {error && <p className="text-xs text-rose-500">{error}</p>}
           </div>
 
 
-          <div className="p-5 border-t border-gray-100 shrink-0">
+          <div className="p-4 border-t border-gray-100 shrink-0 space-y-2">
+            <button
+              onClick={handleSave}
+              disabled={saveMutation.isPending}
+              className="w-full py-2.5 text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 transition-colors disabled:opacity-50"
+            >
+              {saveMutation.isPending ? 'Saving...' : 'Save Funnel'}
+            </button>
             <button
               onClick={handleRun}
               disabled={isPending}
-              className="w-full py-3 text-sm font-bold uppercase tracking-widest text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
+              className="w-full py-2.5 text-sm font-bold uppercase tracking-widest text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
             >
               {isPending ? 'Calculating...' : 'Calculate Funnel'}
             </button>
@@ -182,7 +282,6 @@ export function Funnels() {
 
 
         <div className="flex-1 overflow-y-auto p-8">
-
 
           {enriched.length === 0 && !isPending && !isError && (
             <div className="flex flex-col items-center justify-center h-full text-center">
@@ -196,7 +295,6 @@ export function Funnels() {
             </div>
           )}
 
-
           {isError && (
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
               <p className="text-sm text-rose-600 font-medium">
@@ -205,26 +303,17 @@ export function Funnels() {
             </div>
           )}
 
-
           {enriched.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 p-8">
 
-
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-lg font-bold text-gray-900">Funnel Results</h2>
-                <div className="flex items-center gap-2">
-                  <button className="p-2 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg transition-colors" title="Download">
-                    <Download className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg transition-colors" title="Share">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                  </button>
-                </div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {funnelName || 'Funnel Results'}
+                </h2>
+                <button className="p-2 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg transition-colors" title="Download">
+                  <Download className="w-4 h-4" />
+                </button>
               </div>
-
 
               <div className="space-y-8">
                 {enriched.map((item, index) => (
@@ -258,7 +347,6 @@ export function Funnels() {
                   </div>
                 ))}
               </div>
-
 
               {enriched.length >= 2 && (
                 <div className="mt-10 pt-6 border-t border-gray-100">
