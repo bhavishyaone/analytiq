@@ -5,7 +5,7 @@ const options = {
     openapi: '3.0.0',
 
     info: {
-      title: '@bhavishyaone/sdk',
+      title: 'analytiq-sdk',
       version: '1.0.0',
       description:
         'Analytics platform API — track events, analyze funnels, measure retention.',
