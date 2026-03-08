@@ -1,52 +1,126 @@
-import { getFunnelServices } from "../services/funnel.service.js";
-import Project from '../models/Project.js'
-import mongoose from "mongoose";
+import {
+  getFunnelServices,
+  createFunnelService,
+  listFunnelsService,
+  deleteFunnelService,
+} from '../services/funnel.service.js';
+import Project from '../models/Project.js';
+import mongoose from 'mongoose';
 
 
 const getOwnedProject = async (projectId, userId) => {
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
-    return null;
-  }
+  if (!mongoose.Types.ObjectId.isValid(projectId)) return null;
   return await Project.findOne({ _id: projectId, owner: userId });
 };
 
 
-export const getFunnel = async(req,res)=>{
-    try{
-        const project = await getOwnedProject(req.params.projectId,req.user.id)
-        if(!project){
-            return res.status(400).json({message:"project not found."})
-        }
+export const saveFunnel = async (req, res) => {
+  try {
+    const { projectId, name, steps, timeWindowDays = 30 } = req.body;
 
-        const {steps} = req.body
+    if (!projectId) return res.status(400).json({ message: 'projectId is required.' });
 
-        if(!steps || !Array.isArray(steps)){
-            return res.status(400).json({message:"steps must be in array."})
-        }
+    const project = await getOwnedProject(projectId, req.user.id);
+    if (!project) return res.status(404).json({ message: 'Project not found.' });
 
-        if(steps.length<2){
-            return res.status(400).json({message:"Steps array must contian atleast 2 steps."})
-        }
-        if(steps.length>20){
-            return res.status(400).json({message:"At max 20 step are allowed."})
-        }
+    if (!name || name.trim().length === 0)
+      return res.status(400).json({ message: 'Funnel name is required.' });
 
-        for (const step of steps) {
-            if (typeof step !== 'string' || step.trim().length === 0) {
-                return res.status(400).json({ message: "Each step must be a non-empty string."});
-            }
-        }
+    if (!steps || !Array.isArray(steps) || steps.length < 2)
+      return res.status(400).json({ message: 'At least 2 steps are required.' });
 
-        const days = parseInt(req.query.days) || 30;
-        if (days < 1 || days > 365) {
-            return res.status(400).json({ message: "days must be between 1 and 365."});
-        }
+    if (steps.length > 20)
+      return res.status(400).json({ message: 'At most 20 steps are allowed.' });
 
-        const data = await getFunnelServices(req.params.projectId, steps, days);
-        return res.status(200).json({ message:"funnel data is fetched",data});
+    for (const step of steps) {
+      if (typeof step !== 'string' || step.trim().length === 0)
+        return res.status(400).json({ message: 'Each step must be a non-empty string.' });
     }
-    catch(err){
-        console.log(err)
-        return res.status(500).json({message:"server error."})
+
+    const funnel = await createFunnelService({
+      projectId,
+      name: name.trim(),
+      steps: steps.map((s) => s.trim()),
+      timeWindowDays,
+    });
+
+    return res.status(201).json({ message: 'Funnel saved.', funnel });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+
+
+export const listFunnels = async (req, res) => {
+  try {
+    const { projectId } = req.query;
+
+    if (!projectId) return res.status(400).json({ message: 'projectId query param is required.' });
+
+    const project = await getOwnedProject(projectId, req.user.id);
+    if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+    const funnels = await listFunnelsService(projectId);
+    return res.status(200).json({ message: 'Funnels fetched.', funnels });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+
+export const removeFunnel = async (req, res) => {
+  try {
+    const { funnelId } = req.params;
+    const { projectId } = req.query;
+
+    if (!projectId) return res.status(400).json({ message: 'projectId query param is required.' });
+
+    const project = await getOwnedProject(projectId, req.user.id);
+    if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+    const deleted = await deleteFunnelService(funnelId, projectId);
+    if (!deleted) return res.status(404).json({ message: 'Funnel not found.' });
+
+    return res.status(200).json({ message: 'Funnel deleted.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+
+export const getFunnel = async (req, res) => {
+  try {
+    const project = await getOwnedProject(req.params.projectId, req.user.id);
+    if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+    const { steps } = req.body;
+
+    if (!steps || !Array.isArray(steps))
+      return res.status(400).json({ message: 'steps must be an array.' });
+
+    if (steps.length < 2)
+      return res.status(400).json({ message: 'Steps array must contain at least 2 steps.' });
+
+    if (steps.length > 20)
+      return res.status(400).json({ message: 'At most 20 steps are allowed.' });
+
+    for (const step of steps) {
+      if (typeof step !== 'string' || step.trim().length === 0)
+        return res.status(400).json({ message: 'Each step must be a non-empty string.' });
     }
-}
+
+    const days = parseInt(req.query.days) || 30;
+    if (days < 1 || days > 365)
+      return res.status(400).json({ message: 'days must be between 1 and 365.' });
+
+    const data = await getFunnelServices(req.params.projectId, steps, days);
+    return res.status(200).json({ message: 'Funnel data fetched.', data });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+};
