@@ -4,11 +4,7 @@ import { Users, RefreshCw } from 'lucide-react'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
 
-const DATE_RANGES = [
-  { label: 'Last 30 days',  value: 30  },
-  { label: 'Last 60 days',  value: 60  },
-  { label: 'Last 90 days',  value: 90  },
-]
+
 
 
 const RETENTION_PERIODS = [
