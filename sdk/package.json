@@ -1,7 +1,7 @@
 {
-  "name": "@bhavishyaone/sdk",
+  "name": "@analytiq/sdk",
   "version": "1.0.0",
-  "description": "Lightweight analytics SDK for @bhavishyaone/sdk",
+  "description": "Lightweight analytics SDK for @analytiq/sdk",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,12 +16,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm,iife --global-name bhavishyaone --minify",
+    "build": "tsup src/index.js --format cjs,esm,iife --global-name analytiq --minify",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "analytics",
-    "bhavishyaone",
+    "analytiq",
     "tracking",
     "events"
   ],
