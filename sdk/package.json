@@ -1,7 +1,7 @@
 {
-  "name": "@analytiq/sdk",
+  "name": "analytiq-sdk",
   "version": "1.0.0",
-  "description": "Lightweight analytics SDK for @analytiq/sdk",
+  "description": "Lightweight analytics SDK for analytiq-sdk",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
