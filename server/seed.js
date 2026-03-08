@@ -5,13 +5,10 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-
 dotenv.config({ path: path.join(__dirname, '.env') });
-
 
 import User    from './src/models/User.js';
 import Project from './src/models/Project.js';
@@ -22,51 +19,35 @@ import Funnel  from './src/models/Funnel.js';
 const randomBetween = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
-
-const randomDate = (daysAgo) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  date.setHours(
-    randomBetween(0, 23),
-    randomBetween(0, 59),
-    randomBetween(0, 59)
-  );
-  return date;
-};
-
+const randomMinutes = (min, max) =>
+  randomBetween(min, max) * 60 * 1000;
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-
-const EVENT_NAMES = [
-  'page_view',
-  'button_click',
-  'signup_started',
-  'signup_completed',
-  'feature_used',
-  'settings_opened',
-  'checkout_started',
-  'checkout_completed',
-  'error_occurred',
-  'video_played',
-];
+const dateFromNow = (daysAgo, extraMs = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(randomBetween(8, 22), randomBetween(0, 59), 0, 0);
+  return new Date(d.getTime() + extraMs);
+};
 
 
-const USER_IDS = Array.from({ length: 40 }, (_, i) => `user_${i + 1}`);
-
-
-const PAGES    = ['/', '/pricing', '/features', '/docs', '/blog'];
+const PAGES    = ['/', '/pricing', '/features', '/docs', '/blog', '/dashboard'];
 const BROWSERS = ['Chrome', 'Safari', 'Firefox', 'Edge'];
 const OS_LIST  = ['macOS', 'Windows', 'iOS', 'Android'];
-const COUNTRIES = ['US', 'IN', 'GB', 'DE', 'CA', 'AU'];
+const COUNTRIES = ['US', 'IN', 'GB', 'DE', 'CA', 'AU', 'FR', 'JP'];
 
-
+const COMMON_EVENTS = [
+  'page_view', 'button_click', 'feature_used',
+  'settings_opened', 'video_played', 'error_occurred',
+];
 
 
 async function seed() {
   console.log('Connecting to MongoDB...');
   await mongoose.connect(process.env.MONGO_URL);
   console.log('Connected.\n');
+
 
   const existingUser = await User.findOne({ email: 'demo@gmail.com' });
   if (existingUser) {
@@ -77,8 +58,9 @@ async function seed() {
       await Project.deleteOne({ _id: existingProject._id });
     }
     await User.deleteOne({ _id: existingUser._id });
-    console.log('🧹 Old demo data cleared.\n');
+    console.log('Old demo data cleared.\n');
   }
+
 
   const hashedPassword = await bcrypt.hash('demo123', 10);
   const user = await User.create({
@@ -86,110 +68,147 @@ async function seed() {
     email: 'demo@gmail.com',
     password: hashedPassword,
   });
-  console.log('👤 Demo user created:', user.email);
 
-  const apiKey = crypto.randomBytes(24).toString('hex');
+
+  const apiKey  = crypto.randomBytes(24).toString('hex');
   const project = await Project.create({
     name: 'Demo App',
     owner: user._id,
     apiKey,
   });
-  console.log('Demo project created:', project.name);
-  console.log('API Key:', apiKey);
 
-  console.log('Seeding random events over 90 days...');
+  console.log('Demo user and project created.');
+  console.log('API Key:', apiKey, '\n');
+
+  const pid    = project._id;
   const events = [];
 
+  console.log('Seeding cohort-based retention events...');
+
+  const cohorts = [
+    { weekStart: 84, size: 10 },
+    { weekStart: 77, size: 12 },
+    { weekStart: 70, size: 9  },
+    { weekStart: 63, size: 14 },
+    { weekStart: 56, size: 11 },
+    { weekStart: 49, size: 13 },
+    { weekStart: 42, size: 16 },
+    { weekStart: 35, size: 12 },
+    { weekStart: 28, size: 18 },
+    { weekStart: 21, size: 15 },
+    { weekStart: 14, size: 20 },
+    { weekStart:  7, size: 22 },
+  ];
+
+  let userCounter = 1;
+
+  for (const { weekStart, size } of cohorts) {
+    for (let u = 0; u < size; u++) {
+      const userId    = `user_${userCounter++}`;
+      const joinDay   = weekStart - randomBetween(0, 6); 
+      const props     = {
+        page:    pickRandom(PAGES),
+        browser: pickRandom(BROWSERS),
+        os:      pickRandom(OS_LIST),
+        country: pickRandom(COUNTRIES),
+      };
+
+
+      events.push({ projectId: pid, name: 'page_view',         userId, properties: props, timestamp: dateFromNow(joinDay) });
+      events.push({ projectId: pid, name: 'signup_started',    userId, properties: props, timestamp: dateFromNow(joinDay, randomMinutes(5, 20)) });
+      events.push({ projectId: pid, name: 'signup_completed',  userId, properties: props, timestamp: dateFromNow(joinDay, randomMinutes(20, 60)) });
+
+
+      if (Math.random() < 0.72 && joinDay - 1 >= 0) {
+        events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 1) });
+        events.push({ projectId: pid, name: 'feature_used', userId, properties: props, timestamp: dateFromNow(joinDay - 1, randomMinutes(10, 40)) });
+      }
+
+
+      if (Math.random() < 0.60 && joinDay - 3 >= 0) {
+        events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 3) });
+        events.push({ projectId: pid, name: 'button_click', userId, properties: props, timestamp: dateFromNow(joinDay - 3, randomMinutes(5, 30)) });
+      }
+
+
+      if (Math.random() < 0.48 && joinDay - 7 >= 0) {
+        events.push({ projectId: pid, name: 'page_view',     userId, properties: props, timestamp: dateFromNow(joinDay - 7) });
+        events.push({ projectId: pid, name: 'feature_used',  userId, properties: props, timestamp: dateFromNow(joinDay - 7, randomMinutes(10, 50)) });
+        events.push({ projectId: pid, name: 'settings_opened', userId, properties: props, timestamp: dateFromNow(joinDay - 7, randomMinutes(60, 120)) });
+      }
+
+
+      if (Math.random() < 0.30 && joinDay - 14 >= 0) {
+        events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 14) });
+        events.push({ projectId: pid, name: 'feature_used', userId, properties: props, timestamp: dateFromNow(joinDay - 14, randomMinutes(20, 80)) });
+      }
+
+
+      if (Math.random() < 0.20 && joinDay - 30 >= 0) {
+        events.push({ projectId: pid, name: 'page_view',           userId, properties: props, timestamp: dateFromNow(joinDay - 30) });
+        events.push({ projectId: pid, name: 'checkout_started',    userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(15, 45)) });
+        events.push({ projectId: pid, name: 'checkout_completed',  userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(45, 90)) });
+      }
+    }
+  }
+
+
+  console.log('Seeding chart background noise...');
+
   for (let day = 90; day >= 0; day--) {
-    const baseCount = day < 7 ? 60 : day < 30 ? 35 : 15;
-    const count     = randomBetween(baseCount - 10, baseCount + 20);
+    const baseCount = day < 7 ? 50 : day < 30 ? 30 : 12;
+    const count     = randomBetween(baseCount - 8, baseCount + 15);
 
     for (let j = 0; j < count; j++) {
       events.push({
-        projectId:  project._id,
-        name:       pickRandom(EVENT_NAMES),
-        userId:     pickRandom(USER_IDS),
+        projectId:  pid,
+        name:       pickRandom(COMMON_EVENTS),
+        userId:     `anon_${randomBetween(1, 80)}`,
         properties: {
           page:    pickRandom(PAGES),
           browser: pickRandom(BROWSERS),
           os:      pickRandom(OS_LIST),
           country: pickRandom(COUNTRIES),
         },
-        timestamp: randomDate(day),
+        timestamp: dateFromNow(day),
       });
+    }
+  }
+
+
+  console.log('Seeding funnel conversion events...');
+
+  const funnelUsers = Array.from({ length: 25 }, (_, i) => `funnel_user_${i + 1}`);
+
+  for (const userId of funnelUsers) {
+    const base = dateFromNow(randomBetween(5, 35));
+
+    events.push({ projectId: pid, name: 'page_view',          userId, properties: {}, timestamp: new Date(base.getTime()) });
+
+    if (Math.random() < 0.80) {
+      events.push({ projectId: pid, name: 'signup_started',   userId, properties: {}, timestamp: new Date(base.getTime() + 60_000) });
+    }
+    if (Math.random() < 0.60) {
+      events.push({ projectId: pid, name: 'signup_completed', userId, properties: {}, timestamp: new Date(base.getTime() + 180_000) });
+    }
+    if (Math.random() < 0.40) {
+      events.push({ projectId: pid, name: 'checkout_started', userId, properties: {}, timestamp: new Date(base.getTime() + 600_000) });
+    }
+    if (Math.random() < 0.25) {
+      events.push({ projectId: pid, name: 'checkout_completed', userId, properties: {}, timestamp: new Date(base.getTime() + 900_000) });
     }
   }
 
   await Event.insertMany(events);
-  console.log(`Inserted ${events.length} random events.`);
+  console.log(`Inserted ${events.length} total events.\n`);
 
-  console.log('Seeding funnel-ordered events...');
-  const funnelEvents = [];
-  const funnelUsers  = USER_IDS.slice(0, 20);
-
-  for (const userId of funnelUsers) {
-    const base = randomDate(randomBetween(1, 30));
-
-
-    funnelEvents.push({
-      projectId: project._id,
-      name: 'page_view',
-      userId,
-      properties: {},
-      timestamp: new Date(base.getTime()),
-    });
-
-    if (Math.random() < 0.8) {
-      funnelEvents.push({
-        projectId: project._id,
-        name: 'signup_started',
-        userId,
-        properties: {},
-        timestamp: new Date(base.getTime() + 60_000),
-      });
-    }
-
-    if (Math.random() < 0.6) {
-      funnelEvents.push({
-        projectId: project._id,
-        name: 'signup_completed',
-        userId,
-        properties: {},
-        timestamp: new Date(base.getTime() + 180_000),
-      });
-    }
-
-    if (Math.random() < 0.4) {
-      funnelEvents.push({
-        projectId: project._id,
-        name: 'checkout_started',
-        userId,
-        properties: {},
-        timestamp: new Date(base.getTime() + 600_000),
-      });
-    }
-
-    if (Math.random() < 0.25) {
-      funnelEvents.push({
-        projectId: project._id,
-        name: 'checkout_completed',
-        userId,
-        properties: {},
-        timestamp: new Date(base.getTime() + 900_000),
-      });
-    }
-  }
-
-  await Event.insertMany(funnelEvents);
-  console.log(`Inserted ${funnelEvents.length} funnel-ordered events.`);
 
   await Funnel.create({
-    projectId:      project._id,
+    projectId:      pid,
     name:           'Signup to Checkout',
     steps:          ['page_view', 'signup_completed', 'checkout_started', 'checkout_completed'],
     timeWindowDays: 30,
   });
-  console.log('Demo funnel "Signup to Checkout" saved.');
 
   console.log('─────────────────────────────────────────');
   console.log('Seed complete!');
