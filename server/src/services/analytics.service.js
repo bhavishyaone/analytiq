@@ -11,7 +11,7 @@ export const getOverviewServices = async(projectId,days)=>{
     const startDate = new Date()
     startDate.setDate(startDate.getDate()-days)
 
-    const totalEvent = await Event.countDocuments({
+    const totalEvents = await Event.countDocuments({
         projectId:projectId,
         timestamp: { $gte: startDate }
     })
@@ -23,7 +23,7 @@ export const getOverviewServices = async(projectId,days)=>{
     })
 
     return {
-        totalEvent,
+        totalEvents,
         uniqueUsers: uniqueUserId.length,
         periodDays: days
     };
@@ -100,7 +100,7 @@ export const getTopEventsService = async(projectId,days)=>{
     ])
 
     return result.map((e)=>({
-        eventName:   e._id,
+        name:        e._id,
         count:       e.count,
         uniqueUsers: e.uniqueUsers.filter(u => u !== null).length,  
         lastSeen:    e.lastSeen
