@@ -83,44 +83,44 @@ export function Dashboard() {
 
   const { data: overviewRes, isLoading: overviewLoading, isError: overviewError, refetch: refetchOverview } = useQuery({
     queryKey: ['overview', projectId, days],
-    queryFn: () => api.get(`/analytics/${projectId}/overview?days=${days}`).then(r => r.data),
+    queryFn: () => api.get(`/analytics/${projectId}/overview?days=${days}`).then(r => r.data.data),
     enabled: !!projectId,
   })
 
   const { data: timelineRes, isLoading: timelineLoading, isError: timelineError, refetch: refetchTimeline } = useQuery({
     queryKey: ['events-over-time', projectId, days],
-    queryFn: () => api.get(`/analytics/${projectId}/events-over-time?days=${days}`).then(r => r.data),
+    queryFn: () => api.get(`/analytics/${projectId}/events-over-time?days=${days}`).then(r => r.data.data),
     enabled: !!projectId,
   })
 
   const { data: topEventsRes, isError: topError, refetch: refetchTop } = useQuery({
     queryKey: ['top-events', projectId, days],
-    queryFn: () => api.get(`/analytics/${projectId}/top-events?days=${days}`).then(r => r.data),
+    queryFn: () => api.get(`/analytics/${projectId}/top-events?days=${days}`).then(r => r.data.data),
     enabled: !!projectId,
   })
 
   const { data: activeUsersRes, isError: usersError, refetch: refetchUsers } = useQuery({
     queryKey: ['active-users', projectId],
-    queryFn: () => api.get(`/analytics/${projectId}/active-users`).then(r => r.data),
+    queryFn: () => api.get(`/analytics/${projectId}/active-users`).then(r => r.data.data),
     enabled: !!projectId,
   })
 
   const { data: retentionRes } = useQuery({
     queryKey: ['retention-mini', projectId],
-    queryFn: () => api.get(`/analytics/${projectId}/retention?days=90`).then(r => r.data),
+    queryFn: () => api.get(`/analytics/${projectId}/retention?days=90`).then(r => r.data.data),
     enabled: !!projectId,
   })
 
 
-  const totalEvents = overviewRes?.data?.totalEvents ?? 0
-  const uniqueUsers = overviewRes?.data?.uniqueUsers ?? 0
-  const dau         = activeUsersRes?.data?.dau       ?? 0
-  const wau         = activeUsersRes?.data?.wau       ?? 0
-  const mau         = activeUsersRes?.data?.mau       ?? 0
-  const chartData   = timelineRes?.data               ?? []
-  const topEvents   = topEventsRes?.data              ?? []
+  const totalEvents = overviewRes?.totalEvents ?? 0
+  const uniqueUsers = overviewRes?.uniqueUsers ?? 0
+  const dau         = activeUsersRes?.dau       ?? 0
+  const wau         = activeUsersRes?.wau       ?? 0
+  const mau         = activeUsersRes?.mau       ?? 0
+  const chartData   = Array.isArray(timelineRes) ? timelineRes : []
+  const topEvents   = Array.isArray(topEventsRes) ? topEventsRes : []
 
-  const retentionCohorts = retentionRes?.data ?? []
+  const retentionCohorts = Array.isArray(retentionRes) ? retentionRes : []
   const latestCohort     = retentionCohorts[retentionCohorts.length - 1]
   const retentionCurve   = latestCohort
     ? [
