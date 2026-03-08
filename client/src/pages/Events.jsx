@@ -57,7 +57,7 @@ const handleExport = (events, days) => {
   const header = 'Event Name,Count,Unique Users,Last Seen\n'
   const rows   = events
     .map(e =>
-      `"${e.eventName}",${e.count},${e.uniqueUsers},"${
+      `"${e.name}",${e.count},${e.uniqueUsers},"${
         e.lastSeen ? new Date(e.lastSeen).toLocaleString() : 'N/A'
       }"`
     )
@@ -72,7 +72,7 @@ const handleExport = (events, days) => {
 }
 
 export function Events() {
-  const { activeProject, selectedDays: days } = useProject()
+  const { activeProject, selectedDays: days, setSelectedDays } = useProject()
   const { user }          = useAuth()
   const projectId         = activeProject?._id
 
@@ -96,7 +96,7 @@ export function Events() {
 
   const allEvents   = Array.isArray(topEventsData) ? topEventsData : []
   const filtered    = search.trim()
-    ? allEvents.filter(e => e.eventName.toLowerCase().includes(search.trim().toLowerCase()))
+    ? allEvents.filter(e => e.name.toLowerCase().includes(search.trim().toLowerCase()))
     : allEvents
   const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage    = Math.min(page, totalPages)
@@ -104,11 +104,11 @@ export function Events() {
   const maxCount    = allEvents[0]?.count ?? 1
   const barWidth    = (count) => `${Math.max(3, (count / maxCount) * 100)}%`
 
-  const totalEvents      = overviewData?.totalEvent ?? 0
+  const totalEvents      = overviewData?.totalEvents ?? 0
   const activeEventTypes = allEvents.length
 
   const handleSearch = (v) => { setSearch(v); setPage(1) }
-  const handleDays   = (v)  => { setDays(v);  setPage(1); setDateOpen(false) }
+  const handleDays   = (v) => { setSelectedDays(v); setPage(1); setDateOpen(false) }
 
   if (!projectId) return <Navigate to="/projects" replace />
 
@@ -284,19 +284,19 @@ export function Events() {
               )}
 
               {pageEvents.map((event) => {
-                const color = hashColor(event.eventName)
+                const color = hashColor(event.name)
                 return (
-                  <tr key={event.eventName} className="hover:bg-gray-50 transition-colors">
+                  <tr key={event.name} className="hover:bg-gray-50 transition-colors">
 
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-lg ${color.bg} flex items-center justify-center shrink-0`}>
                           <span className={`text-xs font-bold ${color.text}`}>
-                            {event.eventName[0]?.toUpperCase()}
+                            {event.name?.[0]?.toUpperCase() || '-'}
                           </span>
                         </div>
                         <span className="text-sm font-mono font-semibold text-gray-800">
-                          {event.eventName}
+                          {event.name}
                         </span>
                       </div>
                     </td>
