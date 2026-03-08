@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Download, Calendar, BarChart2, Layers } from 'lucide-react'
+import { Search, Download, Calendar, BarChart2, Layers, RefreshCw } from 'lucide-react'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -72,11 +72,10 @@ const handleExport = (events, days) => {
 }
 
 export function Events() {
-  const { activeProject } = useProject()
+  const { activeProject, selectedDays: days } = useProject()
   const { user }          = useAuth()
   const projectId         = activeProject?._id
 
-  const [days, setDays]         = useState(30)
   const [search, setSearch]     = useState('')
   const [page, setPage]         = useState(1)
   const [dateOpen, setDateOpen] = useState(false)
