@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Users } from 'lucide-react'
+import { Users, RefreshCw } from 'lucide-react'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
 
@@ -38,13 +37,11 @@ const fmtWeek = (dateStr) => {
 }
 
 export function Retention() {
-  const { activeProject } = useProject()
+  const { activeProject, selectedDays: days } = useProject()
   const projectId = activeProject?._id
 
-  const [days, setDays] = useState(90)
 
-
-  const { data: retentionData, isLoading } = useQuery({
+  const { data: retentionData, isLoading, isError, refetch } = useQuery({
     queryKey: ['retention', projectId, days],
     queryFn: () =>
       api.get(`/analytics/${projectId}/retention?days=${days}`).then(r => r.data.data),
@@ -79,26 +76,22 @@ export function Retention() {
             Track how many users return after their first visit.
           </p>
         </div>
-
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-          {DATE_RANGES.map(r => (
-            <button
-              key={r.value}
-              onClick={() => setDays(r.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                days === r.value
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
       </div>
 
 
       <div className="flex-1 overflow-y-auto p-8 space-y-6">
+
+        {isError && (
+          <div className="flex items-center gap-3 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">
+            <p className="text-sm text-rose-600 flex-1">Failed to load retention data.</p>
+            <button
+              onClick={refetch}
+              className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </button>
+          </div>
+        )}
 
 
         <div className="grid grid-cols-3 gap-4">
