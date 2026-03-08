@@ -5,19 +5,19 @@ let _initialized = false;
 
 export function init(apiKey, options = {}) {
   if (!apiKey) {
-    console.warn('[@analytiq/sdk] init() requires an API key.');
+    console.warn('[analytiq-sdk] init() requires an API key.');
     return;
   }
   _apiKey = apiKey;
   _host = options.host || '';
   _initialized = true;
-  console.log('[@analytiq/sdk] Initialized successfully.');
+  console.log('[analytiq-sdk] Initialized successfully.');
 }
 
 
 export function identify(userId) {
   if (!userId) {
-    console.warn('[@analytiq/sdk] identify() requires a userId.');
+    console.warn('[analytiq-sdk] identify() requires a userId.');
     return;
   }
   _userId = userId;
@@ -28,11 +28,11 @@ export function identify(userId) {
 
 export function track(eventName, properties = {}) {
   if (!_initialized) {
-    console.warn('[@analytiq/sdk] SDK not initialized. Call init() first.');
+    console.warn('[analytiq-sdk] SDK not initialized. Call init() first.');
     return;
   }
   if (!eventName) {
-    console.warn('[@analytiq/sdk] track() requires an event name.');
+    console.warn('[analytiq-sdk] track() requires an event name.');
     return;
   }
   const body = {
@@ -49,11 +49,11 @@ export function track(eventName, properties = {}) {
 
 export function batchTrack(events = []) {
   if (!_initialized) {
-    console.warn('[@analytiq/sdk] SDK not initialized. Call init() first.');
+    console.warn('[analytiq-sdk] SDK not initialized. Call init() first.');
     return;
   }
   if (!Array.isArray(events) || events.length === 0) {
-    console.warn('[@analytiq/sdk] batchTrack() requires a non-empty array of events.');
+    console.warn('[analytiq-sdk] batchTrack() requires a non-empty array of events.');
     return;
   }
 
@@ -83,22 +83,22 @@ async function _sendRequest(path, body) {
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
-      console.warn(`[@analytiq/sdk] Event tracking failed: ${response.status}`);
+      console.warn(`[analytiq-sdk] Event tracking failed: ${response.status}`);
     }
   } 
   catch (err) {
-    console.warn('[@analytiq/sdk] Request failed, retrying in 500ms...');
+    console.warn('[analytiq-sdk] Request failed, retrying in 500ms...');
 
     setTimeout(async () => {
 
       try {
         const retryResponse = await fetch(url, options);
         if (!retryResponse.ok) {
-          console.warn(`[@analytiq/sdk] Retry also failed: ${retryResponse.status}`);
+          console.warn(`[analytiq-sdk] Retry also failed: ${retryResponse.status}`);
         }
       } 
       catch (retryErr) {
-        console.warn('[@analytiq/sdk] Retry failed. Event not tracked.');
+        console.warn('[analytiq-sdk] Retry failed. Event not tracked.');
       }
       
     }, 500);
