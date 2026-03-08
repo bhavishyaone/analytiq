@@ -7,7 +7,7 @@ import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
 
 export function Funnels() {
-  const { activeProject, selectedDays: days } = useProject()
+  const { activeProject, selectedDays: days, setSelectedDays } = useProject()
   const projectId = activeProject?._id
   const queryClient = useQueryClient()
 
@@ -32,7 +32,7 @@ export function Funnels() {
   const loadFunnel = (funnel) => {
     setSteps(funnel.steps)
     setFunnelName(funnel.name)
-    setDays(funnel.timeWindowDays)
+    setSelectedDays(funnel.timeWindowDays)
     setSelectedFunnelId(funnel._id)
     reset()
     setError('')
