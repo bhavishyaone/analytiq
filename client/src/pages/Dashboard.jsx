@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer,
 } from 'recharts'
-import { ArrowUpRight, ArrowDownRight, Download } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Download, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import api from '../services/api.js'
 import { useProject } from '../context/ProjectContext.jsx'
@@ -15,6 +14,29 @@ function fmt(n = 0) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`
   return n.toLocaleString()
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+      <div className="h-3 w-20 bg-gray-200 rounded mb-3" />
+      <div className="h-8 w-28 bg-gray-200 rounded" />
+    </div>
+  )
+}
+
+function ErrorRetry({ onRetry, label = 'Failed to load data.' }) {
+  return (
+    <div className="flex items-center gap-3 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">
+      <p className="text-sm text-rose-600 flex-1">{label}</p>
+      <button
+        onClick={onRetry}
+        className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700"
+      >
+        <RefreshCw className="w-3.5 h-3.5" /> Retry
+      </button>
+    </div>
+  )
 }
 
 
@@ -55,32 +77,29 @@ function MetricCard({ label, value, loading, trend, trendUp }) {
 
 
 export function Dashboard() {
-  const { activeProject } = useProject()
+  const { activeProject, selectedDays: days } = useProject()
   const projectId = activeProject?._id
 
 
-  const [days, setDays] = useState(30)
-
-
-  const { data: overviewRes, isLoading: overviewLoading } = useQuery({
+  const { data: overviewRes, isLoading: overviewLoading, isError: overviewError, refetch: refetchOverview } = useQuery({
     queryKey: ['overview', projectId, days],
     queryFn: () => api.get(`/analytics/${projectId}/overview?days=${days}`).then(r => r.data),
     enabled: !!projectId,
   })
 
-  const { data: timelineRes, isLoading: timelineLoading } = useQuery({
+  const { data: timelineRes, isLoading: timelineLoading, isError: timelineError, refetch: refetchTimeline } = useQuery({
     queryKey: ['events-over-time', projectId, days],
     queryFn: () => api.get(`/analytics/${projectId}/events-over-time?days=${days}`).then(r => r.data),
     enabled: !!projectId,
   })
 
-  const { data: topEventsRes } = useQuery({
+  const { data: topEventsRes, isError: topError, refetch: refetchTop } = useQuery({
     queryKey: ['top-events', projectId, days],
     queryFn: () => api.get(`/analytics/${projectId}/top-events?days=${days}`).then(r => r.data),
     enabled: !!projectId,
   })
 
-  const { data: activeUsersRes } = useQuery({
+  const { data: activeUsersRes, isError: usersError, refetch: refetchUsers } = useQuery({
     queryKey: ['active-users', projectId],
     queryFn: () => api.get(`/analytics/${projectId}/active-users`).then(r => r.data),
     enabled: !!projectId,
@@ -119,42 +138,34 @@ export function Dashboard() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
 
-
       <div className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shrink-0">
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
-        <div className="flex items-center gap-2">
-
-          {[7, 30, 90].map(d => (
-            <button
-              key={d}
-              onClick={() => setDays(d)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                days === d
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {d}D
-            </button>
-          ))}
-          <Button
-            size="sm"
-            className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5"
-          >
-            <Download className="w-3.5 h-3.5" /> Export
-          </Button>
-        </div>
+        <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5">
+          <Download className="w-3.5 h-3.5" /> Export
+        </Button>
       </div>
 
 
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
 
 
+        {(overviewError || usersError) && (
+          <ErrorRetry
+            label="Failed to load overview metrics."
+            onRetry={() => { refetchOverview(); refetchUsers() }}
+          />
+        )}
         <div className="grid grid-cols-4 gap-4">
-          <MetricCard label="Total Events"  value={totalEvents} loading={overviewLoading} />
-          <MetricCard label="Unique Users"  value={uniqueUsers} loading={overviewLoading} />
-          <MetricCard label="DAU"           value={dau}         loading={false} />
-          <MetricCard label="MAU"           value={mau}         loading={false} />
+          {overviewLoading ? (
+            <><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
+          ) : (
+            <>
+              <MetricCard label="Total Events" value={totalEvents} loading={false} />
+              <MetricCard label="Unique Users" value={uniqueUsers} loading={false} />
+              <MetricCard label="DAU"          value={dau}         loading={false} />
+              <MetricCard label="MAU"          value={mau}         loading={false} />
+            </>
+          )}
         </div>
 
 
@@ -167,11 +178,22 @@ export function Dashboard() {
                 <h3 className="text-base font-semibold text-gray-900">Events over time</h3>
                 <p className="text-xs text-gray-400 mt-0.5">Last {days} days</p>
               </div>
+              {timelineError && (
+                <button onClick={refetchTimeline} className="flex items-center gap-1 text-xs text-rose-500 font-medium">
+                  <RefreshCw className="w-3 h-3" /> Retry
+                </button>
+              )}
             </div>
 
             {timelineLoading ? (
-              <div className="h-64 flex items-center justify-center text-gray-400 text-sm animate-pulse">
-                Loading chart…
+              <div className="h-64 animate-pulse space-y-2 pt-4">
+                {[80, 60, 90, 40, 70, 55, 85].map((h, i) => (
+                  <div key={i} className="flex items-end gap-1 h-48">
+                    {[30,50,40,70,45,60,35,80,55,65,75,50,45,70,60,80,55,65,40,50,70,60,45,80,55,65,35,70,55,60].map((p,j) => (
+                      <div key={j} className="flex-1 bg-gray-200 rounded-t" style={{height:`${p}%`}} />
+                    ))}
+                  </div>
+                )).slice(0,1)}
               </div>
             ) : chartData.length === 0 ? (
               <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
