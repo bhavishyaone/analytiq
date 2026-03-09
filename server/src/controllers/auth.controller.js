@@ -1,5 +1,8 @@
 import User from '../models/User.js'
 import { hashPassword, comparePassword, generateToken } from '../utils/auth.js'
+import { OAuth2Client } from 'google-auth-library'
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 export const register = async (req, res) => {
     try {
@@ -109,5 +112,34 @@ export const updateMe = async (req, res) => {
     catch (err) {
         console.log(err)
         return res.status(500).json({ message: 'Server error.' })
+    }
+}
+
+export const googleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        })
+        const { email, name } = ticket.getPayload()
+        let user = await User.findOne({ email })
+        if (!user) {
+            const randomPassword = Math.random().toString(36).slice(-8) + 'A1!'
+            user = await User.create({
+                name: name,
+                email: email,
+                password: randomPassword
+            })
+        }
+        const token = generateToken(user._id)
+        return res.status(200).json({
+            message: "Login successful",
+            token,
+            user: { id: user._id, name: user.name, email: user.email }
+        })
+    } 
+    catch (err) {
+        return res.status(401).json({ message: 'Invalid Google Token' })
     }
 }

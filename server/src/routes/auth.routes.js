@@ -1,4 +1,4 @@
-import { login, register,getMe, updateMe } from '../controllers/auth.controller.js'
+import { login, register, getMe, updateMe, googleLogin } from '../controllers/auth.controller.js'
 import express from 'express'
 import rateLimiter from '../midlleware/rateLimiter.js'
 import authMiddleware from '../midlleware/auth.middleware.js'
@@ -41,7 +41,7 @@ router.use(rateLimiter)
  */
 
 router.post("/register", register)
-
+router.post("/google", googleLogin)
 /**
  * @swagger
  * /api/auth/login:
