@@ -14,6 +14,7 @@ import { Retention } from './pages/Retention.jsx'
 import { Projects } from './pages/Projects.jsx'
 import { AccountSettings } from './pages/AccountSettings.jsx'
 import { NotFound } from './pages/NotFound.jsx'
+import { Landing } from './pages/Landing.jsx'
 
 function App() {
     return (
@@ -22,7 +23,7 @@ function App() {
                 <BrowserRouter>
                     <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
                     <Routes>
-                        <Route path="/" element={<Login />} />
+                        <Route path="/" element={<Landing />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route
