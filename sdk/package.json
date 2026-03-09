@@ -1,7 +1,7 @@
 {
-  "name": "analytiq-sdk",
-  "version": "1.0.0",
-  "description": "Lightweight analytics SDK for analytiq-sdk",
+  "name": "analytiq",
+  "version": "1.0.1",
+  "description": "Lightweight analytics SDK for Analytiq",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm,iife --global-name analytiq --minify",
+    "build": "tsup src/index.js --format cjs,esm,iife --global-name analytiq --minify --dts",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
