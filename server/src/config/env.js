@@ -3,6 +3,8 @@ const requiredENV = [
     'MONGO_URL',
     'JWT_SECRET',
     'JWT_EXPIRES_IN',
+    'CLIENT_URL',
+    'GOOGLE_CLIENT_ID',
 ]
 
 export const valudateENV = ()=>{
