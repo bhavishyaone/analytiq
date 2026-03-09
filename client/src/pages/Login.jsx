@@ -1,6 +1,6 @@
-import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Clock, Filter, Users, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -36,6 +36,15 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const isDemo = searchParams.get('demo') === 'true'
+
+  useEffect(() => {
+    if (isDemo) {
+      setEmail('demo@analytiq.com')
+      setPassword('demo1234')
+    }
+  }, [isDemo])
 
 
 

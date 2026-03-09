@@ -50,6 +50,16 @@ export function Landing() {
             <Link to="/register" className="bg-[#3451ff] text-white px-6 py-3 rounded text-[14px] font-semibold hover:bg-[#2b41e6] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300">
               Get started
             </Link>
+            <Link
+              to="/login?demo=true"
+              className="px-6 py-3 rounded text-[14px] font-semibold text-gray-900 border border-gray-200 hover:bg-gray-50 hover:-translate-y-0.5 flex items-center gap-2 transition-all duration-300"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+              </svg>
+              Try Demo
+            </Link>
             <a href="#docs" className="px-6 py-3 rounded text-[14px] font-semibold text-gray-900 hover:bg-gray-50 flex items-center gap-2 transition-all duration-300">
               Read the docs &rarr;
             </a>
@@ -59,6 +69,7 @@ export function Landing() {
               <span className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-[11px] ml-1 border border-gray-200">1.2k</span>
             </a>
           </div>
+
         </div>
         
         <div className="relative w-full flex items-center justify-center p-4">
