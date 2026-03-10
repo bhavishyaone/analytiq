@@ -1,5 +1,5 @@
 export interface InitOptions {
-    /** The base URL of your Analytiq backend (e.g. 'https://your-api.onrender.com') */
+    /** Override the Analytiq backend URL. Leave empty — defaults to the production Analytiq server automatically. Only set this for self-hosted deployments. */
     host?: string;
 }
 

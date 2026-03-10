@@ -16,7 +16,7 @@ export function init(apiKey, options = {}) {
     return;
   }
   _apiKey = apiKey;
-  _host = options.host || '';
+  _host = options.host || 'https://analytiq-y63v.onrender.com';
   _initialized = true;
   console.log('[analytiq] Initialized successfully.');
 
