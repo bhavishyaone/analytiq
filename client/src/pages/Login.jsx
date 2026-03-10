@@ -279,10 +279,8 @@ export function Login() {
                 onError={() => {
                     toast.error('Google login was unsuccessful.')
                 }}
-                useOneTap
                 shape="rectangular"
                 theme="outline"
-                width="100%"
             />
           </div>
 
