@@ -14,9 +14,10 @@ import swaggerSpec from '../server/src/config/swagger.js';
 const app = express();
 app.use(httpLogger);
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+  process.env.CLIENT_URL,
   'http://localhost:5173',
-];
+  'http://localhost:5174',
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
