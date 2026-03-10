@@ -225,7 +225,7 @@ export function Settings() {
                           <span className="text-xs text-gray-400 font-medium">bash</span>
                         </div>
                         <code className="text-sm text-purple-600 font-mono">
-                          npm install analytiq-sdk
+                          npm install analytiq
                         </code>
                       </div>
 

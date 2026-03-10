@@ -91,7 +91,7 @@ export function Landing() {
 
             <div className="px-5 py-6 space-y-3 relative z-10 bg-[#fafafa] rounded-b-lg">
               <div>
-                <span className="text-[#3451ff] font-medium">npm</span> <span className="text-[#111827]">install analytiq-sdk</span>
+                <span className="text-[#3451ff] font-medium">npm</span> <span className="text-[#111827]">install analytiq</span>
               </div>
               <div className="text-[#64748b]">{'// Initialize'}</div>
               <div>
@@ -229,7 +229,7 @@ export function Landing() {
               1
             </div>
             <h4 className="font-bold text-[#111827] text-[14px] mb-4">Install the SDK</h4>
-            <code className="text-[12px] bg-white border border-gray-200 px-3 py-1.5 rounded text-gray-500 font-mono shadow-sm">npm install analytiq-sdk</code>
+            <code className="text-[12px] bg-white border border-gray-200 px-3 py-1.5 rounded text-gray-500 font-mono shadow-sm">npm install analytiq</code>
           </div>
           
 
