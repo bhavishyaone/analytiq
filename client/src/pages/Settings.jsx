@@ -73,7 +73,7 @@ export function Settings() {
       setActiveProject({ ...activeProject, apiKey: res.apiKey })
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       setRotateConfirm(false)
-      setShowKey(true)
+      setShowKey(false)
     },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to rotate API key'),
   })
@@ -183,21 +183,21 @@ export function Settings() {
                     <p className="text-sm font-semibold text-gray-700 mb-2">Public API Key</p>
                     <div className="flex items-center gap-0 border border-gray-200 rounded-lg overflow-hidden">
 
-                      <div className="flex-1 flex items-center gap-2 px-4 h-10 bg-gray-50 font-mono text-sm text-gray-700">
+                      <div className="flex-1 flex items-center gap-2 px-4 h-10 bg-gray-50 font-mono text-sm text-gray-700 min-w-0 overflow-hidden">
                         <Eye className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        {displayKey}
+                        <span className="truncate select-all">{displayKey}</span>
                       </div>
 
                       <button
                         onClick={() => setShowKey(v => !v)}
-                        className="h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                        className="h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors shrink-0"
                       >
                         {showKey ? 'Hide' : 'Reveal'}
                       </button>
 
                       <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-1.5 h-10 px-4 text-sm font-medium text-gray-600 border-l border-gray-200 bg-white hover:bg-gray-50 transition-colors shrink-0"
                       >
                         {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
                         Copy
