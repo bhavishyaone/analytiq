@@ -18,7 +18,7 @@ ng generate service analytics
 
 Open `src/app/analytics.service.ts` and replace the entire contents with:
 
-```ts
+```ts src/app/analytics.service.ts
 import { Injectable } from '@angular/core'
 import { init, track, identify, reset, batchTrack } from 'analytiq'
 
@@ -47,7 +47,7 @@ export class AnalyticsService {
 
 Open `src/app/app.component.ts`:
 
-```ts
+```ts src/app/app.component.ts
 import { Component, OnInit } from '@angular/core'
 import { AnalyticsService } from './analytics.service'
 
@@ -68,7 +68,7 @@ export class AppComponent implements OnInit {
 
 ## Step 4 — Track events in any component
 
-```ts
+```ts src/app/home/home.component.ts
 import { Component, OnInit } from '@angular/core'
 import { AnalyticsService } from '../analytics.service'
 
@@ -92,7 +92,7 @@ export class HomeComponent implements OnInit {
 
 ## Step 5 — Identify users & reset
 
-```ts
+```ts src/app/auth/auth.component.ts
 // After login:
 this.analytics.identifyUser(user.id)
 

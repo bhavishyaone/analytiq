@@ -37,7 +37,7 @@ Add these lines **at the very top**, before everything else:
 
 <Tabs>
   <Tab title="JavaScript (.jsx / .js)">
-    ```jsx
+    ```jsx src/main.jsx
     import { init } from 'analytiq'
 
     init('pk_live_YOUR_KEY_HERE')
@@ -45,7 +45,7 @@ Add these lines **at the very top**, before everything else:
 
     Your full `src/main.jsx` will look like this:
 
-    ```jsx
+    ```jsx src/main.jsx
     import { init } from 'analytiq'
     import React from 'react'
     import ReactDOM from 'react-dom/client'
@@ -63,7 +63,7 @@ Add these lines **at the very top**, before everything else:
     ```
   </Tab>
   <Tab title="TypeScript (.tsx / .ts)">
-    ```tsx
+    ```tsx src/main.tsx
     import { init } from 'analytiq'
 
     init('pk_live_YOUR_KEY_HERE')
@@ -71,7 +71,7 @@ Add these lines **at the very top**, before everything else:
 
     Your full `src/main.tsx` will look like this:
 
-    ```tsx
+    ```tsx src/main.tsx
     import { init } from 'analytiq'
     import React from 'react'
     import ReactDOM from 'react-dom/client'
@@ -100,7 +100,7 @@ Open any page component and add a `track()` call inside it. Example: your `Home`
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/pages/Home.jsx
     // src/pages/Home.jsx — your existing file, add the 3 lines shown
     import { useEffect } from 'react'
     import { track } from 'analytiq'       // ← ADD this import
@@ -116,7 +116,7 @@ Open any page component and add a `track()` call inside it. Example: your `Home`
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/pages/Home.tsx
     // src/pages/Home.tsx — your existing file, add the 3 lines shown
     import { useEffect } from 'react'
     import { track } from 'analytiq'       // ← ADD this import
@@ -139,7 +139,7 @@ After login succeeds, call `identify()` with the user's ID. Add this one line in
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/pages/Login.jsx
     import { identify } from 'analytiq'   // ← ADD this import
 
     // Your existing login function — add ONE line inside it
@@ -151,7 +151,7 @@ After login succeeds, call `identify()` with the user's ID. Add this one line in
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/pages/Login.tsx
     import { identify } from 'analytiq'   // ← ADD this import
 
     // Your existing login function — add ONE line inside it
@@ -170,7 +170,7 @@ Find your existing button. Add `track()` inside the existing click handler — o
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/components/Signup.jsx
     import { track } from 'analytiq'   // ← ADD this import
 
     // Option A: Add to existing click handler
@@ -186,7 +186,7 @@ Find your existing button. Add `track()` inside the existing click handler — o
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/components/Signup.tsx
     import { track } from 'analytiq'   // ← ADD this import
 
     // Option A: Add to existing click handler
@@ -209,7 +209,7 @@ Add `reset()` inside your existing logout function:
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/components/Header.jsx
     import { reset } from 'analytiq'   // ← ADD this import
 
     // Your existing logout function — add ONE line
@@ -220,7 +220,7 @@ Add `reset()` inside your existing logout function:
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/components/Header.tsx
     import { reset } from 'analytiq'   // ← ADD this import
 
     // Your existing logout function — add ONE line
@@ -250,7 +250,7 @@ Here is a fully working component showing all features together:
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/pages/Dashboard.jsx
     // src/pages/Dashboard.jsx
     import { useEffect } from 'react'
     import { track, identify, reset } from 'analytiq'
@@ -284,7 +284,7 @@ Here is a fully working component showing all features together:
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/pages/Dashboard.tsx
     // src/pages/Dashboard.tsx
     import { useEffect } from 'react'
     import { track, identify, reset } from 'analytiq'
@@ -334,7 +334,7 @@ Use `batchTrack()` instead of `track()` when you want to send **multiple events 
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/pages/Dashboard.jsx
     import { useEffect } from 'react'
     import { batchTrack } from 'analytiq'
 
@@ -352,7 +352,7 @@ Use `batchTrack()` instead of `track()` when you want to send **multiple events 
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/pages/Dashboard.tsx
     import { useEffect } from 'react'
     import { batchTrack } from 'analytiq'
     import type { BatchEvent } from 'analytiq'
@@ -395,13 +395,13 @@ VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx src/main.jsx
     import { init } from 'analytiq'
     init(import.meta.env.VITE_ANALYTIQ_KEY)
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx src/main.tsx
     import { init } from 'analytiq'
     init(import.meta.env.VITE_ANALYTIQ_KEY as string)
     ```

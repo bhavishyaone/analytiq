@@ -33,7 +33,7 @@ npm install analytiq
   <Tab title="JavaScript (pages/_app.js)">
     Open `pages/_app.js` and paste:
 
-    ```jsx
+    ```jsx pages/_app.js
     import { useEffect } from 'react'
     import { init } from 'analytiq'
 
@@ -50,7 +50,7 @@ npm install analytiq
   <Tab title="TypeScript (pages/_app.tsx)">
     Open `pages/_app.tsx` and paste:
 
-    ```tsx
+    ```tsx pages/_app.tsx
     import { useEffect } from 'react'
     import { init } from 'analytiq'
     import type { AppProps } from 'next/app'
@@ -79,7 +79,7 @@ Open any existing page file. Your page function already exists — just add the 
 
 <Tabs>
   <Tab title="JavaScript (pages/index.js)">
-    ```jsx
+    ```jsx pages/index.js
     import { useEffect } from 'react'
     import { track } from 'analytiq'      // ← ADD this import
 
@@ -93,7 +93,7 @@ Open any existing page file. Your page function already exists — just add the 
     ```
   </Tab>
   <Tab title="TypeScript (pages/index.tsx)">
-    ```tsx
+    ```tsx pages/index.tsx
     import { useEffect } from 'react'
     import { track } from 'analytiq'      // ← ADD this import
 
@@ -116,7 +116,7 @@ Instead of adding `track()` to every single page, add one listener in `_app` so 
 
 <Tabs>
   <Tab title="JavaScript (pages/_app.js)">
-    ```jsx
+    ```jsx pages/_app.js
     import { useEffect } from 'react'
     import { useRouter } from 'next/router'
     import { init, track } from 'analytiq'
@@ -143,7 +143,7 @@ Instead of adding `track()` to every single page, add one listener in `_app` so 
     ```
   </Tab>
   <Tab title="TypeScript (pages/_app.tsx)">
-    ```tsx
+    ```tsx pages/_app.tsx
     import { useEffect } from 'react'
     import { useRouter } from 'next/router'
     import { init, track } from 'analytiq'
@@ -180,7 +180,7 @@ Add `track()` inside your existing button handler:
 
 <Tabs>
   <Tab title="JavaScript">
-    ```jsx
+    ```jsx pages/signup.js
     import { track } from 'analytiq'   // ← ADD import at top
 
     // Add ONE line inside your existing function
@@ -191,7 +191,7 @@ Add `track()` inside your existing button handler:
     ```
   </Tab>
   <Tab title="TypeScript">
-    ```tsx
+    ```tsx pages/signup.tsx
     import { track } from 'analytiq'   // ← ADD import at top
 
     // Add ONE line inside your existing function
@@ -209,7 +209,7 @@ Add `track()` inside your existing button handler:
 
 <Tabs>
   <Tab title="JavaScript">
-    ```jsx
+    ```jsx pages/login.js
     import { identify } from 'analytiq'
 
     async function handleLogin(email, password) {
@@ -220,7 +220,7 @@ Add `track()` inside your existing button handler:
     ```
   </Tab>
   <Tab title="TypeScript">
-    ```tsx
+    ```tsx pages/login.tsx
     import { identify } from 'analytiq'
 
     async function handleLogin(email: string, password: string): Promise<void> {
@@ -238,7 +238,7 @@ Add `track()` inside your existing button handler:
 
 <Tabs>
   <Tab title="JavaScript">
-    ```jsx
+    ```jsx pages/settings.js
     import { reset } from 'analytiq'
 
     function handleLogout() {
@@ -248,7 +248,7 @@ Add `track()` inside your existing button handler:
     ```
   </Tab>
   <Tab title="TypeScript">
-    ```tsx
+    ```tsx pages/settings.tsx
     import { reset } from 'analytiq'
 
     function handleLogout(): void {
@@ -267,7 +267,7 @@ Use `batchTrack()` to send multiple events in a **single network request**:
 
 <Tabs>
   <Tab title="JavaScript">
-    ```jsx
+    ```jsx pages/dashboard.js
     import { useEffect } from 'react'
     import { batchTrack } from 'analytiq'
 
@@ -285,7 +285,7 @@ Use `batchTrack()` to send multiple events in a **single network request**:
     ```
   </Tab>
   <Tab title="TypeScript">
-    ```tsx
+    ```tsx pages/dashboard.tsx
     import { useEffect } from 'react'
     import { batchTrack } from 'analytiq'
     import type { BatchEvent } from 'analytiq'

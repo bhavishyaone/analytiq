@@ -44,7 +44,7 @@ You can use:
 
 <Tabs>
   <Tab title="React / Next.js (JavaScript)">
-    ```jsx
+    ```jsx components/Signup.jsx
     import { track, identify } from 'analytiq'
 
     async function handleSignup(email, password) {
@@ -65,7 +65,7 @@ You can use:
     ```
   </Tab>
   <Tab title="React / Next.js (TypeScript)">
-    ```tsx
+    ```tsx components/Signup.tsx
     import { track, identify } from 'analytiq'
 
     async function handleSignup(email: string, password: string): Promise<void> {
@@ -109,7 +109,7 @@ You can use:
 
 <Tabs>
   <Tab title="React / Next.js (JavaScript)">
-    ```jsx
+    ```jsx components/Login.jsx
     import { identify } from 'analytiq'
 
     async function handleLogin(email, password) {
@@ -144,7 +144,7 @@ If your app keeps users logged in via a session cookie or JWT, you need to re-id
 
 <Tabs>
   <Tab title="React — in root component">
-    ```jsx
+    ```jsx src/App.jsx
     import { useEffect } from 'react'
     import { identify } from 'analytiq'
 
@@ -162,7 +162,7 @@ If your app keeps users logged in via a session cookie or JWT, you need to re-id
     ```
   </Tab>
   <Tab title="Next.js App Router">
-    ```tsx
+    ```tsx src/components/Providers.tsx
     'use client'
 
     import { useEffect } from 'react'
@@ -190,7 +190,7 @@ If your app keeps users logged in via a session cookie or JWT, you need to re-id
 
 When a user logs out, call `reset()` to clear their identity. This prevents the next person who uses the same device from having their events linked to the previous user.
 
-```jsx
+```jsx components/Header.jsx
 import { reset } from 'analytiq'
 
 function handleLogout() {

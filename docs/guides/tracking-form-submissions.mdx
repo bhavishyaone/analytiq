@@ -20,7 +20,7 @@ There are two moments you want to track:
 1. When the user **starts** filling the form (optional but valuable)
 2. When the form **submits successfully**
 
-```js
+```js components/Forms.js
 // Event 1: User opens / focuses the form (optional)
 track('form_started', { form: 'signup' })
 
@@ -34,7 +34,7 @@ track('form_submitted', { form: 'signup' })
 
 <Tabs>
   <Tab title="JavaScript (.jsx)">
-    ```jsx
+    ```jsx components/SignupForm.jsx
     import { useState } from 'react'
     import { track } from 'analytiq'
     import { identify } from 'analytiq'
@@ -88,7 +88,7 @@ track('form_submitted', { form: 'signup' })
     ```
   </Tab>
   <Tab title="TypeScript (.tsx)">
-    ```tsx
+    ```tsx components/SignupForm.tsx
     import { useState, FocusEvent, FormEvent } from 'react'
     import { track, identify } from 'analytiq'
 
@@ -137,7 +137,7 @@ track('form_submitted', { form: 'signup' })
 
 ## Login form example
 
-```jsx
+```jsx components/LoginForm.jsx
 import { track, identify } from 'analytiq'
 
 async function handleLogin(email, password) {
@@ -159,7 +159,7 @@ async function handleLogin(email, password) {
 
 ## Contact / enquiry form example
 
-```jsx
+```jsx components/ContactForm.jsx
 import { track } from 'analytiq'
 
 async function handleContactSubmit(formData) {
@@ -181,7 +181,7 @@ async function handleContactSubmit(formData) {
 
 ## Checkout / payment form example
 
-```jsx
+```jsx components/CheckoutForm.jsx
 import { track } from 'analytiq'
 
 async function handleCheckout(cartData) {
@@ -223,7 +223,7 @@ If you track the button click, your dashboard will show a "Signup" or "Purchase"
 
 Always add your tracking code **after** your database or payment system confirms it was successful:
 
-```js
+```js api/users.js
 // Wrong — tracks before knowing if it actually worked
 track('signup_completed')
 await database.saveUser(data)

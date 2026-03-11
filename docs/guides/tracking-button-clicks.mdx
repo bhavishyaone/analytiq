@@ -19,12 +19,12 @@ Page views tell you *where* users go. Button clicks tell you *what they do*. Kno
 To track a button, you need to add an `onClick` action to it. If your button already has an action, just add `track()` inside it. If it doesn't, add a new action.
 
 **Before:**
-```jsx
+```jsx components/PricingButton.jsx
 <button>View Pricing</button>
 ```
 
 **After (tracking added):**
-```jsx
+```jsx components/PricingButton.jsx
 <button onClick={() => track('pricing_button_clicked')}>View Pricing</button>
 ```
 
@@ -32,7 +32,7 @@ Here is exactly how it looks in different frameworks:
 
 <Tabs>
   <Tab title="React / Next.js (JavaScript)">
-    ```jsx
+    ```jsx components/Hero.jsx
     import { track } from 'analytiq'
 
     // Option A — button with an existing handler
@@ -48,7 +48,7 @@ Here is exactly how it looks in different frameworks:
     ```
   </Tab>
   <Tab title="React / Next.js (TypeScript)">
-    ```tsx
+    ```tsx components/Hero.tsx
     import { track } from 'analytiq'
 
     // Option A — button with an existing handler
@@ -64,7 +64,7 @@ Here is exactly how it looks in different frameworks:
     ```
   </Tab>
   <Tab title="Vue 3">
-    ```vue
+    ```vue components/Hero.vue
     <script setup>
     import { track } from 'analytiq'
 
@@ -81,7 +81,7 @@ Here is exactly how it looks in different frameworks:
     ```
   </Tab>
   <Tab title="Vanilla HTML">
-    ```html
+    ```html index.html
     <button id="signupBtn">Sign Up Free</button>
 
     <script type="module">
@@ -101,7 +101,7 @@ Here is exactly how it looks in different frameworks:
 
 Always add a `location` property so you know *where* in your app the button was clicked. Same button might exist in multiple places:
 
-```js
+```js utils/analytics.js
 // Hero section button
 track('signup_clicked', { location: 'hero_section' })
 
@@ -122,7 +122,7 @@ Links work the same way as buttons:
 
 <Tabs>
   <Tab title="React / Next.js">
-    ```jsx
+    ```jsx components/Navbar.jsx
     import { track } from 'analytiq'
     import { Link } from 'react-router-dom'  // or next/link
 
@@ -133,7 +133,7 @@ Links work the same way as buttons:
     ```
   </Tab>
   <Tab title="Vanilla HTML">
-    ```html
+    ```html index.html
     <a href="/pricing" id="pricingLink">Pricing</a>
 
     <script type="module">

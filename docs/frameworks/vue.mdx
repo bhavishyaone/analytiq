@@ -13,7 +13,7 @@ npm install analytiq
 
 Open `src/main.js`. Add the init call at the very top:
 
-```js
+```js src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
 import { init } from 'analytiq'
@@ -28,7 +28,7 @@ createApp(App).mount('#app')
 
 Open any `.vue` component and add:
 
-```vue
+```vue src/App.vue
 <script setup>
 import { onMounted } from 'vue'
 import { track } from 'analytiq'
@@ -45,7 +45,7 @@ onMounted(() => {
 
 ## Step 4 — Track button clicks
 
-```vue
+```vue src/components/Signup.vue
 <script setup>
 import { track } from 'analytiq'
 
@@ -61,7 +61,7 @@ function handleSignup() {
 
 ## Step 5 — Identify users after login
 
-```js
+```js src/components/Login.vue
 import { identify } from 'analytiq'
 
 function onLoginSuccess(user) {
@@ -71,7 +71,7 @@ function onLoginSuccess(user) {
 
 ## Step 6 — Reset on logout
 
-```js
+```js src/components/Settings.vue
 import { reset } from 'analytiq'
 
 function onLogout() {
@@ -82,12 +82,12 @@ function onLogout() {
 ## Using Environment Variables
 
 Create `.env` in your project root:
-```
+```bash .env
 VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
 ```
 
 Update `src/main.js`:
-```js
+```js src/main.js
 init(import.meta.env.VITE_ANALYTIQ_KEY)
 ```
 
@@ -95,7 +95,7 @@ init(import.meta.env.VITE_ANALYTIQ_KEY)
 
 Use `batchTrack()` to send multiple events in a **single network request**:
 
-```vue
+```vue src/components/Dashboard.vue
 <script setup>
 import { onMounted } from 'vue'
 import { batchTrack } from 'analytiq'

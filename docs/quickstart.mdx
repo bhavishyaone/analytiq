@@ -86,7 +86,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
 <Tabs>
   <Tab title="React (Vite)">
     Open `src/main.jsx` and add at the very top:
-    ```jsx
+    ```jsx src/main.jsx
     import { init } from 'analytiq'
 
     init('pk_live_YOUR_KEY_HERE')
@@ -94,7 +94,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
   </Tab>
   <Tab title="React (Create React App)">
     Open `src/index.js` and add at the very top:
-    ```js
+    ```js src/index.js
     import { init } from 'analytiq'
 
     init('pk_live_YOUR_KEY_HERE')
@@ -102,7 +102,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
   </Tab>
   <Tab title="Next.js">
     Create a new file `app/providers.tsx` and paste:
-    ```tsx
+    ```tsx app/providers.tsx
     'use client'
     import { useEffect } from 'react'
     import { init } from 'analytiq'
@@ -115,7 +115,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
     }
     ```
     Then wrap your app in `app/layout.tsx`:
-    ```tsx
+    ```tsx app/layout.tsx
     import { AnalytiqProvider } from './providers'
 
     export default function RootLayout({ children }) {
@@ -129,7 +129,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
   </Tab>
   <Tab title="Vue 3">
     Open `src/main.js` and add at the very top:
-    ```js
+    ```js src/main.js
     import { init } from 'analytiq'
 
     init('pk_live_YOUR_KEY_HERE')
@@ -137,7 +137,7 @@ You only need to initialize Analytiq **once** in your entire app. Find the main 
   </Tab>
   <Tab title="Vanilla HTML">
     Paste inside your `index.html` before the closing `</body>` tag:
-    ```html
+    ```html index.html
     <script type="module">
       import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
 
@@ -162,7 +162,7 @@ Now let's track a page view so an event gets sent to your dashboard. Open any fi
 <Tabs>
   <Tab title="React / Next.js">
     Open a page file (e.g., `src/pages/Home.jsx`) and add the highlighted lines:
-    ```jsx
+    ```jsx src/pages/Home.jsx
     import { useEffect } from 'react'
     import { track } from 'analytiq'
 
@@ -178,7 +178,7 @@ Now let's track a page view so an event gets sent to your dashboard. Open any fi
   </Tab>
   <Tab title="Vue 3">
     In any `.vue` component:
-    ```vue
+    ```vue src/components/Home.vue
     <script setup>
     import { onMounted } from 'vue'
     import { track } from 'analytiq'
@@ -202,7 +202,7 @@ Instead of calling `track()` multiple times, you can send a list of events in on
 
 <Tabs>
   <Tab title="React / Next.js">
-    ```jsx
+    ```jsx src/pages/Dashboard.jsx
     import { useEffect } from 'react'
     import { batchTrack } from 'analytiq'
 
@@ -220,7 +220,7 @@ Instead of calling `track()` multiple times, you can send a list of events in on
     ```
   </Tab>
   <Tab title="Vue 3">
-    ```vue
+    ```vue src/components/Dashboard.vue
     <script setup>
     import { onMounted } from 'vue'
     import { batchTrack } from 'analytiq'
@@ -235,7 +235,7 @@ Instead of calling `track()` multiple times, you can send a list of events in on
     ```
   </Tab>
   <Tab title="Vanilla HTML">
-    ```html
+    ```html index.html
     <script type="module">
       import { init, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
 

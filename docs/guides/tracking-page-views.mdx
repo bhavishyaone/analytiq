@@ -31,7 +31,7 @@ Add a `track()` call inside each page component. If the page function already ex
 
 <Tabs>
   <Tab title="React (JavaScript)">
-    ```jsx
+    ```jsx src/pages/Home.jsx
     // src/pages/Home.jsx — your existing file, add highlighted lines
     import { useEffect } from 'react'
     import { track } from 'analytiq'       // ← ADD import
@@ -46,7 +46,7 @@ Add a `track()` call inside each page component. If the page function already ex
     }
     ```
 
-    ```jsx
+    ```jsx src/pages/Dashboard.jsx
     // src/pages/Dashboard.jsx — same pattern, different page name
     import { useEffect } from 'react'
     import { track } from 'analytiq'
@@ -61,7 +61,7 @@ Add a `track()` call inside each page component. If the page function already ex
     ```
   </Tab>
   <Tab title="React (TypeScript)">
-    ```tsx
+    ```tsx src/pages/Home.tsx
     // src/pages/Home.tsx
     import { useEffect } from 'react'
     import { track } from 'analytiq'
@@ -76,7 +76,7 @@ Add a `track()` call inside each page component. If the page function already ex
     ```
   </Tab>
   <Tab title="Next.js App Router">
-    ```tsx
+    ```tsx app/page.tsx
     'use client'
 
     import { useEffect } from 'react'
@@ -92,7 +92,7 @@ Add a `track()` call inside each page component. If the page function already ex
     ```
   </Tab>
   <Tab title="Vue 3">
-    ```vue
+    ```vue src/components/Home.vue
     <script setup>
     import { onMounted } from 'vue'
     import { track } from 'analytiq'
@@ -108,7 +108,7 @@ Add a `track()` call inside each page component. If the page function already ex
     ```
   </Tab>
   <Tab title="Vanilla HTML">
-    ```html
+    ```html index.html
     <!-- Paste in every .html page -->
     <script type="module">
       import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
@@ -134,7 +134,7 @@ Instead of adding `track()` to every component, listen for route changes at the 
   <Tab title="React + React Router">
     Add this to `src/App.jsx` or `src/App.tsx`:
 
-    ```jsx
+    ```jsx src/App.jsx
     import { useEffect } from 'react'
     import { useLocation } from 'react-router-dom'
     import { track } from 'analytiq'
@@ -162,7 +162,7 @@ Instead of adding `track()` to every component, listen for route changes at the 
   <Tab title="Next.js Pages Router">
     Add this to `pages/_app.tsx`:
 
-    ```tsx
+    ```tsx pages/_app.tsx
     import { useEffect } from 'react'
     import { useRouter } from 'next/router'
     import { init, track } from 'analytiq'
@@ -200,7 +200,7 @@ Instead of adding `track()` to every component, listen for route changes at the 
 | `referrer` | string | Where they came from | `'google'`, `'/home'` |
 | `search` | string | URL query string if any | `'?plan=pro'` |
 
-```js
+```js utils/analytics.js
 track('page_view', {
   page: 'Dashboard',
   path: window.location.pathname,
