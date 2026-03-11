@@ -1,0 +1,128 @@
+---
+title: "Troubleshooting"
+description: "Fix common issues with the Analytiq SDK setup."
+---
+
+## Events not showing on the dashboard
+
+**Problem:** You set up the SDK, ran your app, but no events appear on the dashboard.
+
+**Things to check:**
+
+1. **Is `init()` being called?**
+   Open the browser console (F12). You should see:
+   ```
+   [analytiq] Initialized successfully.
+   ```
+   If you don't see this, `init()` is not being called. Check that you imported it properly.
+
+2. **Is the API key correct?**
+   Make sure the full key including `pk_live_` prefix is pasted correctly.
+
+4. **Is your internet working?**
+   The SDK sends events to a remote server. If you're on a network that blocks external requests, events won't be sent.
+
+---
+
+## `[analytiq] init() requires an API key`
+
+**Problem:** This warning appears in the console.
+
+**Fix:** You passed an empty string, `undefined`, or `null` as the first argument to `init()`.
+
+```js
+// Wrong
+init('')
+init(undefined)
+init(process.env.ANALYTIQ_KEY)  // forgot VITE_ or NEXT_PUBLIC_ prefix
+
+// Correct
+init('pk_live_your_actual_key_here')
+```
+
+For environment variables, make sure you're using the right prefix:
+- Vite projects: `VITE_ANALYTIQ_KEY` → access with `import.meta.env.VITE_ANALYTIQ_KEY`
+- Next.js: `NEXT_PUBLIC_ANALYTIQ_KEY` → access with `process.env.NEXT_PUBLIC_ANALYTIQ_KEY`
+
+---
+
+## Next.js: "window is not defined" or Server Component error
+
+**Problem:** You get a server-side error about `window` or browser globals.
+
+**Fix:** You're calling SDK functions in a Server Component. Add `'use client'` at the very top of the file:
+
+```tsx
+'use client'   // ← This MUST be the first line
+
+import { useEffect } from 'react'
+import { track } from 'analytiq'
+```
+
+Also make sure all `track()` and `init()` calls are inside `useEffect()`.
+
+---
+
+## Events appear twice (duplicates) on the dashboard
+
+**Problem:** Every event shows up twice on the dashboard.
+
+**Fix:** You're calling `init()` twice. This usually happens when `init()` is placed inside a component that re-renders.
+
+```js
+// Wrong — called inside a component that re-renders
+function App() {
+  init('pk_live_...')  // called every render!
+  return <div>...</div>
+}
+
+// Correct — called once, outside all components
+init('pk_live_...')  // at the top of main.jsx
+
+function App() {
+  return <div>...</div>
+}
+```
+
+---
+
+## CORS error in the browser console
+
+**Problem:** You see a CORS error for requests to your Analytiq backend.
+
+**This is not an SDK issue.** It means the Analytiq backend is blocking requests from your domain. The fix is on the backend side — make sure your Vercel frontend URL is added to the `CLIENT_URL` environment variable on Render.
+
+This error does not block your app from working — it's a configuration mismatch between your frontend URL and what the backend expects.
+
+---
+
+## `track is not a function` error
+
+**Problem:** Your browser shows `track is not a function`.
+
+**Fix:** You forgot to import it:
+
+```js
+// Missing import
+track('page_view')
+
+// Correct
+import { track } from 'analytiq'
+track('page_view')
+```
+
+---
+
+## No data after switching to the deployed Vercel URL
+
+**Problem:** Works locally but not on the deployed production URL.
+
+**Checklist:**
+1. Did you add `VITE_ANALYTIQ_KEY` (or `NEXT_PUBLIC_ANALYTIQ_KEY`) as an environment variable in the Vercel/Netlify dashboard?
+2. After adding the env var on Vercel, did you redeploy? (Vercel needs a new deployment to pick up env var changes)
+
+---
+
+## Still stuck?
+
+Open the browser console (F12 → Console tab) and look for any message starting with `[analytiq]`. Copy that message and check the FAQ, or [contact support](https://analytiq-two.vercel.app).

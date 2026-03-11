@@ -1,0 +1,78 @@
+---
+title: "FAQ"
+description: "Answers to the most common questions about using the Analytiq SDK."
+---
+
+<AccordionGroup>
+
+<Accordion title="Do I need to change my backend code?">
+  **No.** The Analytiq SDK runs entirely in the browser (frontend). Your backend — whether it's Express, Django, Laravel, or anything else — doesn't need any changes. The SDK sends events directly from the user's browser to Analytiq's server.
+</Accordion>
+
+<Accordion title="Can I test Analytiq without deploying my app?">
+  **Yes.** Just run your app locally with `npm run dev`. Events sent from `http://localhost` will appear on your Analytiq dashboard in real time. No GitHub push or deployment needed — as long as your internet connection is working, it works.
+</Accordion>
+
+<Accordion title="How long before I see data on the dashboard?">
+  **Within 5-10 seconds.** Events appear on your dashboard in real time. There is no delay or batching — every `track()` call is sent immediately and shows up within seconds.
+</Accordion>
+
+<Accordion title="What is the API key? Is it safe to put in frontend code?">
+  Your API key starts with `pk_live_` — the `pk` stands for "public key". It is designed to be used in browser code. It's safe to put it in your frontend without risk. It identifies your project, but does not give anyone access to your Analytiq account or your users' data.
+</Accordion>
+
+<Accordion title="What happens if I call track() before init()?">
+  The event is automatically queued in memory. The moment `init()` is called, all queued events are sent immediately. You won't lose any events.
+</Accordion>
+
+<Accordion title="Does Analytiq work with TypeScript?">
+  **Yes, fully.** TypeScript type definitions are built into the package — you don't need to install `@types/analytiq`. Just `import { track } from 'analytiq'` and TypeScript will auto-complete everything correctly.
+</Accordion>
+
+<Accordion title="Will Analytiq slow down my app?">
+  **No.** All network requests are asynchronous — they run in the background and never block your app's UI. The SDK is also extremely lightweight (under 5KB).
+</Accordion>
+
+<Accordion title="Can I track users who are not logged in?">
+  **Yes.** You don't have to call `identify()`. Events without a user identity are tracked as anonymous visitors. You'll see the events on your dashboard, just without a specific user attached to them.
+</Accordion>
+
+<Accordion title="What if a user's internet goes down mid-session?">
+  The SDK will retry the failed request once after 500ms. If the retry also fails, the event is dropped. Events are not persisted to disk — if the browser is closed before retry, the event is lost.
+</Accordion>
+
+<Accordion title="Where do I find my API key?">
+  Log in to your Analytiq dashboard → click your project → click **Settings** in the sidebar → scroll to **Public API Key** → click **Reveal** → click **Copy**.
+</Accordion>
+
+<Accordion title="Can I use yarn or pnpm instead of npm?">
+  **Yes.** All three work identically with Analytiq:
+  - npm: `npm install analytiq`
+  - yarn: `yarn add analytiq`
+  - pnpm: `pnpm add analytiq`
+</Accordion>
+
+<Accordion title="Can I use Analytiq without npm (plain HTML website)?">
+  **Yes.** Use the CDN version — no npm or Node.js required. Paste this in your HTML:
+  ```html
+  <script type="module">
+    import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+    init('pk_live_YOUR_KEY')
+    track('page_view')
+  </script>
+  ```
+</Accordion>
+
+<Accordion title="Do I need to call init() on every page?">
+  **No.** Call `init()` once in your root entry file (`src/main.jsx` for React, `pages/_app.tsx` for Next.js). It stays initialized for the entire session.
+</Accordion>
+
+<Accordion title="What does reset() do exactly?">
+  `reset()` clears the user identity set by `identify()`, empties the event queue, and clears the deduplication cache. Call it when a user logs out so the next user's events aren't accidentally attributed to the previous user.
+</Accordion>
+
+<Accordion title="Why do I see duplicate events on the dashboard?">
+  The most common cause is calling `init()` more than once. Make sure `init()` is only called in one place — your app's root entry file. If your framework re-renders the root component multiple times, wrap `init()` in a check.
+</Accordion>
+
+</AccordionGroup>
