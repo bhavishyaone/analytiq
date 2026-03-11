@@ -1,0 +1,216 @@
+---
+title: "Tracking Button Clicks"
+description: "Track every button, link, and interactive element in your app to understand what users are clicking most."
+---
+
+## Why track button clicks?
+
+Page views tell you *where* users go. Button clicks tell you *what they do*. Knowing which buttons your users click most — and which ones they ignore — helps you understand what matters to your users and what doesn't.
+
+**Examples of things to learn from button tracking:**
+- Which call-to-action button converts better — "Start Free Trial" or "Try Now"?
+- Are users clicking the pricing page button or ignoring it?
+- How many users click "Upgrade" but never complete the purchase?
+
+---
+
+## The basic pattern
+
+To track a button, you need to add an `onClick` action to it. If your button already has an action, just add `track()` inside it. If it doesn't, add a new action.
+
+**Before:**
+```jsx
+<button>View Pricing</button>
+```
+
+**After (tracking added):**
+```jsx
+<button onClick={() => track('pricing_button_clicked')}>View Pricing</button>
+```
+
+Here is exactly how it looks in different frameworks:
+
+<Tabs>
+  <Tab title="React / Next.js (JavaScript)">
+    ```jsx
+    import { track } from 'analytiq'
+
+    // Option A — button with an existing handler
+    function handleSignup() {
+      track('signup_button_clicked', { location: 'hero_section' })
+      // ... rest of your existing signup logic
+    }
+
+    // Option B — button with no handler (inline)
+    <button onClick={() => track('pricing_button_clicked')}>
+      View Pricing
+    </button>
+    ```
+  </Tab>
+  <Tab title="React / Next.js (TypeScript)">
+    ```tsx
+    import { track } from 'analytiq'
+
+    // Option A — button with an existing handler
+    function handleSignup(): void {
+      track('signup_button_clicked', { location: 'hero_section' })
+      // ... rest of your existing signup logic
+    }
+
+    // Option B — button with no handler (inline)
+    <button onClick={(): void => track('pricing_button_clicked')}>
+      View Pricing
+    </button>
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    ```vue
+    <script setup>
+    import { track } from 'analytiq'
+
+    function handleSignup() {
+      track('signup_button_clicked', { location: 'hero_section' })
+    }
+    </script>
+
+    <template>
+      <button @click="handleSignup">Sign Up</button>
+      <!-- Or inline: -->
+      <button @click="() => track('pricing_clicked')">Pricing</button>
+    </template>
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    ```html
+    <button id="signupBtn">Sign Up Free</button>
+
+    <script type="module">
+      import { track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+      document.getElementById('signupBtn').addEventListener('click', function() {
+        track('signup_button_clicked', { location: 'hero_section' })
+      })
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Adding context with properties
+
+Always add a `location` property so you know *where* in your app the button was clicked. Same button might exist in multiple places:
+
+```js
+// Hero section button
+track('signup_clicked', { location: 'hero_section' })
+
+// Navbar button — same event name, different location
+track('signup_clicked', { location: 'navbar' })
+
+// Footer button
+track('signup_clicked', { location: 'footer' })
+```
+
+This lets you compare which placement drives the most signups.
+
+---
+
+## Tracking navigation links
+
+Links work the same way as buttons:
+
+<Tabs>
+  <Tab title="React / Next.js">
+    ```jsx
+    import { track } from 'analytiq'
+    import { Link } from 'react-router-dom'  // or next/link
+
+    // React Router
+    <Link to="/pricing" onClick={() => track('pricing_link_clicked', { from: 'navbar' })}>
+      Pricing
+    </Link>
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    ```html
+    <a href="/pricing" id="pricingLink">Pricing</a>
+
+    <script type="module">
+      import { track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+      document.getElementById('pricingLink').addEventListener('click', function() {
+        track('pricing_link_clicked', { from: 'navbar' })
+      })
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Real-world example — CTA buttons on a landing page
+
+```jsx
+// src/pages/Landing.jsx
+import { track } from 'analytiq'
+
+export function LandingPage() {
+
+  // Hero CTA
+  function handleHeroCTA() {
+    track('cta_clicked', { section: 'hero', button: 'Start Free Trial' })
+  }
+
+  // Feature section CTA
+  function handleFeatureCTA() {
+    track('cta_clicked', { section: 'features', button: 'See How It Works' })
+  }
+
+  // Pricing CTA
+  function handlePricingCTA(plan) {
+    track('cta_clicked', { section: 'pricing', plan: plan, button: 'Get Started' })
+  }
+
+  return (
+    <div>
+      <section className="hero">
+        <button onClick={handleHeroCTA}>Start Free Trial</button>
+      </section>
+
+      <section className="features">
+        <button onClick={handleFeatureCTA}>See How It Works</button>
+      </section>
+
+      <section className="pricing">
+        <button onClick={() => handlePricingCTA('pro')}>Get Pro</button>
+        <button onClick={() => handlePricingCTA('enterprise')}>Get Enterprise</button>
+      </section>
+    </div>
+  )
+}
+```
+
+---
+
+## Recommended properties for button click events
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `location` | string | Where on the page the button is | `'hero'`, `'navbar'`, `'footer'` |
+| `button` | string | The button's label text | `'Sign Up Free'`, `'Upgrade'` |
+| `page` | string | Which page the user is on | `'landing'`, `'dashboard'` |
+| `variant` | string | A/B test variant if applicable | `'variant_a'`, `'control'` |
+
+---
+
+## Naming your events
+
+Use this pattern: `[noun]_[action]`
+
+| Good | Bad |
+|--------|--------|
+| `signup_clicked` | `click` |
+| `pricing_button_clicked` | `buttonWasClicked` |
+| `upgrade_cta_clicked` | `btn1` |
+| `demo_request_clicked` | `Pricing Button Click` |

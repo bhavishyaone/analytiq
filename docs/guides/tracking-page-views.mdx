@@ -1,0 +1,228 @@
+---
+title: "Tracking Page Views"
+description: "Learn how to track every page your users visit — and how to do it automatically so you never miss a single visit."
+---
+
+## Why track page views?
+
+A `page_view` event tells you:
+- Which pages in your app are visited most
+- Where users first land when they open your app
+- Which pages users visit before signing up or purchasing
+- Which pages have high drop-off (users leave from there)
+
+This is the most fundamental event in any analytics setup. You should have it on every page.
+
+---
+
+## How page views work in single-page apps
+
+In a traditional website, each page is a separate HTML file — every new page load is automatic. In a React or Next.js app, the URL changes without a full page reload. This means we need to **manually tell Analytiq when the user navigates to a new page**.
+
+There are two approaches:
+1. **Per-component tracking** — add `track('page_view')` inside each page component individually
+2. **Auto-tracking** — add one listener at the root level that fires on every navigation
+
+---
+
+## Approach 1 — Per-component tracking (simpler)
+
+Add a `track()` call inside each page component. If the page function already exists, just add the 2 lines inside it.
+
+<Tabs>
+  <Tab title="React (JavaScript)">
+    ```jsx
+    // src/pages/Home.jsx — your existing file, add highlighted lines
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'       // ← ADD import
+
+    export function Home() {
+      useEffect(() => {
+        track('page_view', { page: 'Home', path: '/home' })  // ← ADD inside useEffect
+      }, [])
+      // [] = runs once when this page first loads
+
+      return <h1>Home</h1>
+    }
+    ```
+
+    ```jsx
+    // src/pages/Dashboard.jsx — same pattern, different page name
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'
+
+    export function Dashboard() {
+      useEffect(() => {
+        track('page_view', { page: 'Dashboard', path: '/dashboard' })
+      }, [])
+
+      return <h1>Dashboard</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="React (TypeScript)">
+    ```tsx
+    // src/pages/Home.tsx
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'
+
+    export function Home(): JSX.Element {
+      useEffect(() => {
+        track('page_view', { page: 'Home', path: '/home' })
+      }, [])
+
+      return <h1>Home</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="Next.js App Router">
+    ```tsx
+    'use client'
+
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'
+
+    export default function HomePage(): JSX.Element {
+      useEffect(() => {
+        track('page_view', { page: 'Home', path: window.location.pathname })
+      }, [])
+
+      return <main><h1>Home</h1></main>
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    ```vue
+    <script setup>
+    import { onMounted } from 'vue'
+    import { track } from 'analytiq'
+
+    onMounted(() => {
+      track('page_view', { page: 'Home' })
+    })
+    </script>
+
+    <template>
+      <h1>Home</h1>
+    </template>
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    ```html
+    <!-- Paste in every .html page -->
+    <script type="module">
+      import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+      init('pk_live_YOUR_KEY_HERE')
+
+      track('page_view', {
+        page: document.title,
+        path: window.location.pathname
+      })
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Approach 2 — Auto-track every page (recommended)
+
+Instead of adding `track()` to every component, listen for route changes at the root level. This catches every navigation automatically — even pages you forget to add tracking to.
+
+<Tabs>
+  <Tab title="React + React Router">
+    Add this to `src/App.jsx` or `src/App.tsx`:
+
+    ```jsx
+    import { useEffect } from 'react'
+    import { useLocation } from 'react-router-dom'
+    import { track } from 'analytiq'
+
+    export function App() {
+      const location = useLocation()
+
+      useEffect(() => {
+        // This fires every time the URL changes
+        track('page_view', {
+          path: location.pathname,
+          search: location.search
+        })
+      }, [location.pathname])
+      // ↑ The [location.pathname] means: re-run whenever the path changes
+
+      return (
+        <Routes>
+          {/* your existing routes */}
+        </Routes>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="Next.js Pages Router">
+    Add this to `pages/_app.tsx`:
+
+    ```tsx
+    import { useEffect } from 'react'
+    import { useRouter } from 'next/router'
+    import { init, track } from 'analytiq'
+    import type { AppProps } from 'next/app'
+
+    export default function MyApp({ Component, pageProps }: AppProps) {
+      const router = useRouter()
+
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+
+        // Track every navigation automatically
+        const handleRouteChange = (url: string): void => {
+          track('page_view', { path: url })
+        }
+
+        router.events.on('routeChangeComplete', handleRouteChange)
+        return () => router.events.off('routeChangeComplete', handleRouteChange)
+      }, [])
+
+      return <Component {...pageProps} />
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Recommended properties for page_view events
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `page` | string | Human-readable name of the page | `'Dashboard'`, `'Pricing'` |
+| `path` | string | URL path | `'/dashboard'`, `'/pricing'` |
+| `referrer` | string | Where they came from | `'google'`, `'/home'` |
+| `search` | string | URL query string if any | `'?plan=pro'` |
+
+```js
+track('page_view', {
+  page: 'Dashboard',
+  path: window.location.pathname,
+  referrer: document.referrer || 'direct'
+})
+```
+
+---
+
+## What if a user visits the same page twice?
+
+The SDK has built-in deduplication — if `track()` is called with the exact same event within 300ms, the duplicate is silently ignored. However, if a user navigates away and comes back, that's a new visit and gets tracked normally.
+
+---
+
+## Verifying it works
+
+1. Open your app in the browser
+2. Press **F12** → Console
+3. Navigate between pages
+4. Watch the Console for:
+   ```
+   [analytiq] Event sent: page_view
+   ```
+5. Check your Analytiq dashboard — each page navigation appears as a separate event

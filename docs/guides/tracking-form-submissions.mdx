@@ -1,0 +1,251 @@
+---
+title: "Tracking Form Submissions"
+description: "Track when users submit forms — signups, logins, contact forms, and checkout forms — to understand where your funnel drops off."
+---
+
+## Why track form submissions?
+
+Forms are the most critical moments in any app:
+- A signup form = a new user
+- A checkout form = revenue
+- A contact form = a lead
+
+If users are starting your signup form but not finishing it, you'll only know that by tracking both when the form **opens** and when it **submits successfully**.
+
+---
+
+## The form submission pattern
+
+There are two moments you want to track:
+1. When the user **starts** filling the form (optional but valuable)
+2. When the form **submits successfully**
+
+```js
+// Event 1: User opens / focuses the form (optional)
+track('form_started', { form: 'signup' })
+
+// Event 2: Form submitted AND your API returned success
+track('form_submitted', { form: 'signup' })
+```
+
+---
+
+## React — Signup form example
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { useState } from 'react'
+    import { track } from 'analytiq'
+    import { identify } from 'analytiq'
+
+    export function SignupForm() {
+      const [email, setEmail] = useState('')
+      const [password, setPassword] = useState('')
+
+      // Track when user starts typing (first interaction)
+      function handleFirstFocus() {
+        track('signup_form_started')
+      }
+
+      // Track successful submission
+      async function handleSubmit(e) {
+        e.preventDefault()
+
+        try {
+          const response = await api.post('/auth/register', { email, password })
+          const user = response.data.user
+
+          // Track success AFTER the API call succeeds
+          track('signup_completed', { method: 'email' })
+          identify(user.id)   // link future events to this user
+
+          navigate('/dashboard')
+
+        } catch (error) {
+          // Track failure too — useful to know how often signups fail
+          track('signup_failed', { reason: error.message })
+        }
+      }
+
+      return (
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            onFocus={handleFirstFocus}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Create Account</button>
+        </form>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { useState, FocusEvent, FormEvent } from 'react'
+    import { track, identify } from 'analytiq'
+
+    export function SignupForm(): JSX.Element {
+      const [email, setEmail] = useState<string>('')
+      const [password, setPassword] = useState<string>('')
+
+      function handleFirstFocus(_e: FocusEvent<HTMLInputElement>): void {
+        track('signup_form_started')
+      }
+
+      async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+        e.preventDefault()
+
+        try {
+          const response = await api.post('/auth/register', { email, password })
+          const user: { id: string } = response.data.user
+
+          track('signup_completed', { method: 'email' })
+          identify(user.id)
+
+          navigate('/dashboard')
+
+        } catch (error: unknown) {
+          track('signup_failed', {
+            reason: error instanceof Error ? error.message : 'unknown'
+          })
+        }
+      }
+
+      return (
+        <form onSubmit={handleSubmit}>
+          <input type="email" onFocus={handleFirstFocus}
+            onChange={e => setEmail(e.target.value)} placeholder="Email" />
+          <input type="password"
+            onChange={e => setPassword(e.target.value)} placeholder="Password" />
+          <button type="submit">Create Account</button>
+        </form>
+      )
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Login form example
+
+```jsx
+import { track, identify } from 'analytiq'
+
+async function handleLogin(email, password) {
+  try {
+    const response = await api.post('/auth/login', { email, password })
+    const user = response.data.user
+
+    track('login', { method: 'email' })
+    identify(user.id)
+    navigate('/dashboard')
+
+  } catch (error) {
+    track('login_failed', { reason: 'invalid_credentials' })
+  }
+}
+```
+
+---
+
+## Contact / enquiry form example
+
+```jsx
+import { track } from 'analytiq'
+
+async function handleContactSubmit(formData) {
+  try {
+    await api.post('/contact', formData)
+    track('contact_form_submitted', {
+      subject: formData.subject,
+      from_page: window.location.pathname
+    })
+    showSuccessMessage()
+
+  } catch (error) {
+    track('contact_form_failed')
+  }
+}
+```
+
+---
+
+## Checkout / payment form example
+
+```jsx
+import { track } from 'analytiq'
+
+async function handleCheckout(cartData) {
+  // Track when they START the checkout
+  track('checkout_started', {
+    items: cartData.items.length,
+    total: cartData.total
+  })
+
+  try {
+    const response = await api.post('/payments/checkout', cartData)
+
+    // Track successful payment
+    track('purchase', {
+      amount: cartData.total,
+      currency: 'USD',
+      items: cartData.items.length
+    })
+
+    navigate('/order-confirmation')
+
+  } catch (error) {
+    // Track failed payment
+    track('checkout_failed', {
+      reason: error.message,
+      total: cartData.total
+    })
+  }
+}
+```
+
+---
+
+## Key rule: Don't track the 'Submit' button directly!
+
+It is very tempting to just add `track()` to the final submit button. **Do not do this.**
+
+If you track the button click, your dashboard will show a "Signup" or "Purchase" even if the user's credit card was declined or they typed the wrong password. You will get fake data.
+
+Always add your tracking code **after** your database or payment system confirms it was successful:
+
+```js
+// Wrong — tracks before knowing if it actually worked
+track('signup_completed')
+await database.saveUser(data)
+
+// Correct — tracks only if the database save was successful
+await database.saveUser(data)
+track('signup_completed')
+```
+
+
+---
+
+## Recommended form events
+
+| Event | When to fire |
+|-------|-------------|
+| `signup_form_started` | User focuses the first input field |
+| `signup_completed` | API returns success |
+| `signup_failed` | API returns error |
+| `login` | Login API returns success |
+| `login_failed` | Login fails |
+| `contact_form_submitted` | Contact form sends successfully |
+| `checkout_started` | User clicks "Proceed to Checkout" |
+| `purchase` | Payment confirmed |
+| `checkout_failed` | Payment fails |
