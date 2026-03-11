@@ -1,0 +1,318 @@
+---
+title: "Next.js — Pages Router"
+description: "Step-by-step guide to add Analytiq to your Next.js project using the /pages directory. Covers both JavaScript and TypeScript."
+---
+
+<Note>
+  This guide is for Next.js projects with a **`/pages` directory**. If you have an `/app` directory, [use the App Router guide →](/frameworks/nextjs-app-router)
+</Note>
+
+## How to check if you have JavaScript or TypeScript
+
+Look inside your `/pages` folder:
+- If you see `_app.tsx`, `index.tsx` → you are using **TypeScript**
+- If you see `_app.js`, `index.js` → you are using **JavaScript**
+
+Both work the same. Pick the matching tab below.
+
+---
+
+## Step 1 — Install the SDK
+
+```bash
+npm install analytiq
+```
+
+---
+
+## Step 2 — Initialize in `pages/_app`
+
+`_app` is a special Next.js file that wraps **every page** in your project. It's the perfect place to call `init()` once.
+
+<Tabs>
+  <Tab title="JavaScript (pages/_app.js)">
+    Open `pages/_app.js` and paste:
+
+    ```jsx
+    import { useEffect } from 'react'
+    import { init } from 'analytiq'
+
+    export default function MyApp({ Component, pageProps }) {
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+      }, [])
+      // The [] means: run once when the app first starts
+
+      return <Component {...pageProps} />
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (pages/_app.tsx)">
+    Open `pages/_app.tsx` and paste:
+
+    ```tsx
+    import { useEffect } from 'react'
+    import { init } from 'analytiq'
+    import type { AppProps } from 'next/app'
+
+    export default function MyApp({ Component, pageProps }: AppProps) {
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+      }, [])
+      // The [] means: run once when the app first starts
+
+      return <Component {...pageProps} />
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Replace `pk_live_YOUR_KEY_HERE` with your actual API key.
+</Warning>
+
+---
+
+## Step 3 — Track a page view on any page
+
+Open any existing page file. Your page function already exists — just add the highlighted lines inside it.
+
+<Tabs>
+  <Tab title="JavaScript (pages/index.js)">
+    ```jsx
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'      // ← ADD this import
+
+    export default function HomePage() {
+      useEffect(() => {
+        track('page_view', { page: 'Home' }) // ← ADD inside useEffect
+      }, [])
+
+      return <main><h1>Home</h1></main>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (pages/index.tsx)">
+    ```tsx
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'      // ← ADD this import
+
+    export default function HomePage(): JSX.Element {
+      useEffect(() => {
+        track('page_view', { page: 'Home' }) // ← ADD inside useEffect
+      }, [])
+
+      return <main><h1>Home</h1></main>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 4 — Auto-track every page change (Recommended)
+
+Instead of adding `track()` to every single page, add one listener in `_app` so page views are tracked automatically on every navigation:
+
+<Tabs>
+  <Tab title="JavaScript (pages/_app.js)">
+    ```jsx
+    import { useEffect } from 'react'
+    import { useRouter } from 'next/router'
+    import { init, track } from 'analytiq'
+
+    export default function MyApp({ Component, pageProps }) {
+      const router = useRouter()
+
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+
+        // Track every time the user navigates to a new page
+        const handlePageChange = (url) => {
+          track('page_view', { path: url })
+        }
+
+        router.events.on('routeChangeComplete', handlePageChange)
+
+        // Cleanup when the app unmounts
+        return () => router.events.off('routeChangeComplete', handlePageChange)
+      }, [])
+
+      return <Component {...pageProps} />
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (pages/_app.tsx)">
+    ```tsx
+    import { useEffect } from 'react'
+    import { useRouter } from 'next/router'
+    import { init, track } from 'analytiq'
+    import type { AppProps } from 'next/app'
+
+    export default function MyApp({ Component, pageProps }: AppProps) {
+      const router = useRouter()
+
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+
+        // Track every time the user navigates to a new page
+        const handlePageChange = (url: string): void => {
+          track('page_view', { path: url })
+        }
+
+        router.events.on('routeChangeComplete', handlePageChange)
+
+        // Cleanup when the app unmounts
+        return () => router.events.off('routeChangeComplete', handlePageChange)
+      }, [])
+
+      return <Component {...pageProps} />
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 5 — Track a button click
+
+Add `track()` inside your existing button handler:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    import { track } from 'analytiq'   // ← ADD import at top
+
+    // Add ONE line inside your existing function
+    function handleSignup() {
+      track('signup_clicked', { plan: 'pro' })   // ← ADD this
+      // ... your existing signup logic
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    import { track } from 'analytiq'   // ← ADD import at top
+
+    // Add ONE line inside your existing function
+    function handleSignup(): void {
+      track('signup_clicked', { plan: 'pro' })   // ← ADD this
+      // ... your existing signup logic
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 6 — Identify users after login
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    import { identify } from 'analytiq'
+
+    async function handleLogin(email, password) {
+      const res = await api.post('/auth/login', { email, password })
+      identify(res.data.user.id)    // ← ADD after login succeeds
+      router.push('/dashboard')
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    import { identify } from 'analytiq'
+
+    async function handleLogin(email: string, password: string): Promise<void> {
+      const res = await api.post('/auth/login', { email, password })
+      identify(res.data.user.id)    // ← ADD after login succeeds
+      router.push('/dashboard')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 7 — Reset on logout
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    import { reset } from 'analytiq'
+
+    function handleLogout() {
+      reset()              // ← ADD as the first line
+      router.push('/login')
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    import { reset } from 'analytiq'
+
+    function handleLogout(): void {
+      reset()              // ← ADD as the first line
+      router.push('/login')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Advanced — Send multiple events at once
+
+Use `batchTrack()` to send multiple events in a **single network request**:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+
+    export default function DashboardPage() {
+      useEffect(() => {
+        batchTrack([
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start' },
+        ])
+      }, [])
+
+      return <main><h1>Dashboard</h1></main>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+    import type { BatchEvent } from 'analytiq'
+
+    export default function DashboardPage(): JSX.Element {
+      useEffect(() => {
+        const events: BatchEvent[] = [
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start' },
+        ]
+        batchTrack(events)
+      }, [])
+
+      return <main><h1>Dashboard</h1></main>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 8 — Verify it's working
+
+1. Run: `npm run dev`
+2. Open `http://localhost:3000`
+3. Press **F12** → **Console** tab
+4. Look for: `[analytiq] Initialized successfully.`
+5. Go to your Analytiq dashboard → Events
+6. Events appear within 5-10 seconds

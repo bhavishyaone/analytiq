@@ -1,0 +1,385 @@
+---
+title: "Next.js — App Router"
+description: "Step-by-step guide to add Analytiq to your Next.js 13+ project using the /app directory. Covers both JavaScript and TypeScript."
+---
+
+<Warning>
+  This guide is for Next.js projects that use the **`/app` directory** (Next.js 13 and above). If your project has a `/pages` folder instead, [use this guide →](/frameworks/nextjs-pages-router)
+</Warning>
+
+<Note>
+  **Before starting:** Get your API key from [Settings →](/api-key)
+</Note>
+
+## How to check if you have JavaScript or TypeScript
+
+Look inside your project's `/app` folder:
+- If you see `page.tsx`, `layout.tsx` → you are using **TypeScript**
+- If you see `page.js`, `layout.js` → you are using **JavaScript**
+
+Both work the same. Just pick the matching tab in each step below.
+
+---
+
+## Why we use `'use client'` and `useEffect()`
+
+<Info>
+  Next.js runs some code on the **server** (your hosting provider's computer) and some in the **browser** (the user's computer). The Analytiq SDK only works in the browser — it can't run on a server.
+
+  To tell Next.js "run this in the browser only", you must:
+  1. Add `'use client'` as the very first line of any file that uses Analytiq
+  2. Wrap all `init()` and `track()` calls inside `useEffect()` so they run after the page loads in the browser
+</Info>
+
+---
+
+## Step 1 — Install the SDK
+
+```bash
+npm install analytiq
+```
+
+---
+
+## Step 2 — Create a Provider file
+
+This file initializes Analytiq once for your entire app.
+
+**Create a new file** at the path shown in your tab:
+
+<Tabs>
+  <Tab title="JavaScript (app/providers.js)">
+    Create `app/providers.js` and paste this entire block:
+
+    ```jsx
+    'use client'
+    // ↑ This MUST be the first line — tells Next.js to run this in the browser
+
+    import { useEffect } from 'react'
+    import { init } from 'analytiq'
+
+    export function AnalytiqProvider({ children }) {
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+      }, [])
+      // The [] means: run once when the app first loads
+
+      return children
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (app/providers.tsx)">
+    Create `app/providers.tsx` and paste this entire block:
+
+    ```tsx
+    'use client'
+    // ↑ This MUST be the first line — tells Next.js to run this in the browser
+
+    import { useEffect } from 'react'
+    import { init } from 'analytiq'
+
+    export function AnalytiqProvider({ children }: { children: React.ReactNode }) {
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+      }, [])
+      // The [] means: run once when the app first loads
+
+      return <>{children}</>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Replace `pk_live_YOUR_KEY_HERE` with your actual API key from the Settings page.
+</Warning>
+
+---
+
+## Step 3 — Wrap your app with the Provider
+
+Open your existing `app/layout` file and add the provider around `{children}`:
+
+<Tabs>
+  <Tab title="JavaScript (app/layout.js)">
+    ```jsx
+    import { AnalytiqProvider } from './providers'
+
+    export default function RootLayout({ children }) {
+      return (
+        <html lang="en">
+          <body>
+            <AnalytiqProvider>
+              {children}
+            </AnalytiqProvider>
+          </body>
+        </html>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (app/layout.tsx)">
+    ```tsx
+    import { AnalytiqProvider } from './providers'
+
+    export default function RootLayout({
+      children,
+    }: {
+      children: React.ReactNode
+    }) {
+      return (
+        <html lang="en">
+          <body>
+            <AnalytiqProvider>
+              {children}
+            </AnalytiqProvider>
+          </body>
+        </html>
+      )
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 4 — Track a page view on any page
+
+Open any existing page file and add the tracking code inside it. Your `Home` function already exists — just add the highlighted lines.
+
+<Tabs>
+  <Tab title="JavaScript (page.js)">
+    ```jsx
+    'use client'
+    // ↑ Required at the top of any file that uses Analytiq
+
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'        // ← ADD this import
+
+    export default function HomePage() {
+      useEffect(() => {
+        track('page_view', { page: 'Home' })  // ← ADD inside useEffect
+      }, [])
+
+      return <main><h1>Home</h1></main>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (page.tsx)">
+    ```tsx
+    'use client'
+    // ↑ Required at the top of any file that uses Analytiq
+
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'        // ← ADD this import
+
+    export default function HomePage(): JSX.Element {
+      useEffect(() => {
+        track('page_view', { page: 'Home' })  // ← ADD inside useEffect
+      }, [])
+
+      return <main><h1>Home</h1></main>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 5 — Track a button click
+
+Add `track()` inside your existing button handler, or directly on the button:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    'use client'
+
+    import { track } from 'analytiq'   // ← ADD import
+
+    export default function PricingPage() {
+
+      // Option A: Add to an existing function
+      function handleUpgrade() {
+        track('upgrade_clicked', { plan: 'pro' })   // ← ADD this line
+        // ... your existing upgrade logic
+      }
+
+      // Option B: Directly on the button (no existing handler)
+      return (
+        <button onClick={() => track('cta_clicked')}>
+          Get Started
+        </button>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    'use client'
+
+    import { track } from 'analytiq'   // ← ADD import
+
+    export default function PricingPage(): JSX.Element {
+
+      // Option A: Add to an existing function
+      function handleUpgrade(): void {
+        track('upgrade_clicked', { plan: 'pro' })   // ← ADD this line
+        // ... your existing upgrade logic
+      }
+
+      // Option B: Directly on the button (no existing handler)
+      return (
+        <button onClick={(): void => track('cta_clicked')}>
+          Get Started
+        </button>
+      )
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 6 — Identify users after login
+
+Add `identify()` inside your existing login function:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    'use client'
+
+    import { identify } from 'analytiq'   // ← ADD import
+
+    async function handleLogin(email, password) {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      })
+      const user = await res.json()
+
+      identify(user.id)    // ← ADD this line right after login succeeds
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    'use client'
+
+    import { identify } from 'analytiq'   // ← ADD import
+
+    async function handleLogin(email: string, password: string): Promise<void> {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      })
+      const user = await res.json()
+
+      identify(user.id)    // ← ADD this line right after login succeeds
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 7 — Reset on logout
+
+Add `reset()` inside your existing logout function:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    import { reset } from 'analytiq'   // ← ADD import
+
+    function handleLogout() {
+      reset()              // ← ADD this as the first line
+      // ... your existing logout logic
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    import { reset } from 'analytiq'   // ← ADD import
+
+    function handleLogout(): void {
+      reset()              // ← ADD this as the first line
+      // ... your existing logout logic
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Advanced — Send multiple events at once
+
+Use `batchTrack()` to send multiple events in a **single network request**. Useful for tracking several things when a page first loads:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```jsx
+    'use client'
+
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+
+    export default function DashboardPage() {
+      useEffect(() => {
+        batchTrack([
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start' },
+        ])
+      }, [])
+
+      return <main><h1>Dashboard</h1></main>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```tsx
+    'use client'
+
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+    import type { BatchEvent } from 'analytiq'
+
+    export default function DashboardPage(): JSX.Element {
+      useEffect(() => {
+        const events: BatchEvent[] = [
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start' },
+        ]
+        batchTrack(events)
+      }, [])
+
+      return <main><h1>Dashboard</h1></main>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 8 — Verify it's working
+
+1. Restart your app: `npm run dev`
+2. Open `http://localhost:3000` in the browser
+3. Press **F12** → click the **Console** tab
+4. Look for: `[analytiq] Initialized successfully.`
+5. Go to your Analytiq dashboard → Events
+6. Your `page_view` event appears within 5-10 seconds
+
+---
+
+## Common Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Missing `'use client'` at top | Server component error in terminal | Add `'use client'` as the VERY FIRST line |
+| `track()` called outside `useEffect()` | Error about hooks or browser APIs | Wrap it: `useEffect(() => { track(...) }, [])` |
+| Calling `init()` in every component | Events appear twice | Only call `init()` inside `providers.js` once |
+| `process.env.ANALYTIQ_KEY` without `NEXT_PUBLIC_` | `undefined` key warning | Rename to `NEXT_PUBLIC_ANALYTIQ_KEY` |

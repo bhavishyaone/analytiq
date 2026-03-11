@@ -1,0 +1,413 @@
+---
+title: "React.js"
+description: "Step-by-step guide to add Analytiq to your React app. Works for both JavaScript (.jsx) and TypeScript (.tsx) projects."
+---
+
+<Note>
+  **Before starting:** Get your API key from the [Settings page →](/api-key)
+</Note>
+
+<Info>
+  **Do you have `.jsx` files or `.tsx` files?**
+  - `.jsx` = your project uses **JavaScript** (no types)
+  - `.tsx` = your project uses **TypeScript** (with types)
+
+  Both work exactly the same with Analytiq. Use the correct tab in each step below.
+</Info>
+
+## Step 1 — Install the SDK
+
+Open your terminal inside your React project folder and run:
+
+```bash
+npm install analytiq
+```
+
+## Step 2 — Initialize once in your root file
+
+This is where you "activate" Analytiq. You do this **once** — in your app's root entry file. After this, Analytiq works everywhere in your project.
+
+**Find your entry file:**
+- Vite + JavaScript → `src/main.jsx`
+- Vite + TypeScript → `src/main.tsx`
+- Create React App + JavaScript → `src/index.js`
+- Create React App + TypeScript → `src/index.tsx`
+
+Add these lines **at the very top**, before everything else:
+
+<Tabs>
+  <Tab title="JavaScript (.jsx / .js)">
+    ```jsx
+    import { init } from 'analytiq'
+
+    init('pk_live_YOUR_KEY_HERE')
+    ```
+
+    Your full `src/main.jsx` will look like this:
+
+    ```jsx
+    import { init } from 'analytiq'
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import App from './App.jsx'
+    import './index.css'
+
+    // Initialize Analytiq once at the top
+    init('pk_live_YOUR_KEY_HERE')
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    )
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx / .ts)">
+    ```tsx
+    import { init } from 'analytiq'
+
+    init('pk_live_YOUR_KEY_HERE')
+    ```
+
+    Your full `src/main.tsx` will look like this:
+
+    ```tsx
+    import { init } from 'analytiq'
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import App from './App.tsx'
+    import './index.css'
+
+    // Initialize Analytiq once at the top
+    init('pk_live_YOUR_KEY_HERE')
+
+    ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    )
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Replace `pk_live_YOUR_KEY_HERE` with your actual API key from the Settings page.
+</Warning>
+
+## Step 3 — Track a page view
+
+Open any page component and add a `track()` call inside it. Example: your `Home` component already exists — just add the highlighted lines inside it.
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    // src/pages/Home.jsx — your existing file, add the 3 lines shown
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'       // ← ADD this import
+
+    export function Home() {
+      useEffect(() => {
+        track('page_view', { page: 'Home' })  // ← ADD this inside useEffect
+      }, [])
+      // The [] means: run once when this page first loads
+
+      return <h1>Home Page</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    // src/pages/Home.tsx — your existing file, add the 3 lines shown
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'       // ← ADD this import
+
+    export function Home(): JSX.Element {
+      useEffect(() => {
+        track('page_view', { page: 'Home' })  // ← ADD this inside useEffect
+      }, [])
+      // The [] means: run once when this page first loads
+
+      return <h1>Home Page</h1>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Step 4 — Identify who the user is (after login)
+
+After login succeeds, call `identify()` with the user's ID. Add this one line inside your existing login function.
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { identify } from 'analytiq'   // ← ADD this import
+
+    // Your existing login function — add ONE line inside it
+    async function handleLogin(email, password) {
+      const response = await api.post('/auth/login', { email, password })
+      identify(response.data.user.id)         // ← ADD this line after login
+      navigate('/dashboard')
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { identify } from 'analytiq'   // ← ADD this import
+
+    // Your existing login function — add ONE line inside it
+    async function handleLogin(email: string, password: string): Promise<void> {
+      const response = await api.post('/auth/login', { email, password })
+      identify(response.data.user.id)         // ← ADD this line after login
+      navigate('/dashboard')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Step 5 — Track a button click
+
+Find your existing button. Add `track()` inside the existing click handler — or add a short `onClick` directly.
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { track } from 'analytiq'   // ← ADD this import
+
+    // Option A: Add to existing click handler
+    function handleSignup() {
+      track('signup_clicked', { location: 'hero' })  // ← ADD inside existing function
+      // ... rest of your signup logic
+    }
+
+    // Option B: Add directly on the button (if no handler exists)
+    <button onClick={() => track('signup_clicked')}>
+      Sign Up Free
+    </button>
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { track } from 'analytiq'   // ← ADD this import
+
+    // Option A: Add to existing click handler
+    function handleSignup(): void {
+      track('signup_clicked', { location: 'hero' })  // ← ADD inside existing function
+      // ... rest of your signup logic
+    }
+
+    // Option B: Add directly on the button (if no handler exists)
+    <button onClick={(): void => track('signup_clicked')}>
+      Sign Up Free
+    </button>
+    ```
+  </Tab>
+</Tabs>
+
+## Step 6 — Reset on logout
+
+Add `reset()` inside your existing logout function:
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { reset } from 'analytiq'   // ← ADD this import
+
+    // Your existing logout function — add ONE line
+    function handleLogout() {
+      reset()              // ← ADD this line first
+      navigate('/login')
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { reset } from 'analytiq'   // ← ADD this import
+
+    // Your existing logout function — add ONE line
+    function handleLogout(): void {
+      reset()              // ← ADD this line first
+      navigate('/login')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Step 7 — Verify it's working
+
+1. Run your app: `npm run dev`
+2. Open your browser (`http://localhost:5173` or `http://localhost:3000`)
+3. Press **F12** → click the **Console** tab
+4. Look for this message:
+   ```
+   [analytiq] Initialized successfully.
+   ```
+5. Go to your **Analytiq Dashboard** → Events section
+6. Your `page_view` event should appear within **5-10 seconds**
+
+## Complete Example
+
+Here is a fully working component showing all features together:
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    // src/pages/Dashboard.jsx
+    import { useEffect } from 'react'
+    import { track, identify, reset } from 'analytiq'
+
+    export function Dashboard({ user }) {
+
+      useEffect(() => {
+        if (user) {
+          identify(user.id)    // link events to this user
+        }
+        track('page_view', { page: 'Dashboard' })
+      }, [])
+
+      function handleUpgrade() {
+        track('upgrade_clicked', { plan: 'pro' })
+      }
+
+      function handleLogout() {
+        reset()               // clear user identity
+        window.location.href = '/login'
+      }
+
+      return (
+        <div>
+          <h1>Dashboard</h1>
+          <button onClick={handleUpgrade}>Upgrade to Pro</button>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    // src/pages/Dashboard.tsx
+    import { useEffect } from 'react'
+    import { track, identify, reset } from 'analytiq'
+
+    interface User {
+      id: string
+      email: string
+    }
+
+    interface DashboardProps {
+      user: User | null
+    }
+
+    export function Dashboard({ user }: DashboardProps): JSX.Element {
+
+      useEffect(() => {
+        if (user) {
+          identify(user.id)    // link events to this user
+        }
+        track('page_view', { page: 'Dashboard' })
+      }, [])
+
+      function handleUpgrade(): void {
+        track('upgrade_clicked', { plan: 'pro' })
+      }
+
+      function handleLogout(): void {
+        reset()               // clear user identity
+        window.location.href = '/login'
+      }
+
+      return (
+        <div>
+          <h1>Dashboard</h1>
+          <button onClick={handleUpgrade}>Upgrade to Pro</button>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      )
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced — Send multiple events at once
+
+Use `batchTrack()` instead of `track()` when you want to send **multiple events in a single network request**. Perfect for app startup or when a page loads and you need to record several things at once.
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+
+    export function Dashboard({ user }) {
+      useEffect(() => {
+        batchTrack([
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start', properties: { userId: user?.id } },
+        ])
+      }, [])
+
+      return <h1>Dashboard</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+    import type { BatchEvent } from 'analytiq'
+
+    interface DashboardProps {
+      user: { id: string } | null
+    }
+
+    export function Dashboard({ user }: DashboardProps): JSX.Element {
+      useEffect(() => {
+        const events: BatchEvent[] = [
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start', properties: { userId: user?.id ?? null } },
+        ]
+        batchTrack(events)
+      }, [])
+
+      return <h1>Dashboard</h1>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+  Use `track()` for single events that happen at different times (button clicks, form submits).
+  Use `batchTrack()` for multiple events you want to send together at the same moment (page load, app startup).
+</Info>
+
+## Using Environment Variables (Recommended)
+
+Instead of hardcoding your API key in the file, store it in a `.env` file:
+
+**Create `.env` in your project root:**
+```
+VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+```
+
+**Update your entry file:**
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { init } from 'analytiq'
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { init } from 'analytiq'
+    init(import.meta.env.VITE_ANALYTIQ_KEY as string)
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Add `.env` to your `.gitignore` file so your API key never gets uploaded to GitHub.
+</Note>
