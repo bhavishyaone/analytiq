@@ -1,0 +1,93 @@
+---
+title: "TypeScript"
+description: "Use Analytiq in TypeScript projects. Full types are included — no @types package needed."
+---
+
+<Note>
+  The Analytiq SDK ships with full TypeScript definitions built in. You do NOT need to install `@types/analytiq` — it doesn't exist because types are already included.
+</Note>
+
+## Step 1 — Install the SDK
+
+```bash
+npm install analytiq
+```
+
+## Step 2 — All 5 functions with TypeScript types
+
+```tsx
+import { init, track, identify, reset, batchTrack } from 'analytiq'
+import type { InitOptions, EventProperties, BatchEvent } from 'analytiq'
+
+// init — fully typed
+init('pk_live_YOUR_KEY_HERE')
+
+// identify — userId must be a string
+identify('user_abc123')
+
+// track — eventName must be string, properties are typed
+const props: EventProperties = {
+  page: '/home',      // string allowed
+  count: 42,          // number allowed
+  premium: true,      // boolean allowed
+  referrer: null,     // null allowed
+}
+track('page_view', props)
+
+// batchTrack — typed array of events
+const events: BatchEvent[] = [
+  { name: 'session_start', properties: { referrer: 'google' } },
+  { name: 'page_view', properties: { path: '/dashboard' } },
+]
+batchTrack(events)
+
+// reset — no arguments
+reset()
+```
+
+## Step 3 — In a React + TypeScript component
+
+```tsx
+import { useEffect } from 'react'
+import { track, identify } from 'analytiq'
+
+interface User {
+  id: string
+  email: string
+}
+
+interface DashboardProps {
+  user: User
+}
+
+export function Dashboard({ user }: DashboardProps) {
+  useEffect(() => {
+    identify(user.id)
+    track('page_view', { page: 'Dashboard', email: user.email })
+  }, [user.id])
+
+  return <h1>Dashboard</h1>
+}
+```
+
+## TypeScript type definitions
+
+Here are all the types you can import:
+
+```ts
+// All types available from 'analytiq'
+import type {
+  InitOptions,      // { host?: string — optional, leave empty }
+  EventProperties,  // { [key: string]: string | number | boolean | null | undefined }
+  BatchEvent,       // { name: string, userId?: string, properties?: EventProperties, timestamp?: string }
+} from 'analytiq'
+```
+
+## Step 4 — Verify it's working
+
+TypeScript will show you errors at compile time if:
+- You pass a non-string `userId` to `identify()`
+- You pass an object value to `EventProperties` (only primitives allowed)
+- You forget the `name` field in `BatchEvent`
+
+These errors catch mistakes before your code runs — that's the power of TypeScript!
