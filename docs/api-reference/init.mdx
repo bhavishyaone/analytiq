@@ -1,0 +1,77 @@
+---
+title: "init()"
+description: "Initialize the Analytiq SDK. Must be called once before any other function."
+---
+
+## Overview
+
+`init()` sets up the SDK with your API key and backend URL. It must be called **once**, at the very start of your app.
+
+Any events tracked before `init()` is called are automatically queued in memory and sent as soon as `init()` is called.
+
+## Signature
+
+```ts
+init(apiKey: string, options?: InitOptions): void
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `apiKey` | `string` | Yes | Your project's API key from the Settings page. Starts with `pk_live_` |
+| `options` | `InitOptions` | Recommended | Configuration object |
+| `options.host` | `string` | Optional | Override the Analytiq backend URL. Leave blank — defaults to the production server automatically. |
+
+## Example
+
+```js
+import { init } from 'analytiq'
+
+init('pk_live_YOUR_KEY_HERE')
+```
+
+## With environment variables (recommended)
+
+<Tabs>
+  <Tab title="React / Vite">
+    ```js
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    ```
+  </Tab>
+  <Tab title="Next.js">
+    ```js
+    init(process.env.NEXT_PUBLIC_ANALYTIQ_KEY)
+    ```
+  </Tab>
+</Tabs>
+
+## What it does
+
+1. Stores your API key in memory
+2. Stores the backend host URL in memory
+3. Sends any events that were queued before `init()` was called
+4. Logs `[analytiq] Initialized successfully.` to the browser console
+
+## Important rules
+
+<Warning>
+  Call `init()` only **once** — at the root entry file of your app. Don't call it inside components or on every page.
+</Warning>
+
+- Call it **before** any `track()`, `identify()`, or `batchTrack()` calls
+- The `host` option is optional — defaults to the Analytiq production server automatically
+- Calling `init()` multiple times is a no-op — only the first call takes effect
+
+## TypeScript
+
+```ts
+import { init } from 'analytiq'
+import type { InitOptions } from 'analytiq'
+
+const options: InitOptions = {
+  host: 'https://your-custom-backend.com' // Only needed if you self-host the backend
+}
+
+init('pk_live_YOUR_KEY_HERE', options)
+```

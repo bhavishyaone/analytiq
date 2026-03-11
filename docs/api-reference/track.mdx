@@ -1,0 +1,109 @@
+---
+title: "track()"
+description: "Track a single event with optional custom properties."
+---
+
+## Overview
+
+`track()` is the core function of Analytiq. Call it whenever something meaningful happens in your app — a page visit, a button click, a purchase, a form submission.
+
+Each event gets saved to your dashboard instantly.
+
+## Signature
+
+```ts
+track(eventName: string, properties?: EventProperties): void
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `eventName` | `string` | Yes | Name of the event. Use lowercase with underscores: `page_view`, `button_click` |
+| `properties` | `object` | No | Key-value pairs with extra data about the event |
+
+### Properties value types
+
+Properties can only contain these value types:
+
+| Type | Example |
+|------|---------|
+| `string` | `'home'`, `'pro'`, `'google'` |
+| `number` | `29`, `3`, `100` |
+| `boolean` | `true`, `false` |
+| `null` | `null` |
+
+## Examples
+
+**Simple event — no properties:**
+```js
+track('page_view')
+```
+
+**Event with properties:**
+```js
+track('page_view', {
+  page: 'Home',
+  path: '/home'
+})
+```
+
+**Button click:**
+```js
+track('button_click', {
+  button: 'signup',
+  location: 'hero_section',
+  experiment: 'variant_a'
+})
+```
+
+**Purchase:**
+```js
+track('purchase', {
+  plan: 'pro',
+  amount: 29,
+  currency: 'USD',
+  annual: true
+})
+```
+
+**User signup:**
+```js
+track('user_signed_up', {
+  method: 'google',
+  referrer: 'product_hunt'
+})
+```
+
+## Event naming conventions
+
+Use lowercase words separated by underscores:
+
+| Good | Bad |
+|--------|--------|
+| `page_view` | `PageView` |
+| `button_click` | `Button Click` |
+| `purchase_completed` | `purchaseCompleted` |
+
+## Built-in features
+
+**Auto-deduplication:** If you accidentally call `track()` twice with the exact same event name and properties within 300ms, the second call is silently ignored. This prevents double-counting.
+
+**Auto-queue:** If `track()` is called before `init()` runs, the event is queued in memory and sent automatically once `init()` is called.
+
+**Auto-retry:** If the network request fails, the SDK retries once after 500ms.
+
+## TypeScript
+
+```ts
+import { track } from 'analytiq'
+import type { EventProperties } from 'analytiq'
+
+const props: EventProperties = {
+  page: 'Dashboard',
+  count: 5,
+  premium: true,
+}
+
+track('dashboard_viewed', props)
+```
