@@ -1,0 +1,103 @@
+---
+title: "Before You Start"
+description: "New to coding? No problem. This page explains everything you need to know before setting up Analytiq."
+---
+
+<Note>
+  If you already know what npm, a terminal, and .env files are — feel free to skip this page and jump straight to the [Quickstart](/quickstart).
+</Note>
+
+## What is a Terminal?
+
+A terminal is a black (or white) window on your computer where you type commands. You don't need to be afraid of it — you'll only be typing simple commands like "install this package".
+
+**How to open a terminal:**
+
+<Tabs>
+  <Tab title="Mac">
+    Press `Command + Space` to open Spotlight Search, type `Terminal`, and press Enter.
+  </Tab>
+  <Tab title="Windows">
+    Press the `Windows` key, type `cmd`, and press Enter.
+  </Tab>
+  <Tab title="VS Code">
+    If you use VS Code (recommended), press `` Ctrl + ` `` (backtick) to open the built-in terminal.
+  </Tab>
+</Tabs>
+
+## What is npm?
+
+npm stands for **Node Package Manager**. It's a tool that lets you add other people's code (called "packages") to your project. Think of it like an App Store, but for code.
+
+When you type `npm install analytiq`, you're telling npm:
+*"Go find the 'analytiq' package and add it to my project."*
+
+npm comes pre-installed with **Node.js**. If you don't have Node.js, [download it here](https://nodejs.org) (choose the LTS version).
+
+## What is yarn or pnpm?
+
+yarn and pnpm are alternatives to npm — they do exactly the same thing, just slightly differently. You can use whichever one your project already uses.
+
+| Tool | Install command | Check if installed |
+|------|----------------|-------------------|
+| npm | `npm install` | `npm --version` |
+| yarn | `yarn add` | `yarn --version` |
+| pnpm | `pnpm add` | `pnpm --version` |
+
+**All three work with Analytiq.** Your project uses one of these already — you don't need to install a new one.
+
+## What is an API Key?
+
+An API key is like a unique password that identifies YOUR project when events are sent to Analytiq. When your app sends `track('page_view')`, the API key tells Analytiq: *"This event belongs to this specific project."*
+
+**Your API key looks like this:** `pk_live_abc123def456ghi789...`
+
+You'll get your API key from the Analytiq dashboard Settings page. We'll show you exactly where in the next steps.
+
+<Warning>
+  Never paste your API key into a public GitHub repository. It's safe to use in frontend code — but keep it out of public repos.
+</Warning>
+
+## What is a .env File?
+
+A `.env` file is a hidden file in your project folder where you store values that might change between environments (like your API key). Instead of hardcoding the key directly into your code, you store it here.
+
+**Example `.env` file:**
+```
+VITE_ANALYTIQ_KEY=pk_live_your_key_here
+```
+
+Your code then reads it like this:
+```js
+init(import.meta.env.VITE_ANALYTIQ_KEY)
+```
+
+<Note>
+  The `.env` file is listed in `.gitignore` — this means it never gets uploaded to GitHub. This keeps your API key safe even if your code is public.
+</Note>
+
+<Info>
+  **You don't need to create a .env file to get started.** You can paste your API key directly in code at first, then move it to a .env file later when you're ready to deploy.
+</Info>
+
+## How does Analytiq work?
+
+You don't need to configure any server URLs or backend settings. Here's the full picture:
+
+```
+1. You install the SDK:        npm install analytiq
+2. You initialize it:          init('pk_live_your_key')
+3. You track events:           track('page_view')
+4. SDK sends it automatically: → Analytiq server receives it
+5. You see it on dashboard:    → Events appear in 5-10 seconds
+```
+
+That's it. No server configuration. No backend changes. Just install, init, and track.
+
+## You're Ready!
+
+You now know everything you need. Let's set up Analytiq in your project.
+
+<Card title="Next: Quickstart →" href="/quickstart">
+  Finish setup in under 10 minutes
+</Card>
