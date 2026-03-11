@@ -157,17 +157,17 @@ export function Funnels() {
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
 
 
-      <div className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-100 shrink-0">
+      <div className="flex items-center justify-between px-4 md:px-8 py-4 bg-white border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">Funnels</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Funnels</h1>
           <span className="text-sm text-gray-400 font-medium">Analysis Board</span>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
 
 
-        <div className="w-80 shrink-0 border-r border-gray-100 bg-white flex flex-col">
+        <div className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-100 bg-white flex flex-col lg:h-full lg:overflow-hidden">
 
 
           <div className="border-b border-gray-100">
@@ -307,7 +307,7 @@ export function Funnels() {
         </div>
 
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 w-full p-4 md:p-8 lg:overflow-y-auto">
 
           {enriched.length === 0 && !isPending && !isError && (
             <div className="flex flex-col items-center justify-center h-full text-center">

@@ -138,7 +138,7 @@ export function Login() {
       </div>
 
 
-      <div className="flex-1 flex items-center justify-center px-8 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 md:px-8 py-12">
         <div className="w-full max-w-sm space-y-6">
 
 

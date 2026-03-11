@@ -160,15 +160,15 @@ export function Dashboard() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
 
-      <div className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
-        <Button onClick={handleExport} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5">
-          <Download className="w-3.5 h-3.5" /> Export
+      <div className="flex items-center justify-between px-4 md:px-8 py-4 md:py-5 bg-white border-b border-gray-100 shrink-0">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Overview</h1>
+        <Button onClick={handleExport} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 px-3">
+          <Download className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Export</span>
         </Button>
       </div>
 
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-5">
 
 
         {(overviewError || usersError) && (
@@ -177,7 +177,7 @@ export function Dashboard() {
             onRetry={() => { refetchOverview(); refetchUsers() }}
           />
         )}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {overviewLoading ? (
             <><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
           ) : (
@@ -191,10 +191,10 @@ export function Dashboard() {
         </div>
 
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
 
-          <div className="col-span-2 bg-white rounded-xl border border-gray-100 p-5">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-4 md:p-5">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-base font-semibold text-gray-900">Events over time</h3>
@@ -254,7 +254,7 @@ export function Dashboard() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5 flex flex-col">
+          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5 flex flex-col">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
               Top Events
             </h3>
@@ -290,10 +290,10 @@ export function Dashboard() {
         </div>
 
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Active Users</h3>
             <div className="space-y-0">
               {[
@@ -315,7 +315,7 @@ export function Dashboard() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-gray-900">Retention Curve</h3>
               <Link

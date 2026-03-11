@@ -131,7 +131,7 @@ export function Register(){
         <p className="text-xs text-gray-400">© 2026 Analytiq Inc. All rights reserved.</p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-8 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 md:px-8 py-12">
         <div className="w-full max-w-sm space-y-6">
 
 

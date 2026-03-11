@@ -26,9 +26,9 @@ export function Landing() {
         </div>
       </nav>
 
-      <header className="max-w-[1200px] mx-auto px-6 pt-16 pb-20 lg:pt-24 lg:pb-32 grid lg:grid-cols-2 gap-16 items-center">
+      <header className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-16 sm:pb-20 lg:pt-24 lg:pb-32 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         <div className="max-w-xl">
-          <h1 className="text-[56px] md:text-[64px] font-[800] tracking-tight text-[#111827] leading-[1.05] mb-6">
+          <h1 className="text-[40px] sm:text-[56px] md:text-[64px] font-[800] tracking-tight text-[#111827] leading-[1.05] mb-6">
             Stop guessing.<br />
             Start knowing<br />
             exactly how your<br />
@@ -138,7 +138,7 @@ export function Landing() {
             <h2 className="text-[36px] md:text-[44px] font-bold text-[#111827] mt-3">Three core features. Executed flawlessly.</h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-32">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 lg:mb-32">
             <div>
               <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-6">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
@@ -190,8 +190,8 @@ export function Landing() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-32">
-            <div className="order-2 lg:order-1 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm relative overflow-hidden">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 lg:mb-32">
+            <div className="order-2 lg:order-1 bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
                <div className="flex items-end gap-2 h-48 w-full">
                  <div className="w-full bg-[#3451ff] rounded-t-sm h-[100%] relative group cursor-pointer transition-all">
                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-bold text-gray-500">100%</div>
@@ -235,7 +235,7 @@ export function Landing() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-6">
                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -256,19 +256,19 @@ export function Landing() {
               </ul>
             </div>
             
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <div className="w-full flex">
-                <div className="w-24 text-xs text-gray-400 py-2">Cohort</div>
-                <div className="flex-1 flex justify-between text-xs text-gray-400 py-2 px-2">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm overflow-x-auto">
+              <div className="w-[450px] sm:w-full flex">
+                <div className="w-20 sm:w-24 text-[10px] sm:text-xs text-gray-400 py-2">Cohort</div>
+                <div className="flex-1 flex justify-between text-[10px] sm:text-xs text-gray-400 py-2 px-2">
                   <span>Day 0</span>
                   <span>Day 1</span>
                   <span>Day 7</span>
                   <span>Day 14</span>
                 </div>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center text-xs">
-                  <div className="w-24 font-mono text-gray-600">Jan 1-7</div>
+              <div className="space-y-1 w-[450px] sm:w-full">
+                <div className="flex items-center text-[10px] sm:text-xs">
+                  <div className="w-20 sm:w-24 font-mono text-gray-600">Jan 1-7</div>
                   <div className="flex-1 flex gap-1">
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-100">100%</div>
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-[0.65]">65%</div>
@@ -276,8 +276,8 @@ export function Landing() {
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-[0.32]">32%</div>
                   </div>
                 </div>
-                <div className="flex items-center text-xs">
-                  <div className="w-24 font-mono text-gray-600">Jan 8-14</div>
+                <div className="flex items-center text-[10px] sm:text-xs">
+                  <div className="w-20 sm:w-24 font-mono text-gray-600">Jan 8-14</div>
                   <div className="flex-1 flex gap-1">
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-100">100%</div>
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-[0.72]">72%</div>
@@ -285,8 +285,8 @@ export function Landing() {
                     <div className="w-full h-8 bg-transparent"></div>
                   </div>
                 </div>
-                <div className="flex items-center text-xs">
-                  <div className="w-24 font-mono text-gray-600">Jan 15-21</div>
+                <div className="flex items-center text-[10px] sm:text-xs">
+                  <div className="w-20 sm:w-24 font-mono text-gray-600">Jan 15-21</div>
                   <div className="flex-1 flex gap-1">
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-100">100%</div>
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-[0.68]">68%</div>
@@ -294,8 +294,8 @@ export function Landing() {
                     <div className="w-full h-8 bg-transparent"></div>
                   </div>
                 </div>
-                <div className="flex items-center text-xs">
-                  <div className="w-24 font-mono text-gray-600">Jan 22-28</div>
+                <div className="flex items-center text-[10px] sm:text-xs">
+                  <div className="w-20 sm:w-24 font-mono text-gray-600">Jan 22-28</div>
                   <div className="flex-1 flex gap-1">
                     <div className="w-full h-8 bg-[#3451ff] rounded-sm flex items-center justify-center text-white font-mono opacity-100">100%</div>
                     <div className="w-full h-8 bg-transparent"></div>

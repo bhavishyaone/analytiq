@@ -115,7 +115,7 @@ export function Events() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
 
-      <div className="flex items-start justify-between px-8 py-5 bg-white border-b border-gray-100 shrink-0">
+      <div className="flex items-start justify-between px-4 md:px-8 py-4 md:py-5 bg-white border-b border-gray-100 shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Events</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -132,11 +132,11 @@ export function Events() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6">
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-          <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
@@ -152,7 +152,7 @@ export function Events() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
@@ -172,9 +172,9 @@ export function Events() {
 
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
 
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 md:px-5 py-4 border-b border-gray-100">
 
-            <div className="relative flex-1">
+            <div className="relative flex-1 w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
@@ -185,8 +185,9 @@ export function Events() {
               />
             </div>
 
-            <div className="relative">
-              <button
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
+                <button
                 onClick={() => setDateOpen(o => !o)}
                 className="flex items-center gap-2 h-9 px-3 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
@@ -217,17 +218,18 @@ export function Events() {
 
             <button
               onClick={() => handleExport(filtered, days)}
-              className="flex items-center gap-2 h-9 px-4 text-sm font-semibold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+              className="flex items-center justify-center gap-2 h-9 px-4 text-sm font-semibold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors w-full sm:w-auto"
             >
               <Download className="w-4 h-4" />
               Export
             </button>
-
+            </div>
           </div>
 
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px]">
+              <thead>
+                <tr className="border-b border-gray-100">
                 <th className="text-left text-xs font-semibold uppercase tracking-widest text-gray-400 px-5 py-3">
                   Event Name
                 </th>
@@ -362,6 +364,7 @@ export function Events() {
             </div>
           )}
 
+          </div>
         </div>
       </div>
     </div>

@@ -74,10 +74,10 @@ export function Projects() {
     <div className="min-h-screen bg-white">
 
 
-      <nav className="flex items-center justify-between px-10 py-4 border-b border-gray-100">
+      <nav className="flex items-center justify-between px-4 md:px-10 py-3 md:py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <img src="/logo.svg" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded shrink-0" />
-          <span className="font-bold text-gray-900 text-base tracking-tight">Analytiq</span>
+          <img src="/logo.svg" alt="Analytiq Logo" className="w-6 md:w-7 h-6 md:h-7 object-contain rounded shrink-0" />
+          <span className="font-bold text-gray-900 text-sm md:text-base tracking-tight">Analytiq</span>
         </div>
 
         <div className="relative">
@@ -116,29 +116,30 @@ export function Projects() {
       </nav>
 
 
-      <div className="max-w-4xl mx-auto px-10 py-12">
+      <div className="max-w-4xl mx-auto px-4 md:px-10 py-8 md:py-12">
 
 
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Your Projects</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Your Projects</h1>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            New project
+            <span className="hidden sm:inline">New project</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
 
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             {[1, 2].map(i => (
               <div key={i} className="border border-gray-100 rounded-xl p-5 h-36 animate-pulse bg-gray-50" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
 
             {projects.map(project => (
