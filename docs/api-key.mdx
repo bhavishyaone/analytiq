@@ -1,0 +1,107 @@
+---
+title: "Getting Your API Key"
+description: "Your API key is what connects your app to your Analytiq project. Here's exactly how to find it."
+---
+
+## What is an API Key?
+
+Your API key is a unique identifier that tells Analytiq which project your events belong to.
+
+It looks like this:
+```
+pk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Every project you create in Analytiq has its own API key. When you initialize the SDK with `init('pk_live_...')`, Analytiq knows exactly which project dashboard to send your events to.
+
+## How to find your API Key
+
+**Step 1** — Log in to your dashboard at [analytiq-two.vercel.app](https://analytiq-two.vercel.app)
+
+**Step 2** — Click on the project you want to track
+
+**Step 3** — Click **Settings** in the left sidebar
+
+**Step 4** — Scroll down to the **Public API Key** section
+
+**Step 5** — Click the **Reveal** button to show your key
+
+**Step 6** — Click the **Copy** button to copy it to your clipboard
+
+## Using your API Key in code
+
+Paste your API key as the first argument to `init()`:
+
+```js
+import { init } from 'analytiq'
+
+init('pk_live_YOUR_KEY_HERE')
+```
+
+<Warning>
+  Replace `pk_live_YOUR_KEY_HERE` with your actual key. Do not leave it as the placeholder text.
+</Warning>
+
+## Is it safe to put in frontend code?
+
+**Yes.** API keys starting with `pk_live_` are designed to be used in browser (frontend) code. This is a public key, not a secret key. Think of it like your project's ID — it identifies your project, but it doesn't give anyone access to your Analytiq account.
+
+<Info>
+  If you ever suspect your API key was compromised, you can rotate it from the Settings page. Rotating generates a new key and invalidates the old one immediately.
+</Info>
+
+## Using Environment Variables (Recommended)
+
+Instead of hardcoding your key directly in code, store it in a `.env` file:
+
+<Tabs>
+  <Tab title="React / Vite">
+    Create `.env` in your project root:
+    ```
+    VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+    ```
+    Use it in your code:
+    ```js
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    ```
+  </Tab>
+  <Tab title="Next.js">
+    Create `.env.local` in your project root:
+    ```
+    NEXT_PUBLIC_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+    ```
+    Use it in your code:
+    ```js
+    init(process.env.NEXT_PUBLIC_ANALYTIQ_KEY)
+    ```
+  </Tab>
+  <Tab title="Vue">
+    Create `.env` in your project root:
+    ```
+    VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+    ```
+    Use it in your code:
+    ```js
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Add `.env` to your `.gitignore` file so it never gets uploaded to GitHub.
+</Note>
+
+## Rotating your API Key
+
+If you need a new API key:
+
+1. Go to Settings → **Rotate API Key**
+2. Click **Rotate key**
+3. Confirm by clicking **Yes, rotate**
+4. A new key is generated immediately
+5. Click **Reveal** then **Copy** to get the new key
+6. Update your code with the new key
+
+<Warning>
+  As soon as you rotate, your old key stops working immediately. Update your code right away.
+</Warning>
