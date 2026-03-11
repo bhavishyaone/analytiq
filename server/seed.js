@@ -86,6 +86,12 @@ async function seed() {
   console.log('Seeding cohort-based retention events...');
 
   const cohorts = [
+    { weekStart: 126, size: 8 },
+    { weekStart: 119, size: 10 },
+    { weekStart: 112, size: 7 },
+    { weekStart: 105, size: 11 },
+    { weekStart: 98, size: 14 },
+    { weekStart: 91, size: 12 },
     { weekStart: 84, size: 10 },
     { weekStart: 77, size: 12 },
     { weekStart: 70, size: 9  },
@@ -119,32 +125,32 @@ async function seed() {
       events.push({ projectId: pid, name: 'signup_completed',  userId, properties: props, timestamp: dateFromNow(joinDay, randomMinutes(20, 60)) });
 
 
-      if (Math.random() < 0.72 && joinDay - 1 >= 0) {
+      if (Math.random() < 0.85 && joinDay - 1 >= 0) {
         events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 1) });
         events.push({ projectId: pid, name: 'feature_used', userId, properties: props, timestamp: dateFromNow(joinDay - 1, randomMinutes(10, 40)) });
       }
 
 
-      if (Math.random() < 0.60 && joinDay - 3 >= 0) {
+      if (Math.random() < 0.70 && joinDay - 3 >= 0) {
         events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 3) });
         events.push({ projectId: pid, name: 'button_click', userId, properties: props, timestamp: dateFromNow(joinDay - 3, randomMinutes(5, 30)) });
       }
 
 
-      if (Math.random() < 0.48 && joinDay - 7 >= 0) {
+      if (Math.random() < 0.55 && joinDay - 7 >= 0) {
         events.push({ projectId: pid, name: 'page_view',     userId, properties: props, timestamp: dateFromNow(joinDay - 7) });
         events.push({ projectId: pid, name: 'feature_used',  userId, properties: props, timestamp: dateFromNow(joinDay - 7, randomMinutes(10, 50)) });
         events.push({ projectId: pid, name: 'settings_opened', userId, properties: props, timestamp: dateFromNow(joinDay - 7, randomMinutes(60, 120)) });
       }
 
 
-      if (Math.random() < 0.30 && joinDay - 14 >= 0) {
+      if (Math.random() < 0.40 && joinDay - 14 >= 0) {
         events.push({ projectId: pid, name: 'page_view',    userId, properties: props, timestamp: dateFromNow(joinDay - 14) });
         events.push({ projectId: pid, name: 'feature_used', userId, properties: props, timestamp: dateFromNow(joinDay - 14, randomMinutes(20, 80)) });
       }
 
 
-      if (Math.random() < 0.20 && joinDay - 30 >= 0) {
+      if (Math.random() < 0.25 && joinDay - 30 >= 0) {
         events.push({ projectId: pid, name: 'page_view',           userId, properties: props, timestamp: dateFromNow(joinDay - 30) });
         events.push({ projectId: pid, name: 'checkout_started',    userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(15, 45)) });
         events.push({ projectId: pid, name: 'checkout_completed',  userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(45, 90)) });
@@ -178,24 +184,23 @@ async function seed() {
 
   console.log('Seeding funnel conversion events...');
 
-  const funnelUsers = Array.from({ length: 25 }, (_, i) => `funnel_user_${i + 1}`);
+  const funnelUsers = Array.from({ length: 200 }, (_, i) => `funnel_user_${i + 1}`);
 
   for (const userId of funnelUsers) {
     const base = dateFromNow(randomBetween(5, 35));
 
     events.push({ projectId: pid, name: 'page_view',          userId, properties: {}, timestamp: new Date(base.getTime()) });
 
-    if (Math.random() < 0.80) {
-      events.push({ projectId: pid, name: 'signup_started',   userId, properties: {}, timestamp: new Date(base.getTime() + 60_000) });
-    }
-    if (Math.random() < 0.60) {
+    if (Math.random() < 0.75) {
       events.push({ projectId: pid, name: 'signup_completed', userId, properties: {}, timestamp: new Date(base.getTime() + 180_000) });
-    }
-    if (Math.random() < 0.40) {
-      events.push({ projectId: pid, name: 'checkout_started', userId, properties: {}, timestamp: new Date(base.getTime() + 600_000) });
-    }
-    if (Math.random() < 0.25) {
-      events.push({ projectId: pid, name: 'checkout_completed', userId, properties: {}, timestamp: new Date(base.getTime() + 900_000) });
+      
+      if (Math.random() < 0.60) {
+        events.push({ projectId: pid, name: 'checkout_started', userId, properties: {}, timestamp: new Date(base.getTime() + 600_000) });
+        
+        if (Math.random() < 0.75) {
+          events.push({ projectId: pid, name: 'checkout_completed', userId, properties: {}, timestamp: new Date(base.getTime() + 900_000) });
+        }
+      }
     }
   }
 
