@@ -1,0 +1,294 @@
+---
+title: "Quickstart"
+description: "Go from zero to seeing live analytics data on your dashboard in under 10 minutes."
+---
+
+## What you need before starting
+
+- An Analytiq account → [Register here](https://analytiq-two.vercel.app/register)
+- A project created in your Analytiq dashboard
+- Your API key (from Settings → Public API Key → Reveal)
+- A web app (React, Vue, Next.js, or any frontend)
+- Node.js installed on your computer ([Download here](https://nodejs.org))
+
+---
+
+## Step 1 — Create your Analytiq account
+
+1. Go to [analytiq-two.vercel.app/register](https://analytiq-two.vercel.app/register)
+2. Fill in your name, email and password
+3. Click **Create Account**
+4. You'll be redirected to the Projects page
+
+---
+
+## Step 2 — Create a Project
+
+1. On the Projects page, click **New Project**
+2. Give your project a name (e.g. "My App")
+3. Click **Create**
+4. Your new project will appear in the list
+
+---
+
+## Step 3 — Get your API Key
+
+1. Click on your project to open it
+2. Go to **Settings** in the left sidebar
+3. Scroll to **Public API Key**
+4. Click the **Reveal** button
+5. Click the **Copy** button to copy your key
+
+Your key will look like: `pk_live_xxxxxxxxxxxxxxxxxx`
+
+<Warning>
+  Keep this key safe. You will paste it into your frontend code in the next step.
+</Warning>
+
+---
+
+## Step 4 — Install the SDK
+
+Open your terminal inside your project's frontend folder and run:
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install analytiq
+    ```
+  </Tab>
+  <Tab title="yarn">
+    ```bash
+    yarn add analytiq
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add analytiq
+    ```
+  </Tab>
+  <Tab title="CDN (No npm)">
+    ```html
+    <!-- No installation needed — paste this directly in your HTML -->
+    <script type="module">
+      import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 5 — Add the setup code
+
+You only need to initialize Analytiq **once** in your entire app. Find the main starting file of your project and paste the code at the very top:
+
+<Tabs>
+  <Tab title="React (Vite)">
+    Open `src/main.jsx` and add at the very top:
+    ```jsx
+    import { init } from 'analytiq'
+
+    init('pk_live_YOUR_KEY_HERE')
+    ```
+  </Tab>
+  <Tab title="React (Create React App)">
+    Open `src/index.js` and add at the very top:
+    ```js
+    import { init } from 'analytiq'
+
+    init('pk_live_YOUR_KEY_HERE')
+    ```
+  </Tab>
+  <Tab title="Next.js">
+    Create a new file `app/providers.tsx` and paste:
+    ```tsx
+    'use client'
+    import { useEffect } from 'react'
+    import { init } from 'analytiq'
+
+    export function AnalytiqProvider({ children }: { children: React.ReactNode }) {
+      useEffect(() => {
+        init('pk_live_YOUR_KEY_HERE')
+      }, [])
+      return <>{children}</>
+    }
+    ```
+    Then wrap your app in `app/layout.tsx`:
+    ```tsx
+    import { AnalytiqProvider } from './providers'
+
+    export default function RootLayout({ children }) {
+      return (
+        <html><body>
+          <AnalytiqProvider>{children}</AnalytiqProvider>
+        </body></html>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    Open `src/main.js` and add at the very top:
+    ```js
+    import { init } from 'analytiq'
+
+    init('pk_live_YOUR_KEY_HERE')
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    Paste inside your `index.html` before the closing `</body>` tag:
+    ```html
+    <script type="module">
+      import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+      init('pk_live_YOUR_KEY_HERE')
+
+      track('page_view', { path: window.location.pathname })
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Replace `pk_live_YOUR_KEY_HERE` with your actual API key from Step 3.
+</Warning>
+
+---
+
+## Step 6 — Track your first event
+
+Now let's track a page view so an event gets sent to your dashboard. Open any file that represents a page (like a Home page or Dashboard):
+
+<Tabs>
+  <Tab title="React / Next.js">
+    Open a page file (e.g., `src/pages/Home.jsx`) and add the highlighted lines:
+    ```jsx
+    import { useEffect } from 'react'
+    import { track } from 'analytiq'
+
+    export function Home() {
+      // Add this block inside your function
+      useEffect(() => {
+        track('page_view', { page: 'Home' })
+      }, [])
+
+      return <h1>Welcome!</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    In any `.vue` component:
+    ```vue
+    <script setup>
+    import { onMounted } from 'vue'
+    import { track } from 'analytiq'
+
+    onMounted(() => {
+      track('page_view', { page: 'Home' })
+    })
+    </script>
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    Already done in Step 5! The `track()` call is included in the script tag.
+  </Tab>
+</Tabs>
+
+---
+
+## Step 7 — Send multiple events at once (optional)
+
+Instead of calling `track()` multiple times, you can send a list of events in one shot using `batchTrack()`. This is useful when a page loads and you want to record several things simultaneously:
+
+<Tabs>
+  <Tab title="React / Next.js">
+    ```jsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+
+    export function Dashboard() {
+      useEffect(() => {
+        batchTrack([
+          { name: 'app_opened' },
+          { name: 'page_view', properties: { page: 'Dashboard' } },
+          { name: 'session_start', properties: { time: new Date().toISOString() } },
+        ])
+      }, [])
+
+      return <h1>Dashboard</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    ```vue
+    <script setup>
+    import { onMounted } from 'vue'
+    import { batchTrack } from 'analytiq'
+
+    onMounted(() => {
+      batchTrack([
+        { name: 'app_opened' },
+        { name: 'page_view', properties: { page: 'Home' } },
+      ])
+    })
+    </script>
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML">
+    ```html
+    <script type="module">
+      import { init, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+      init('pk_live_YOUR_KEY_HERE')
+
+      batchTrack([
+        { name: 'page_view', properties: { page: document.title } },
+        { name: 'session_start' },
+      ])
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+  `batchTrack()` sends all events in a **single network request** — more efficient than multiple `track()` calls fired at the same time.
+</Info>
+
+---
+
+
+1. Start your app: `npm run dev`
+2. Open your app in the browser (usually `http://localhost:5173` or `http://localhost:3000`)
+3. Press **F12** to open browser DevTools
+4. Click the **Console** tab
+5. You should see:
+
+```
+[analytiq] Initialized successfully.
+```
+
+6. Go to your **Analytiq Dashboard** → click on your project → check the **Events** section
+7. Your `page_view` event should appear within **5-10 seconds**
+
+<Check>
+  If you see events in your dashboard — you're done! Analytiq is fully set up.
+</Check>
+
+---
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="Track Button Clicks" href="/guides/tracking-page-views">
+    Track any user interaction
+  </Card>
+  <Card title="Identify Users" href="/guides/identifying-users">
+    Link events to specific users
+  </Card>
+  <Card title="All Framework Guides" href="/frameworks/react">
+    Detailed setup for every framework
+  </Card>
+  <Card title="API Reference" href="/api-reference/init">
+    Full function documentation
+  </Card>
+</CardGroup>

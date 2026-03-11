@@ -1,0 +1,85 @@
+---
+title: "Installation"
+description: "Install the Analytiq SDK in your project using npm, yarn, pnpm, or a CDN script tag."
+---
+
+## Option A — npm (Most Common)
+
+npm comes pre-installed with Node.js. This is the most common way to install packages.
+
+```bash
+npm install analytiq
+```
+
+## Option B — yarn
+
+If your project uses yarn instead of npm:
+
+```bash
+yarn add analytiq
+```
+
+<Note>
+  Don't have yarn? Install it with: `npm install -g yarn`
+</Note>
+
+## Option C — pnpm
+
+If your project uses pnpm:
+
+```bash
+pnpm add analytiq
+```
+
+<Note>
+  Don't have pnpm? Install it with: `npm install -g pnpm`
+</Note>
+
+## Option D — CDN (No npm/Node.js Required)
+
+If you have a plain HTML website with no build process, use this script tag instead of installing via npm:
+
+```html
+<script type="module">
+  import { init, track, identify, reset, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+  init('pk_live_YOUR_KEY_HERE')
+
+  track('page_view', { path: window.location.pathname })
+</script>
+```
+
+Paste this inside your HTML file, just before the closing `</body>` tag.
+
+<Info>
+  All four installation methods (npm, yarn, pnpm, CDN) install the exact same SDK with identical features. Use whichever method your project is already using.
+</Info>
+
+## Verifying the Installation
+
+After installing, run your app:
+
+```bash
+npm run dev
+```
+
+Open your browser, press **F12** → **Console** tab. After adding `init()` to your code, you should see:
+
+```
+[analytiq] Initialized successfully.
+```
+
+If you see this message — your installation is complete!
+
+## What's Next?
+
+Pick your framework for a step-by-step integration guide:
+
+<CardGroup cols={2}>
+  <Card title="React" href="/frameworks/react">Setup for React + Vite or Create React App</Card>
+  <Card title="Next.js" href="/frameworks/nextjs-app-router">Setup for Next.js App Router</Card>
+  <Card title="Vue.js" href="/frameworks/vue">Setup for Vue 3</Card>
+  <Card title="Vanilla HTML" href="/frameworks/vanilla-html">Setup for plain HTML websites</Card>
+  <Card title="TypeScript" href="/frameworks/typescript">Setup with TypeScript support</Card>
+  <Card title="All Frameworks →" href="/frameworks/react">See all supported frameworks</Card>
+</CardGroup>
