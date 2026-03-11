@@ -1,0 +1,195 @@
+---
+title: "What Events to Track"
+description: "A complete guide to deciding which user actions to track — including a starter event list, naming conventions, and what to avoid."
+---
+
+## Start simple, expand later
+
+When you first set up Analytiq, don't try to track everything at once. Start with 5-7 core events that directly answer your most important questions, then expand gradually.
+
+**The 5 events every app needs:**
+
+| Event | When to fire |
+|-------|-------------|
+| `page_view` | Every page load / route change |
+| `signup_completed` | New user registers successfully |
+| `login` | User logs into existing account |
+| `purchase` | Payment confirmed |
+| `logout` | User signs out |
+
+Once these 5 are in place and sending data, you'll have the foundation to understand your app's core funnel.
+
+---
+
+## How to decide what to track
+
+Ask yourself: *"What decision would I make if I knew this number?"*
+
+**Examples:**
+- "If I knew which CTA button converts better, I'd run a proper A/B test" → track both buttons separately
+- "If I knew what % of signups upgrade within 7 days, I'd know if onboarding works" → track `signup_completed` and `upgrade_clicked` with timestamps
+- "If I knew which feature is most used, I'd focus work there" → track feature interactions
+
+If you can't think of a decision you'd make with the data → don't track it. Clutter makes dashboards harder to use.
+
+---
+
+## Full starter event list by category
+
+### Authentication
+
+```js
+track('signup_completed', { method: 'email' })       // user finishes signup
+track('signup_failed', { reason: error.message })    // signup fails
+track('login', { method: 'email' })                  // successful login
+track('login_failed', { reason: 'invalid_credentials' })
+track('logout')
+track('password_reset_requested')
+track('password_reset_completed')
+```
+
+### Navigation
+
+```js
+track('page_view', { page: 'Home', path: '/' })
+track('page_view', { page: 'Dashboard', path: '/dashboard' })
+track('page_view', { page: 'Pricing', path: '/pricing' })
+track('page_view', { page: 'Settings', path: '/settings' })
+```
+
+### Revenue
+
+```js
+track('upgrade_clicked', { plan: 'pro', source: 'settings' })
+track('checkout_started', { plan: 'pro', amount: 49 })
+track('purchase', { plan: 'pro', amount: 49, currency: 'USD' })
+track('payment_failed', { reason: 'card_declined', amount: 49 })
+track('subscription_cancelled', { plan: 'pro', reason: 'too_expensive' })
+```
+
+### Feature usage
+
+```js
+track('feature_used', { feature: 'export_csv' })
+track('feature_used', { feature: 'dark_mode' })
+track('search_performed', { query_length: searchQuery.length })
+track('filter_applied', { filter: 'by_date' })
+track('file_uploaded', { type: 'image', size_kb: fileSize })
+```
+
+### Key actions
+
+```js
+track('cta_clicked', { button: 'Start Free Trial', location: 'hero' })
+track('share_clicked', { platform: 'twitter' })
+track('copy_clicked', { content: 'api_key' })
+track('download_clicked', { file: 'report.pdf' })
+track('invite_sent', { method: 'email' })
+```
+
+### E-commerce (if applicable)
+
+```js
+track('add_to_cart', { product: 'Pro Plan', price: 49 })
+track('cart_viewed', { items: 3, total: 147 })
+track('remove_from_cart', { product: 'Basic Plan' })
+track('cart_abandoned', { items: 2, total: 98 })
+```
+
+---
+
+## Naming conventions
+
+Consistent naming makes your dashboard readable. Use this pattern everywhere:
+
+```
+[noun]_[past_tense_verb]
+```
+
+| Good | Bad |
+|--------|--------|
+| `signup_completed` | `signup` |
+| `page_viewed` | `PageView` |
+| `button_clicked` | `click` |
+| `purchase_completed` | `payment_success` |
+| `feature_used` | `used feature` |
+| `plan_upgraded` | `upgrade` |
+
+**Rules:**
+- All lowercase
+- Use underscores (`_`), not spaces or hyphens
+- Verb at the end in past tense: `_clicked`, `_viewed`, `_completed`, `_started`, `_failed`
+- Be specific: `signup_completed` is better than `signup`
+
+---
+
+## Properties — what to include
+
+Add properties to give context to each event. Properties let you filter and compare on the dashboard.
+
+```js
+// Bare minimum — just the event
+track('page_view')
+
+// Good — page name helps you see which pages are most visited
+track('page_view', { page: 'Dashboard' })
+
+// Better — more context for filtering
+track('purchase', {
+  plan: 'pro',
+  amount: 49,
+  currency: 'USD',
+  billing: 'monthly'
+})
+```
+
+**Property value types allowed:**
+
+| Type | Example |
+|------|---------|
+| `string` | `'pro'`, `'email'`, `'/dashboard'` |
+| `number` | `49`, `3`, `1024` |
+| `boolean` | `true`, `false` |
+| `null` | `null` (for "not set") |
+
+---
+
+## What NOT to track
+
+| Don't track | Why |
+|------------|-----|
+| Passwords, credit card numbers | Security risk — never in event properties |
+| Full email addresses | Privacy concerns, GDPR |
+| Personally identifiable info (name, address, phone) | Use `identify(userId)` instead |
+| Every single keypress | Too much noise, meaningless data |
+| Mouse movements | Zero business value |
+| Events with identical properties every time | Adds noise, not signal |
+
+---
+
+## How many events is too many?
+
+There's no hard limit, but as a rule of thumb:
+
+- **5-10 events** → clean, focused, easy to read
+- **10-25 events** → good coverage of your app
+- **25-50 events** → advanced tracking, useful for large apps
+- **50+ events** → only if each event has a clear business purpose
+
+If you find yourself adding events just "in case they're useful someday" — stop. Track what you'll actually look at.
+
+---
+
+## Sample event plan for a SaaS app
+
+| Stage | Events |
+|-------|--------|
+| Awareness | `landing_page_viewed`, `pricing_page_viewed` |
+| Acquisition | `signup_started`, `signup_completed`, `google_oauth_clicked` |
+| Activation | `first_project_created`, `first_event_tracked`, `dashboard_viewed` |
+| Retention | `login`, `feature_used`, `report_generated` |
+| Revenue | `upgrade_clicked`, `checkout_started`, `purchase` |
+| Referral | `invite_sent`, `share_clicked` |
+| Churn risk | `subscription_cancelled`, `downgrade_requested` |
+
+This gives you full visibility into the user lifecycle — from first visit to paying customer.

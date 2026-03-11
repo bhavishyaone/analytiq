@@ -1,0 +1,132 @@
+---
+title: "Local vs Production"
+description: "Understand the difference between testing Analytiq locally and in production — and when you will see data on your dashboard."
+---
+
+## The short answer
+
+| Environment | Data appears on dashboard? |
+|------------|--------------------------|
+| Local (`npm run dev`, `localhost`) | Yes — immediately |
+| Staging / preview deployment | Yes |
+| Production (deployed to Vercel, Netlify, etc.) | Yes |
+| Any environment with internet access | Yes |
+
+**Analytiq works the same in every environment.** Data appears on your dashboard as long as:
+1. Your code calls `init()` with a valid API key
+2. The device has internet access
+
+---
+
+## Testing locally (recommended first step)
+
+You don't need to deploy your app to test Analytiq. Just run it locally:
+
+```bash
+npm run dev
+```
+
+Open your browser → navigate to your app → check the **Console** (F12):
+
+```
+[analytiq] Initialized successfully.
+```
+
+Then go to your Analytiq Dashboard → Events → your events appear within **5-10 seconds**.
+
+<Tip>
+  Always test Analytiq locally first before deploying. This lets you confirm events are being sent before pushing to production.
+</Tip>
+
+---
+
+## Do I need to push to GitHub and deploy first?
+
+**No.** You do NOT need to:
+- Push to GitHub
+- Deploy to Vercel / Netlify / Render
+- Have a live production URL
+
+**You only need:**
+- Your app running locally (`npm run dev`)
+- Internet connection (the SDK sends events to Analytiq's server over the internet)
+
+The SDK sends events from your **browser** to the **Analytiq server** — not through your own server or GitHub.
+
+---
+
+## Then why would I deploy?
+
+You deploy for your **users**, not for Analytiq. Once your app is deployed and real users visit it, their events are automatically tracked too — no extra setup needed.
+
+```
+User visits your deployed app
+  → SDK fires track() in their browser
+  → Event sent to Analytiq server
+  → Appears on your dashboard
+```
+
+---
+
+## Environment variables on Vercel / Netlify
+
+When you deploy, your `.env` file is NOT uploaded to the hosting platform. You must add your environment variables manually in the hosting dashboard.
+
+**On Vercel:**
+1. Go to your project on [vercel.com](https://vercel.com)
+2. Click **Settings** → **Environment Variables**
+3. Add:
+   ```
+   VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+   ```
+   *(Note: If using Next.js, name it `NEXT_PUBLIC_ANALYTIQ_KEY` instead)*
+4. Click **Save** → Vercel redeploys automatically
+
+**On Netlify:**
+1. Go to your project on [netlify.com](https://netlify.com)
+2. Click **Site Settings** → **Environment variables**
+3. Add:
+   ```
+   VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+   ```
+   *(Note: If using Next.js, name it `NEXT_PUBLIC_ANALYTIQ_KEY` instead)*
+4. Trigger a new deploy
+
+<Warning>
+  If you deploy without setting the environment variable on Vercel/Netlify, `init()` will receive `undefined` as the API key and events won't be tracked in production — even though they worked locally.
+</Warning>
+
+---
+
+## Why does local work but production doesn't?
+
+This is the most common issue after first deployment. The fix is almost always one of these:
+
+| Problem | Fix |
+|---------|-----|
+| Forgot to add env var to Vercel/Netlify | Add `VITE_ANALYTIQ_KEY` in dashboard settings, redeploy |
+| Used wrong env var prefix | Vite needs `VITE_`, Next.js needs `NEXT_PUBLIC_` |
+| Redeployed but env var not picked up | Go to Vercel → Deployments → trigger a new manual deploy |
+| Calling `init()` in a Server Component (Next.js) | Move to a `'use client'` file |
+
+---
+
+## Separating local and production data
+
+By default, all events from all environments go to the same project dashboard. If you want to keep local testing data separate from real production data, create two projects in Analytiq:
+
+1. **Project 1** — "My App (Development)": use its API key in your `.env` for local development
+2. **Project 2** — "My App (Production)": use its API key in your Vercel environment variables
+
+This way your local test events don't pollute your real production analytics.
+
+---
+
+## Quick checklist before going live
+
+-  Events appear on dashboard in local testing
+-  API key added to Vercel/Netlify environment variables
+-  App redeployed after adding the env var
+-  Visited the production URL and checked dashboard for events
+- `identify()` called after login (if your app has users)
+- `reset()` called on logout
