@@ -1,0 +1,82 @@
+{
+    "name": "Analytiq",
+    "favicon": "/favicon.svg",
+    "colors": {
+        "primary": "#3451ff",
+        "light": "#6b83ff",
+        "dark": "#2b41e6"
+    },
+    "topbarLinks": [
+        {
+            "name": "Dashboard",
+            "url": "https://analytiq-two.vercel.app"
+        }
+    ],
+    "topbarCtaButton": {
+        "name": "Get Started",
+        "url": "https://analytiq-two.vercel.app/register"
+    },
+    "tabs": [
+        {
+            "name": "API Reference",
+            "url": "api-reference"
+        }
+    ],
+    "navigation": [
+        {
+            "group": "Getting Started",
+            "pages": [
+                "introduction",
+                "before-you-start",
+                "quickstart",
+                "api-key",
+                "installation"
+            ]
+        },
+        {
+            "group": "Framework Guides",
+            "pages": [
+                "frameworks/react",
+                "frameworks/nextjs-app-router",
+                "frameworks/nextjs-pages-router",
+                "frameworks/vanilla-html",
+                "frameworks/vue",
+                "frameworks/typescript",
+                "frameworks/angular"
+            ]
+        },
+        {
+            "group": "API Reference",
+            "pages": [
+                "api-reference/init",
+                "api-reference/identify",
+                "api-reference/track",
+                "api-reference/batch-track",
+                "api-reference/reset"
+            ]
+        },
+        {
+            "group": "Guides",
+            "pages": [
+                "guides/tracking-page-views",
+                "guides/tracking-button-clicks",
+                "guides/tracking-form-submissions",
+                "guides/identifying-users",
+                "guides/tracking-purchases",
+                "guides/using-batch-track",
+                "guides/local-vs-production",
+                "guides/what-to-track"
+            ]
+        },
+        {
+            "group": "Help",
+            "pages": [
+                "faq",
+                "troubleshooting"
+            ]
+        }
+    ],
+    "footerSocials": {
+        "github": "https://github.com/bhavishyaone/analytics"
+    }
+}
