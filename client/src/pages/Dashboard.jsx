@@ -121,14 +121,21 @@ export function Dashboard() {
   const topEvents   = Array.isArray(topEventsRes) ? topEventsRes : []
 
   const retentionCohorts = Array.isArray(retentionRes) ? retentionRes : []
-  const latestCohort     = retentionCohorts[retentionCohorts.length - 1]
-  const retentionCurve   = latestCohort
+  const validCohorts = retentionCohorts.filter(c => c.totalUsers > 0)
+  
+  const getAvg = (key) => {
+    if (validCohorts.length === 0) return 0
+    const sum = validCohorts.reduce((acc, c) => acc + ((c[key] / c.totalUsers) * 100), 0)
+    return Math.round(sum / validCohorts.length)
+  }
+
+  const retentionCurve = retentionCohorts.length > 0
     ? [
         { label: 'D0',  pct: 100 },
-        { label: 'D1',  pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day1  / latestCohort.totalUsers) * 100) : 0 },
-        { label: 'D7',  pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day7  / latestCohort.totalUsers) * 100) : 0 },
-        { label: 'D14', pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day14 / latestCohort.totalUsers) * 100) : 0 },
-        { label: 'D30', pct: latestCohort.totalUsers > 0 ? Math.round((latestCohort.day30 / latestCohort.totalUsers) * 100) : 0 },
+        { label: 'D1',  pct: getAvg('day1') },
+        { label: 'D7',  pct: getAvg('day7') },
+        { label: 'D14', pct: getAvg('day14') },
+        { label: 'D30', pct: getAvg('day30') },
       ]
     : []
 
@@ -344,7 +351,7 @@ export function Dashboard() {
               )}
             </div>
             <p className="text-xs text-gray-400 mt-3 text-center">
-              Based on most recent cohort data
+              Based on historical average
             </p>
           </div>
 
