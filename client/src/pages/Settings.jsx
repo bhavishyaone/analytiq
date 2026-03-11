@@ -237,21 +237,38 @@ export function Settings() {
                           </div>
                           <span className="text-xs text-gray-400 font-medium">javascript</span>
                         </div>
-                        <div className="font-mono text-sm space-y-1">
-                          <p>
-                            <span className="text-blue-600">analytiq</span>
-                            <span className="text-gray-700">.init(</span>
-                            <span className="text-green-600">'{showKey ? activeProject.apiKey : 'pk_live_your_key_here'}'</span>
-                            <span className="text-gray-700">)</span>
+                        <div className="font-mono text-sm">
+                          <p className="mb-2">
+                            <span className="text-purple-600">import</span>
+                            <span className="text-gray-700"> {'{ '}</span>
+                            <span className="text-blue-600">init</span>
+                            <span className="text-gray-700">, </span>
+                            <span className="text-blue-600">track</span>
+                            <span className="text-gray-700">{' } '}</span>
+                            <span className="text-purple-600">from</span>
+                            <span className="text-green-600"> 'analytiq'</span>
+                            <span className="text-gray-700">;</span>
+                          </p>
+                          <p className="mt-4 text-gray-400 text-xs">
+                            {'// Initialize once in your app'}
                           </p>
                           <p>
-                            <span className="text-blue-600">analytiq</span>
-                            <span className="text-gray-700">.track(</span>
+                            <span className="text-blue-600">init</span>
+                            <span className="text-gray-700">(</span>
+                            <span className="text-green-600">'{showKey ? activeProject.apiKey : 'pk_live_your_key_here'}'</span>
+                            <span className="text-gray-700">);</span>
+                          </p>
+                          <p className="mt-4 text-gray-400 text-xs">
+                            {'// Track events anywhere'}
+                          </p>
+                          <p>
+                            <span className="text-blue-600">track</span>
+                            <span className="text-gray-700">(</span>
                             <span className="text-green-600">'page_view'</span>
                             <span className="text-gray-700">, {'{ path: '}</span>
                             <span className="text-green-600">'/home'</span>
                             <span className="text-gray-700"> {'}'}</span>
-                            <span className="text-gray-700">)</span>
+                            <span className="text-gray-700">);</span>
                           </p>
                         </div>
                       </div>

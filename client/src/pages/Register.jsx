@@ -2,19 +2,29 @@ import { use, useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext.jsx'
 import toast from 'react-hot-toast'
-import { LayoutGrid, CheckSquare, Code2, EyeOff, Eye } from 'lucide-react'
+import { LayoutGrid, CheckSquare, Code2, EyeOff, Eye, Clock, Filter, Users } from 'lucide-react'
 import { Button } from '../components/ui/button.jsx'
 import { Input } from '../components/ui/input.jsx'
 import { Label } from '../components/ui/label.jsx'
 
 
-const perks = [
-  'Free plan — no credit card needed',
-  'Unlimited events on free tier',
-  'SDK for Node.js, React, and plain JS',
+const features = [
+  {
+    icon: Clock,
+    title: 'Real-time event tracking',
+    description: 'Monitor user actions as they happen with zero latency.',
+  },
+  {
+    icon: Filter,
+    title: 'Funnel drop-off analysis',
+    description: 'Identify exactly where users drop off in your flow.',
+  },
+  {
+    icon: Users,
+    title: 'Cohort retention metrics',
+    description: 'Deep dive into user retention patterns over time.',
+  },
 ]
-
-
 export function Register(){
   const [name,setName] = useState('')
   const [email,setEmail]=useState('')
@@ -93,43 +103,32 @@ export function Register(){
 
 
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-            <LayoutGrid className="w-4 h-4 text-white" />
-          </div>
+          <img src="/logo.png" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
           <span className="text-lg font-bold text-gray-900 tracking-tight">Analytiq</span>
         </div>
 
 
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Set up in under 5 minutes.
-            </h1>
-            <p className="text-indigo-500 text-sm leading-relaxed">
-              Join thousands of developers tracking their events with precision.
-            </p>
-          </div>
+        <div className="space-y-10">
+          <h1 className="text-5xl font-black text-gray-900 leading-tight">
+            The analytics platform built for developers.
+          </h1>
 
-
-          <ul className="space-y-4">
-            {perks.map((perk) => (
-              <li key={perk} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded border-2 border-indigo-500 flex items-center justify-center shrink-0">
-                  <svg className="w-3 h-3 text-indigo-500" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
-                  </svg>
+          <ul className="space-y-7">
+            {features.map(({ icon: Icon, title, description }) => (
+              <li key={title} className="flex gap-4 items-start">
+                <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-indigo-600" />
                 </div>
-                <span className="text-sm text-gray-700">{perk}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{title}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">{description}</p>
+                </div>
               </li>
             ))}
           </ul>
         </div>
 
-
-        <div className="flex items-center gap-2 text-gray-400 text-xs">
-          <Code2 className="w-3.5 h-3.5" />
-          <span>Developer-first analytics platform</span>
-        </div>
+        <p className="text-xs text-gray-400">© 2026 Analytiq Inc. All rights reserved.</p>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-8 py-12">
@@ -137,9 +136,7 @@ export function Register(){
 
 
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-              <LayoutGrid className="w-4 h-4 text-white" />
-            </div>
+            <img src="/logo.png" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
             <span className="text-lg font-bold text-gray-900">Analytiq</span>
           </div>
 

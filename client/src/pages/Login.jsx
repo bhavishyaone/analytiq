@@ -109,7 +109,7 @@ export function Login() {
 
 
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-indigo-600 rotate-45 rounded-sm shrink-0" />
+          <img src="/logo.png" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
           <span className="text-lg font-bold text-gray-900 tracking-tight">Analytiq</span>
         </div>
 

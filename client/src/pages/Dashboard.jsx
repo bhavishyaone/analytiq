@@ -135,12 +135,34 @@ export function Dashboard() {
 
   if (!projectId) return <Navigate to="/projects" replace />
 
+  const handleExport = () => {
+    const csvContent = [
+      ['Metric', 'Value'],
+      ['Total Events', totalEvents],
+      ['Unique Users', uniqueUsers],
+      ['DAU (Daily Active User)', dau],
+      ['MAU (Monthly Active User)', mau],
+      [],
+      ['Events over time'],
+      ['Date', 'Events'],
+      ...chartData.map(row => [row.date, row.count])
+    ].map(e => e.join(',')).join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', `analytiq_overview_${days}days.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
 
       <div className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shrink-0">
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
-        <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5">
+        <Button onClick={handleExport} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5">
           <Download className="w-3.5 h-3.5" /> Export
         </Button>
       </div>
@@ -162,8 +184,8 @@ export function Dashboard() {
             <>
               <MetricCard label="Total Events" value={totalEvents} loading={false} />
               <MetricCard label="Unique Users" value={uniqueUsers} loading={false} />
-              <MetricCard label="DAU"          value={dau}         loading={false} />
-              <MetricCard label="MAU"          value={mau}         loading={false} />
+              <MetricCard label="DAU (Daily Active User)"    value={dau}         loading={false} />
+              <MetricCard label="MAU (Monthly Active User)"  value={mau}         loading={false} />
             </>
           )}
         </div>
@@ -275,9 +297,9 @@ export function Dashboard() {
             <h3 className="text-base font-semibold text-gray-900 mb-4">Active Users</h3>
             <div className="space-y-0">
               {[
-                { label: 'DAU (DAILY ACTIVE USERS)',   value: dau },
-                { label: 'WAU (WEEKLY ACTIVE USERS)',  value: wau },
-                { label: 'MAU (MONTHLY ACTIVE USERS)', value: mau },
+                { label: 'DAU (Daily Active User)',    value: dau },
+                { label: 'WAU (Weekly Active User)',   value: wau },
+                { label: 'MAU (Monthly Active User)',  value: mau },
               ].map(({ label, value }) => (
                 <div
                   key={label}

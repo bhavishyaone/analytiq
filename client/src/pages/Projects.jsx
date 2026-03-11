@@ -76,11 +76,7 @@ export function Projects() {
 
       <nav className="flex items-center justify-between px-10 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-indigo-600 rounded flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 2L2 18h16L10 2z" />
-            </svg>
-          </div>
+          <img src="/logo.png" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded shrink-0" />
           <span className="font-bold text-gray-900 text-base tracking-tight">Analytiq</span>
         </div>
 

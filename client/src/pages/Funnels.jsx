@@ -125,6 +125,32 @@ export function Funnels() {
     }
   })
 
+  const handleExport = () => {
+    if (enriched.length === 0) return
+
+    const csvContent = [
+      ['Funnel Name', funnelName || 'Unnamed Funnel'],
+      ['Time Window (Days)', days],
+      [],
+      ['Step', 'Event Name', 'Users', 'Conversion from start (%)', 'Drop-off from previous (%)'],
+      ...enriched.map((item, index) => [
+        index + 1,
+        item.step,
+        item.count,
+        item.conversionFromFirst,
+        index > 0 ? item.dropoffPct : 0
+      ])
+    ].map(e => e.join(',')).join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', `analytiq_funnel_${(funnelName || 'result').replace(/\s+/g, '_').toLowerCase()}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   if (!projectId) return <Navigate to="/projects" replace />
 
   return (
@@ -310,7 +336,7 @@ export function Funnels() {
                 <h2 className="text-lg font-bold text-gray-900">
                   {funnelName || 'Funnel Results'}
                 </h2>
-                <button className="p-2 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg transition-colors" title="Download">
+                <button onClick={handleExport} className="p-2 text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg transition-colors" title="Download">
                   <Download className="w-4 h-4" />
                 </button>
               </div>
