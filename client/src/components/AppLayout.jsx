@@ -47,7 +47,7 @@ export function AppLayout() {
 
       <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded-md shrink-0" />
+          <img src="/logo.svg" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded-md shrink-0" />
           <span className="font-bold text-gray-900 text-sm tracking-tight">Analytiq</span>
         </div>
 
@@ -131,7 +131,7 @@ export function AppLayout() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded-md shrink-0" />
+            <img src="/logo.svg" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded-md shrink-0" />
             <span className="font-bold text-gray-900 text-sm">Analytiq</span>
           </div>
 

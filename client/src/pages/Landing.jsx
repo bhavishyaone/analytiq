@@ -7,7 +7,7 @@ export function Landing() {
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div className="flex items-center justify-between px-6 py-4 max-w-[1200px] mx-auto w-full">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded shrink-0" />
+            <img src="/logo.svg" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded shrink-0" />
             <span className="font-bold text-lg tracking-tight">Analytiq</span>
           </div>
           
@@ -15,7 +15,7 @@ export function Landing() {
             <a href="#why-analytiq" className="hover:text-gray-900 transition-colors">Why Analytiq?</a>
             <a href="#features" className="hover:text-gray-900 transition-colors">Platform</a>
             <a href="#developers" className="hover:text-gray-900 transition-colors">Developers</a>
-            <a href="https://docs.analytiq.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Documentation</a>
+            <a href="https://bhavishaya.mintlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Documentation</a>
           </div>
 
           <div className="flex items-center gap-4">
@@ -338,7 +338,7 @@ export function Landing() {
           </div>
           
           <div className="mt-12 text-center">
-            <a href="https://docs.analytiq.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#3451ff] hover:text-[#2b41e6] font-semibold transition-colors">
+            <a href="https://bhavishaya.mintlify.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#3451ff] hover:text-[#2b41e6] font-semibold transition-colors">
               Read our comprehensive framework integration guides 
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>

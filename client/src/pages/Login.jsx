@@ -109,7 +109,7 @@ export function Login() {
 
 
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
+          <img src="/logo.svg" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
           <span className="text-lg font-bold text-gray-900 tracking-tight">Analytiq</span>
         </div>
 
