@@ -1,0 +1,123 @@
+---
+title: "Vue.js 3"
+description: "Step-by-step guide to add Analytiq to your Vue 3 app."
+---
+
+## Step 1 — Install the SDK
+
+```bash
+npm install analytiq
+```
+
+## Step 2 — Initialize in `src/main.js`
+
+Open `src/main.js`. Add the init call at the very top:
+
+```js
+import { createApp } from 'vue'
+import App from './App.vue'
+import { init } from 'analytiq'
+
+// Initialize Analytiq once
+init('pk_live_YOUR_KEY_HERE')
+
+createApp(App).mount('#app')
+```
+
+## Step 3 — Track a page view in any component
+
+Open any `.vue` component and add:
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { track } from 'analytiq'
+
+onMounted(() => {
+  track('page_view', { page: 'Home' })
+})
+</script>
+
+<template>
+  <h1>Home Page</h1>
+</template>
+```
+
+## Step 4 — Track button clicks
+
+```vue
+<script setup>
+import { track } from 'analytiq'
+
+function handleSignup() {
+  track('signup_clicked', { plan: 'pro' })
+}
+</script>
+
+<template>
+  <button @click="handleSignup">Sign Up</button>
+</template>
+```
+
+## Step 5 — Identify users after login
+
+```js
+import { identify } from 'analytiq'
+
+function onLoginSuccess(user) {
+  identify(user.id) // links all future events to this user
+}
+```
+
+## Step 6 — Reset on logout
+
+```js
+import { reset } from 'analytiq'
+
+function onLogout() {
+  reset()
+}
+```
+
+## Using Environment Variables
+
+Create `.env` in your project root:
+```
+VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
+```
+
+Update `src/main.js`:
+```js
+init(import.meta.env.VITE_ANALYTIQ_KEY)
+```
+
+## Advanced — Send multiple events at once
+
+Use `batchTrack()` to send multiple events in a **single network request**:
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { batchTrack } from 'analytiq'
+
+onMounted(() => {
+  batchTrack([
+    { name: 'app_opened' },
+    { name: 'page_view', properties: { page: 'Home' } },
+    { name: 'session_start' },
+  ])
+})
+</script>
+
+<template>
+  <h1>Home</h1>
+</template>
+```
+
+## Step 7 — Verify it's working
+
+
+1. Run: `npm run dev`
+2. Press **F12** → Console
+3. You should see: `[analytiq] Initialized successfully.`
+4. Go to your Analytiq dashboard → Events

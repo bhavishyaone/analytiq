@@ -1,0 +1,101 @@
+---
+title: "Angular"
+description: "Step-by-step guide to add Analytiq to your Angular project."
+---
+
+## Step 1 — Install the SDK
+
+```bash
+npm install analytiq
+```
+
+## Step 2 — Create an Analytics Service
+
+Run this command to generate a service:
+```bash
+ng generate service analytics
+```
+
+Open `src/app/analytics.service.ts` and replace the entire contents with:
+
+```ts
+import { Injectable } from '@angular/core'
+import { init, track, identify, reset, batchTrack } from 'analytiq'
+
+@Injectable({ providedIn: 'root' })
+export class AnalyticsService {
+
+  initialize() {
+    init('pk_live_YOUR_KEY_HERE')
+  }
+
+  trackEvent(name: string, properties?: Record<string, string | number | boolean | null>) {
+    track(name, properties)
+  }
+
+  identifyUser(userId: string) {
+    identify(userId)
+  }
+
+  clearUser() {
+    reset()
+  }
+}
+```
+
+## Step 3 — Initialize in `app.component.ts`
+
+Open `src/app/app.component.ts`:
+
+```ts
+import { Component, OnInit } from '@angular/core'
+import { AnalyticsService } from './analytics.service'
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent implements OnInit {
+
+  constructor(private analytics: AnalyticsService) {}
+
+  ngOnInit() {
+    this.analytics.initialize()
+    this.analytics.trackEvent('page_view', { page: 'App Root' })
+  }
+}
+```
+
+## Step 4 — Track events in any component
+
+```ts
+import { Component, OnInit } from '@angular/core'
+import { AnalyticsService } from '../analytics.service'
+
+@Component({ selector: 'app-home', template: `
+  <h1>Home</h1>
+  <button (click)="onSignup()">Sign Up</button>
+` })
+export class HomeComponent implements OnInit {
+
+  constructor(private analytics: AnalyticsService) {}
+
+  ngOnInit() {
+    this.analytics.trackEvent('page_view', { page: 'Home' })
+  }
+
+  onSignup() {
+    this.analytics.trackEvent('signup_clicked', { location: 'home' })
+  }
+}
+```
+
+## Step 5 — Identify users & reset
+
+```ts
+// After login:
+this.analytics.identifyUser(user.id)
+
+// After logout:
+this.analytics.clearUser()
+```
