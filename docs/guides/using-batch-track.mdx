@@ -1,0 +1,205 @@
+---
+title: "Using batchTrack"
+description: "Send multiple analytics events in a single network request. More efficient than calling track() multiple times."
+---
+
+## What is batchTrack?
+
+`batchTrack()` lets you send **multiple events in one request** to the Analytiq server instead of making separate requests for each event.
+
+Think of it like this:
+
+```
+Using track() three times:
+  Request 1 → send "app_opened"
+  Request 2 → send "page_view"
+  Request 3 → send "session_start"
+  (3 separate network calls)
+
+Using batchTrack() once:
+  Request 1 → send ["app_opened", "page_view", "session_start"]
+  (1 single network call with all 3 events)
+```
+
+---
+
+## When to use batchTrack vs track
+
+| Use `track()` | Use `batchTrack()` |
+|--------------|-------------------|
+| One event at a time | Multiple events at the same moment |
+| User clicks a button | App startup — track several things at once |
+| Form is submitted | Page loads — send session + page view together |
+| Real-time single interaction | End of session summary |
+
+**Rule of thumb:** If your events happen at exactly the same time (e.g., when a component mounts), use `batchTrack()`. If they happen at different times based on user actions, use `track()` individually.
+
+---
+
+## Basic usage
+
+```js
+import { batchTrack } from 'analytiq'
+
+batchTrack([
+  { name: 'session_start' },
+  { name: 'page_view', properties: { page: 'Dashboard' } },
+  { name: 'feature_loaded', properties: { feature: 'analytics_chart' } },
+])
+```
+
+Each item in the array has:
+- `name` (required) — the event name
+- `properties` (optional) — same key-value pairs as `track()`
+
+---
+
+## React — App startup tracking
+
+<Tabs>
+  <Tab title="JavaScript (.jsx)">
+    ```jsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+
+    export function App() {
+      useEffect(() => {
+        // Send multiple startup events in one go
+        batchTrack([
+          { name: 'app_opened' },
+          { name: 'session_start', properties: { referrer: document.referrer || 'direct' } },
+          { name: 'page_view', properties: { path: window.location.pathname } },
+        ])
+      }, [])
+
+      return <div>App</div>
+    }
+    ```
+  </Tab>
+  <Tab title="TypeScript (.tsx)">
+    ```tsx
+    import { useEffect } from 'react'
+    import { batchTrack } from 'analytiq'
+    import type { BatchEvent } from 'analytiq'
+
+    export function App(): JSX.Element {
+      useEffect(() => {
+        const startupEvents: BatchEvent[] = [
+          { name: 'app_opened' },
+          { name: 'session_start', properties: { referrer: document.referrer || 'direct' } },
+          { name: 'page_view', properties: { path: window.location.pathname } },
+        ]
+        batchTrack(startupEvents)
+      }, [])
+
+      return <div>App</div>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Next.js App Router
+
+```tsx
+'use client'
+
+import { useEffect } from 'react'
+import { batchTrack } from 'analytiq'
+
+export default function DashboardPage(): JSX.Element {
+  useEffect(() => {
+    batchTrack([
+      { name: 'dashboard_opened' },
+      { name: 'page_view', properties: { page: 'Dashboard' } },
+    ])
+  }, [])
+
+  return <main><h1>Dashboard</h1></main>
+}
+```
+
+---
+
+## Vue 3
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { batchTrack } from 'analytiq'
+
+onMounted(() => {
+  batchTrack([
+    { name: 'app_opened' },
+    { name: 'page_view', properties: { page: 'Home' } },
+  ])
+})
+</script>
+```
+
+---
+
+## Vanilla HTML
+
+```html
+<script type="module">
+  import { init, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+
+  init('pk_live_YOUR_KEY_HERE')
+
+  batchTrack([
+    { name: 'page_view', properties: { page: document.title } },
+    { name: 'session_start' },
+  ])
+</script>
+```
+
+---
+
+## With user identity
+
+If the user is already logged in when the batch fires, you can include `userId` per event:
+
+```js
+import { identify, batchTrack } from 'analytiq'
+
+// First identify the user
+identify(user.id)
+
+// Then batchTrack — userId is automatically attached
+batchTrack([
+  { name: 'dashboard_loaded' },
+  { name: 'page_view', properties: { page: 'Dashboard' } },
+])
+```
+
+Or explicitly per event:
+
+```js
+batchTrack([
+  { name: 'session_start', userId: user.id },
+  { name: 'page_view', userId: user.id, properties: { page: 'Dashboard' } },
+])
+```
+
+---
+
+## TypeScript types
+
+```ts
+import type { BatchEvent } from 'analytiq'
+
+// BatchEvent type definition:
+// {
+//   name: string                           — required
+//   properties?: EventProperties           — optional
+//   userId?: string                        — optional (overrides identify())
+//   timestamp?: string                     — optional ISO 8601 string
+// }
+
+const events: BatchEvent[] = [
+  { name: 'session_start' },
+  { name: 'page_view', properties: { page: 'Home' } },
+]
+```

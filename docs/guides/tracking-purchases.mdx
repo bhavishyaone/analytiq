@@ -1,0 +1,254 @@
+---
+title: "Tracking Purchases"
+description: "Track revenue events so you know exactly how much money your app is making and which actions lead to purchases."
+---
+
+## Why track purchases?
+
+Tracking purchases lets you answer:
+- How much revenue did we make this week?
+- Which marketing channel drives the most purchases?
+- What's the average order value?
+- How many users bought after clicking a specific CTA?
+- What's the conversion rate from signup to purchase?
+
+---
+
+## The basic purchase event
+
+Use the event name `purchase` with an `amount` property:
+
+```js
+track('purchase', {
+  amount: 49.99,       // in your currency (number, not string)
+  currency: 'USD',     // optional but recommended
+  plan: 'pro',         // what they bought
+  method: 'stripe'     // payment method
+})
+```
+
+---
+
+## Where to fire the purchase event
+
+Fire it **after the payment API confirms success** — not when the user clicks the pay button.
+
+```js
+// Wrong — fires before payment is confirmed
+track('purchase', { amount: 49 })
+await stripe.confirmPayment(...)
+
+// Correct — fires after payment is confirmed
+const result = await stripe.confirmPayment(...)
+if (result.paymentIntent.status === 'succeeded') {
+  track('purchase', { amount: 49 })
+}
+```
+
+---
+
+## Stripe integration example
+
+<Tabs>
+  <Tab title="React (JavaScript)">
+    ```jsx
+    import { track } from 'analytiq'
+    import { useStripe, useElements } from '@stripe/react-stripe-js'
+
+    export function CheckoutForm({ plan, price }) {
+      const stripe = useStripe()
+      const elements = useElements()
+
+      async function handleSubmit(e) {
+        e.preventDefault()
+
+        // Track that checkout started
+        track('checkout_started', { plan, amount: price })
+
+        const { error, paymentIntent } = await stripe.confirmPayment({
+          elements,
+          confirmParams: { return_url: window.location.origin + '/success' },
+          redirect: 'if_required'
+        })
+
+        if (error) {
+          // Track failed payment
+          track('payment_failed', {
+            plan,
+            amount: price,
+            reason: error.message
+          })
+        } else if (paymentIntent?.status === 'succeeded') {
+          // Track successful purchase
+          track('purchase', {
+            plan,
+            amount: price,
+            currency: 'USD',
+            payment_id: paymentIntent.id
+          })
+          navigate('/dashboard?upgraded=true')
+        }
+      }
+
+      return <form onSubmit={handleSubmit}>...</form>
+    }
+    ```
+  </Tab>
+  <Tab title="React (TypeScript)">
+    ```tsx
+    import { track } from 'analytiq'
+    import { useStripe, useElements } from '@stripe/react-stripe-js'
+
+    interface CheckoutFormProps {
+      plan: string
+      price: number
+    }
+
+    export function CheckoutForm({ plan, price }: CheckoutFormProps): JSX.Element {
+      const stripe = useStripe()
+      const elements = useElements()
+
+      async function handleSubmit(e: React.FormEvent): Promise<void> {
+        e.preventDefault()
+
+        track('checkout_started', { plan, amount: price })
+
+        const { error, paymentIntent } = await stripe!.confirmPayment({
+          elements: elements!,
+          confirmParams: { return_url: window.location.origin + '/success' },
+          redirect: 'if_required'
+        })
+
+        if (error) {
+          track('payment_failed', { plan, amount: price, reason: error.message })
+        } else if (paymentIntent?.status === 'succeeded') {
+          track('purchase', {
+            plan,
+            amount: price,
+            currency: 'USD',
+            payment_id: paymentIntent.id
+          })
+          navigate('/dashboard?upgraded=true')
+        }
+      }
+
+      return <form onSubmit={handleSubmit}>...</form>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Tracking the full purchase funnel
+
+To understand where users drop off, track every step:
+
+```js
+// Step 1: User clicks "Upgrade" button
+track('upgrade_clicked', { plan: 'pro', source: 'settings_page' })
+
+// Step 2: User opens checkout modal / page
+track('checkout_started', { plan: 'pro', amount: 49 })
+
+// Step 3a: Payment succeeds
+track('purchase', { plan: 'pro', amount: 49, currency: 'USD' })
+
+// Step 3b: Payment fails
+track('payment_failed', { plan: 'pro', amount: 49, reason: 'card_declined' })
+
+// Step 4: User confirms on success page
+track('purchase_confirmed', { plan: 'pro', amount: 49 })
+```
+
+On your dashboard you can see how many users made it through each step — and where the majority drop off.
+
+---
+
+## Subscription events
+
+For recurring subscriptions, track both the initial purchase and renewals:
+
+```js
+// First-time subscription
+track('subscription_started', {
+  plan: 'pro_monthly',
+  amount: 29,
+  currency: 'USD',
+  billing: 'monthly'
+})
+
+// Plan upgrade (from lower to higher tier)
+track('plan_upgraded', {
+  from_plan: 'basic',
+  to_plan: 'pro',
+  amount: 49
+})
+
+// Plan downgrade
+track('plan_downgraded', {
+  from_plan: 'pro',
+  to_plan: 'basic'
+})
+
+// Cancellation — very important to track
+track('subscription_cancelled', {
+  plan: 'pro',
+  reason: 'too_expensive'  // if you ask for a reason
+})
+```
+
+---
+
+## E-commerce cart tracking
+
+```js
+// User adds item to cart
+track('add_to_cart', {
+  product_id: 'prod_abc123',
+  product_name: 'Premium Plan',
+  price: 49,
+  quantity: 1
+})
+
+// User views cart
+track('cart_viewed', {
+  items: 3,
+  total: 147
+})
+
+// User removes item
+track('remove_from_cart', {
+  product_id: 'prod_abc123',
+  price: 49
+})
+
+// Cart abandoned (user leaves without buying)
+// — usually tracked via a server-side webhook or timeout
+track('cart_abandoned', {
+  items: 3,
+  total: 147
+})
+```
+
+---
+
+## Recommended purchase event properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `amount` | number | Purchase total — use a number, not a string |
+| `currency` | string | 3-letter currency code: `'USD'`, `'EUR'`, `'INR'` |
+| `plan` | string | What they bought: `'pro'`, `'enterprise'` |
+| `payment_id` | string | Stripe/Razorpay payment intent ID |
+| `method` | string | Payment method: `'stripe'`, `'razorpay'` |
+| `billing` | string | `'monthly'` or `'annual'` |
+
+---
+
+## Verifying purchases are tracked
+
+1. Make a test purchase (use Stripe's test card `4242 4242 4242 4242`)
+2. Go to Analytiq dashboard → Events
+3. Filter by event name `purchase`
+4. Verify all properties appear correctly

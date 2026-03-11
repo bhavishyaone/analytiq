@@ -1,0 +1,232 @@
+---
+title: "Identifying Users"
+description: "Link analytics events to specific users so you can see what individual people do in your app — not just anonymous numbers."
+---
+
+## What is user identification?
+
+By default, every event tracked by Analytiq is anonymous — you can see *that* a button was clicked, but not *who* clicked it.
+
+`identify()` links all future events to a specific user. After you call it, every `track()` event is automatically tagged with that user's ID — so on the dashboard you can filter events by user, see a single user's journey, and understand your users individually.
+
+---
+
+## When to call identify()
+
+Call `identify()` in exactly one place: **right after login or signup succeeds**.
+
+```
+User clicks Login button
+  → Your API call succeeds
+  → Call identify(user.id) here
+  → User is redirected to dashboard
+```
+
+---
+
+## Basic usage
+
+```js
+import { identify } from 'analytiq'
+
+// Pass any unique ID — usually user.id from your database
+identify('user_abc123')
+```
+
+You can use:
+- A database UUID or integer ID: `identify('550e8400-e29b-41d4-a716-446655440000')`
+- An email address: `identify('john@example.com')` (only if emails are unique)
+- Any unique string your system uses
+
+---
+
+## After signup
+
+<Tabs>
+  <Tab title="React / Next.js (JavaScript)">
+    ```jsx
+    import { track, identify } from 'analytiq'
+
+    async function handleSignup(email, password) {
+      try {
+        const response = await api.post('/auth/register', { email, password })
+        const user = response.data.user
+
+        // Identify first, then track
+        identify(user.id)
+        track('signup_completed', { method: 'email' })
+
+        navigate('/dashboard')
+
+      } catch (error) {
+        track('signup_failed', { reason: error.message })
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="React / Next.js (TypeScript)">
+    ```tsx
+    import { track, identify } from 'analytiq'
+
+    async function handleSignup(email: string, password: string): Promise<void> {
+      try {
+        const response = await api.post('/auth/register', { email, password })
+        const user: { id: string } = response.data.user
+
+        identify(user.id)
+        track('signup_completed', { method: 'email' })
+
+        navigate('/dashboard')
+
+      } catch (error: unknown) {
+        track('signup_failed', {
+          reason: error instanceof Error ? error.message : 'unknown'
+        })
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    ```js
+    import { track, identify } from 'analytiq'
+
+    async function handleSignup(email, password) {
+      const response = await api.post('/auth/register', { email, password })
+      const user = response.data.user
+
+      identify(user.id)
+      track('signup_completed', { method: 'email' })
+
+      router.push('/dashboard')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## After login
+
+<Tabs>
+  <Tab title="React / Next.js (JavaScript)">
+    ```jsx
+    import { identify } from 'analytiq'
+
+    async function handleLogin(email, password) {
+      const response = await api.post('/auth/login', { email, password })
+      const user = response.data.user
+
+      // Call identify after login succeeds
+      identify(user.id)
+
+      navigate('/dashboard')
+    }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    ```js
+    import { identify } from 'analytiq'
+
+    async function handleLogin(email, password) {
+      const response = await api.post('/auth/login', { email, password })
+      identify(response.data.user.id)
+      router.push('/dashboard')
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## When the user is already logged in (page refresh)
+
+If your app keeps users logged in via a session cookie or JWT, you need to re-identify them when the app loads — otherwise their events after a page refresh won't be linked to them.
+
+<Tabs>
+  <Tab title="React — in root component">
+    ```jsx
+    import { useEffect } from 'react'
+    import { identify } from 'analytiq'
+
+    export function App() {
+      useEffect(() => {
+        // Check if user is already logged in
+        const user = getCurrentUser()  // your auth function
+        if (user) {
+          identify(user.id)  // re-identify on every app load
+        }
+      }, [])
+
+      return <Router>...</Router>
+    }
+    ```
+  </Tab>
+  <Tab title="Next.js App Router">
+    ```tsx
+    'use client'
+
+    import { useEffect } from 'react'
+    import { identify } from 'analytiq'
+    import { useSession } from 'next-auth/react'
+
+    export function AnalytiqProvider({ children }: { children: React.ReactNode }) {
+      const { data: session } = useSession()
+
+      useEffect(() => {
+        if (session?.user?.id) {
+          identify(session.user.id)
+        }
+      }, [session])
+
+      return <>{children}</>
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Resetting on logout
+
+When a user logs out, call `reset()` to clear their identity. This prevents the next person who uses the same device from having their events linked to the previous user.
+
+```jsx
+import { reset } from 'analytiq'
+
+function handleLogout() {
+  reset()              // ← always call this first
+  navigate('/login')  // then redirect
+}
+```
+
+---
+
+## How identity flows through events
+
+After `identify()` is called, all subsequent `track()` calls are automatically linked:
+
+```
+identify('user_abc')
+track('page_view', { page: 'Dashboard' })     ← linked to user_abc
+track('upgrade_clicked', { plan: 'pro' })     ← linked to user_abc
+track('purchase', { amount: 49 })             ← linked to user_abc
+reset()
+track('page_view', { page: 'Landing' })       ← anonymous again
+```
+
+---
+
+## What NOT to do
+
+| Don't | Why |
+|---------|-----|
+| `identify(user.email)` if emails can change | User gets new email → their history is split |
+| `identify(user.name)` | Names aren't always unique |
+| Call `identify()` before login succeeds | You might identify the wrong user |
+| Skip `reset()` on logout | Next user inherits previous user's identity |
+
+---
+
+## Anonymous events before identify()
+
+Any events tracked before `identify()` is called are stored anonymously. Once you call `identify()`, future events are linked — but past anonymous events remain anonymous. This is expected behavior.
