@@ -1,0 +1,86 @@
+---
+title: "identify()"
+description: "Associate all future events with a specific user ID."
+---
+
+## Overview
+
+`identify()` links all future `track()` calls to a specific user. Call this **after a user logs in**. This lets you see which events belong to which user on your dashboard.
+
+## Signature
+
+```ts
+identify(userId: string): void
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | `string` | Yes | A unique identifier for the user. Can be their database ID, email, or any unique string. |
+
+## Example
+
+```js
+import { identify } from 'analytiq'
+
+// After login — use any unique user identifier
+identify('user_abc123')
+
+// OR use their email
+identify('bhavishaya@gmail.com')
+
+// OR use their database ID
+identify(user._id)
+```
+
+## When to call it
+
+Call `identify()` immediately after a successful login:
+
+```js
+// React example
+async function handleLogin(email, password) {
+  const response = await api.post('/auth/login', { email, password })
+  const user = response.data.user
+
+  identify(user.id)   // ← call here, right after login
+
+  navigate('/dashboard')
+}
+```
+
+## What happens after identify()
+
+Every `track()` call after `identify()` will automatically include the `userId`:
+
+```js
+identify('user_abc123')
+
+track('page_view', { page: 'Dashboard' })
+// → Event sent with userId: 'user_abc123' attached automatically
+```
+
+## Important rules
+
+<Note>
+  If you don't call `identify()`, events are still tracked — they just won't be linked to a specific user. That's fine for anonymous visitors.
+</Note>
+
+- Call `identify()` once per session, right after login
+- The identity persists until `reset()` is called
+- You can call `identify()` again with a different ID to switch users (rare case)
+
+## Reset identity on logout
+
+When the user logs out, call `reset()` to clear their identity:
+
+```js
+import { reset } from 'analytiq'
+
+function onLogout() {
+  reset()  // clears userId so future events are anonymous again
+}
+```
+
+This is important — without calling `reset()`, the next user to log in on the same browser session would have their events attributed to the previous user.

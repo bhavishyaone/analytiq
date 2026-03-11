@@ -1,0 +1,80 @@
+---
+title: "batchTrack()"
+description: "Track multiple events in a single network request. More efficient than calling track() multiple times."
+---
+
+## Overview
+
+`batchTrack()` sends an array of events to Analytiq in **one single network request** instead of one request per event. Use this when you need to track multiple events at the same time, like when a page loads and you want to record several things at once.
+
+## Signature
+
+```ts
+batchTrack(events: BatchEvent[]): void
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `events` | `BatchEvent[]` | Yes | An array of event objects to send together |
+
+### BatchEvent object
+
+Each item in the array is a `BatchEvent` with these fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | Yes | Name of the event |
+| `properties` | `object` | No | Same as `track()` properties |
+| `userId` | `string` | No | Override user for this specific event (otherwise uses globally identified user) |
+| `timestamp` | `string` | No | ISO 8601 timestamp. Auto-generated if not provided |
+
+## Example
+
+```js
+import { batchTrack } from 'analytiq'
+
+batchTrack([
+  { name: 'session_start', properties: { referrer: 'google' } },
+  { name: 'page_view', properties: { path: '/dashboard' } },
+  { name: 'feature_seen', properties: { feature: 'analytics_chart' } },
+])
+```
+
+## When to use batchTrack vs track
+
+| Use `track()` | Use `batchTrack()` |
+|--------------|-------------------|
+| Single events happening one at a time | Multiple events at the same time |
+| Button clicks, form submits | App startup events, page load events |
+| Real-time single interactions | Summary of actions at the end of a session |
+
+## Example — App startup events
+
+```js
+import { useEffect } from 'react'
+import { batchTrack } from 'analytiq'
+
+useEffect(() => {
+  batchTrack([
+    { name: 'app_opened' },
+    { name: 'page_view', properties: { path: window.location.pathname } },
+    { name: 'session_start', properties: { time: new Date().toISOString() } },
+  ])
+}, [])
+```
+
+## TypeScript
+
+```ts
+import { batchTrack } from 'analytiq'
+import type { BatchEvent } from 'analytiq'
+
+const events: BatchEvent[] = [
+  { name: 'session_start' },
+  { name: 'page_view', properties: { path: '/home' } },
+]
+
+batchTrack(events)
+```

@@ -1,0 +1,77 @@
+---
+title: "reset()"
+description: "Clear the current user identity, event queue, and deduplication cache. Call this on logout."
+---
+
+## Overview
+
+`reset()` clears the current user identity set by `identify()`. Call it when a user logs out to prevent their events from being mixed with the next user's events on the same device.
+
+## Signature
+
+```ts
+reset(): void
+```
+
+## Parameters
+
+None. `reset()` takes no arguments.
+
+## Example
+
+```js
+import { reset } from 'analytiq'
+
+reset()
+```
+
+## When to call it
+
+Always call `reset()` when a user logs out:
+
+```js
+import { reset } from 'analytiq'
+
+async function handleLogout() {
+  await api.post('/auth/logout')  // your own logout API call
+  reset()                          // clear Analytiq identity
+  navigate('/login')               // redirect to login page
+}
+```
+
+## What it clears
+
+| Cleared | Description |
+|---------|-------------|
+| `userId` | Removes the user set by `identify()`. Future events are anonymous. |
+| Event queue | Removes any pending events that haven't been sent yet |
+| Dedup cache | Clears the 300ms deduplication memory |
+
+## Why this matters
+
+If you don't call `reset()` on logout:
+- User A logs out
+- User B logs in on the same browser
+- User B's events are attributed to User A's identity on the dashboard
+
+Calling `reset()` prevents this by wiping User A's identity from memory.
+
+## Complete login/logout flow
+
+```js
+import { identify, track, reset } from 'analytiq'
+
+// On login:
+async function onLoginSuccess(user) {
+  identify(user.id)                            // link events to this user
+  track('login', { method: 'email' })          // track the login event
+  navigate('/dashboard')
+}
+
+// On logout:
+async function onLogout() {
+  track('logout')                              // track the logout event
+  reset()                                      // clear identity
+  navigate('/login')
+}
+```
