@@ -5,16 +5,18 @@ export function Landing() {
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 scroll-smooth">
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
-        <div className="flex items-center justify-between px-6 py-4 max-w-[1200px] mx-auto w-full">
+        <div className="flex items-center justify-between px-6 py-4 max-w-[1440px] mx-auto w-full">
           <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
             <img src="/logo.svg" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded shrink-0" />
             <span className="font-bold text-lg tracking-tight">Analytiq</span>
           </Link>
           
-          <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-gray-500">
-            <a href="#why-analytiq" className="hover:text-gray-900 transition-colors">Why Analytiq?</a>
+          <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#64748b]">
+            <a href="#what-is" className="hover:text-gray-900 transition-colors">Overview</a>
+            <a href="#why-analytiq" className="hover:text-gray-900 transition-colors">Advantage</a>
             <a href="#features" className="hover:text-gray-900 transition-colors">Platform</a>
             <a href="#developers" className="hover:text-gray-900 transition-colors">Developers</a>
+            <a href="https://github.com/bhavishyaone/analytics" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">GitHub</a>
             <a href="https://bhavishaya.mintlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Documentation</a>
           </div>
 
@@ -26,15 +28,12 @@ export function Landing() {
         </div>
       </nav>
 
-      <header className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-16 sm:pb-20 lg:pt-24 lg:pb-32 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        <div className="max-w-xl">
+      <header className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-8 sm:pb-12 lg:pt-24 lg:pb-16 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="max-w-2xl">
           <h1 className="text-[40px] sm:text-[56px] md:text-[64px] font-[800] tracking-tight text-[#111827] leading-[1.05] mb-6">
-            Stop guessing.<br />
-            Start knowing<br />
-            exactly how your<br />
-            users behave.
+            Stop guessing. Start knowing exactly how your users behave and build better products.
           </h1>
-          <p className="text-[17px] md:text-[19px] text-[#6b7280] mb-10 leading-relaxed max-w-md">
+          <p className="text-[17px] md:text-[19px] text-[#6b7280] mb-10 leading-relaxed max-w-xl">
             Track every event, visualize funnels, and measure retention — built for developers who want real data without the fluff.
           </p>
           <div className="flex flex-wrap items-center gap-4">
@@ -96,10 +95,41 @@ export function Landing() {
         </div>
       </header>
 
+      <section id="what-is" className="pt-8 pb-16 lg:pt-12 lg:pb-20 bg-white border-t-2 border-b border-gray-200">
+        <div className="max-w-[1440px] mx-auto px-6">
+          <div className="max-w-3xl mx-auto mb-6 text-center">
+            <h2 className="text-[32px] md:text-[40px] font-bold text-[#111827] mb-0 tracking-tight">Overview</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-[#f8f9fb] p-8 rounded-2xl border border-gray-100">
+              <h3 className="font-bold text-[19px] text-[#111827] mb-3">What is Analytiq?</h3>
+              <p className="text-[#6b7280] leading-relaxed text-[15px]">
+                A developer-focused product analytics platform that helps teams understand how users interact with their applications. Track feature usage, user actions, and product interactions visually.
+              </p>
+            </div>
+            
+            <div className="bg-[#f8f9fb] p-8 rounded-2xl border border-gray-100">
+              <h3 className="font-bold text-[19px] text-[#111827] mb-3">What problem does it solve?</h3>
+              <p className="text-[#6b7280] leading-relaxed text-[15px]">
+                We solve the struggle of answering critical product questions. Identify drop-offs, track most-used features, and measure conversion funnels with structured, event-based tracking.
+              </p>
+            </div>
+
+            <div className="bg-[#f8f9fb] p-8 rounded-2xl border border-gray-100">
+              <h3 className="font-bold text-[19px] text-[#111827] mb-3">Who is Analytiq for?</h3>
+              <p className="text-[#6b7280] leading-relaxed text-[15px]">
+                Built from the ground up for developers, startup founders, PMs, and SaaS teams who need deep insights into product usage without the overhead of expensive legacy platforms.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="why-analytiq" className="bg-[#f8f9fb] border-y border-gray-100">
-        <div className="max-w-[1200px] mx-auto px-6 py-24 lg:py-32">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-[32px] md:text-[40px] font-bold text-[#111827] mb-6 tracking-tight">Why choose Analytiq?</h2>
+        <div className="max-w-[1440px] mx-auto px-6 py-12 lg:py-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="text-[32px] md:text-[40px] font-bold text-[#111827] mb-6 tracking-tight">Advantage</h2>
             <p className="text-[17px] text-[#6b7280]">We stripped away the fluff, the confusing pricing tiers, and the bloated scripts to give you exactly what matters: raw, reliable data.</p>
           </div>
 
@@ -131,14 +161,14 @@ export function Landing() {
         </div>
       </section>
 
-      <section id="features" className="py-24 lg:py-32 overflow-hidden">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="mb-24 text-center">
+      <section id="features" className="py-12 lg:py-16 overflow-hidden">
+        <div className="max-w-[1440px] mx-auto px-6">
+          <div className="mb-12 lg:mb-16 text-center">
             <span className="text-[#3451ff] font-bold tracking-wider text-sm uppercase">The Platform</span>
             <h2 className="text-[36px] md:text-[44px] font-bold text-[#111827] mt-3">Three core features. Executed flawlessly.</h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 lg:mb-32">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-12 lg:mb-16">
             <div>
               <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-6">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
@@ -190,7 +220,7 @@ export function Landing() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 lg:mb-32">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-12 lg:mb-16">
             <div className="order-2 lg:order-1 bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
                <div className="flex items-end gap-2 h-48 w-full">
                  <div className="w-full bg-[#3451ff] rounded-t-sm h-[100%] relative group cursor-pointer transition-all">
@@ -309,10 +339,10 @@ export function Landing() {
         </div>
       </section>
 
-      <section id="developers" className="bg-[#f8f9fb] py-24 lg:py-32 border-t border-gray-100">
-        <div className="max-w-[1000px] mx-auto px-6 text-center">
+      <section id="developers" className="bg-[#f8f9fb] py-12 lg:py-16 border-t border-gray-100">
+        <div className="max-w-[1440px] mx-auto px-6 text-center">
           <h2 className="text-[32px] md:text-[40px] font-bold text-[#111827] mb-6">Setup takes less than a minute.</h2>
-          <p className="text-[17px] text-[#6b7280] mb-16 max-w-2xl mx-auto">No complicated middleware, no Docker containers to spin up locally. Follow these three simple steps.</p>
+          <p className="text-[17px] text-[#6b7280] mb-10 max-w-2xl mx-auto">No complicated middleware, no Docker containers to spin up locally. Follow these three simple steps.</p>
           
           <div className="grid md:grid-cols-3 gap-6 text-left">
             <div className="bg-white border border-gray-100 shadow-sm p-6 rounded-xl hover:shadow-md hover:-translate-y-1 transition-all">
@@ -346,11 +376,11 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="bg-white py-16 text-center px-6 border-y border-gray-100">
-        <h2 className="text-[32px] md:text-[44px] font-bold text-[#111827] mb-6 max-w-[600px] mx-auto tracking-tight">
-          Ready to track product metrics properly?
+      <section className="bg-white pt-16 pb-16 text-center px-6 border-t border-gray-100">
+        <h2 className="text-[32px] md:text-[44px] font-bold text-[#111827] mb-6 max-w-[1200px] mx-auto tracking-tight">
+          Ready to stop guessing and start tracking your product metrics with granular precision?
         </h2>
-        <p className="text-[#6b7280] mb-10 text-[17px]">
+        <p className="text-[#6b7280] mb-10 text-[17px] max-w-[800px] mx-auto">
           Create an account. Manage unlimited projects. Own your data.
         </p>
         <div className="flex items-center justify-center gap-4">
@@ -360,9 +390,11 @@ export function Landing() {
         </div>
       </section>
 
-      <footer className="py-4 px-6 bg-[#f8f9fb] flex justify-center border-t border-gray-100 w-full">
-        <div className="text-[13px] text-gray-500">
-          © 2026 Analytiq. All rights reserved.
+      <footer className="bg-[#f8f9fb] border-t border-gray-100 w-full py-4">
+        <div className="max-w-[1440px] mx-auto px-6 flex justify-center text-center">
+          <div className="text-[13px] text-gray-500 font-medium">
+            © {new Date().getFullYear()} Analytiq. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
