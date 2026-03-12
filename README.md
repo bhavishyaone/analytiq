@@ -237,13 +237,17 @@ batchTrack('video_played', { videoId: 'intro_demo' });
 
 ## 📸 Screenshots
 
-| Landing Page | Dashboard Overview |
-| :---: | :---: |
-| ![Landing Page](./screenshots/image-4.png) | ![Dashboard Overview](./screenshots/image-1.png) |
-| **Funnels & Drop-offs** | **Projects & Settings** |
-| ![Funnels](./screenshots/image-2.png) | ![Settings](./screenshots/image-3.png) |
-| **Documentation Intro** | **Framework Setup Guides** |
-| ![Docs Intro](./screenshots/image-6.png) | ![Docs Setup](./screenshots/image-5.png) |
+### 1️⃣ Landing Page & Dashboard Overview
+![Landing Page](./screenshots/image-4.png)
+![Dashboard Overview](./screenshots/image-1.png)
+
+### 2️⃣ Funnels & Drop-offs | Projects & Settings
+![Funnels](./screenshots/image-2.png)
+![Settings](./screenshots/image-3.png)
+
+### 3️⃣ Documentation Intro & Framework Setup
+![Docs Intro](./screenshots/image-6.png)
+![Docs Setup](./screenshots/image-5.png)
 
 ---
 
