@@ -102,10 +102,10 @@ export function Register(){
       <div className="hidden lg:flex lg:w-[42%] flex-col justify-between p-14 border-r border-gray-100">
 
 
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
           <span className="text-lg font-bold text-gray-900 tracking-tight">Analytiq</span>
-        </div>
+        </Link>
 
 
         <div className="space-y-10">
@@ -135,10 +135,10 @@ export function Register(){
         <div className="w-full max-w-sm space-y-6">
 
 
-          <div className="flex items-center gap-2 lg:hidden">
+          <Link to="/" className="flex items-center gap-2 lg:hidden cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
             <img src="/logo.svg" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
             <span className="text-lg font-bold text-gray-900">Analytiq</span>
-          </div>
+          </Link>
 
 
           <div>

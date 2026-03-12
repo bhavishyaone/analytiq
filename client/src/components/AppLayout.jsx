@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom'
 import {
   LayoutDashboard,
   Zap,
@@ -46,10 +46,10 @@ export function AppLayout() {
 
 
       <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded-md shrink-0" />
           <span className="font-bold text-gray-900 text-sm tracking-tight">Analytiq</span>
-        </div>
+        </Link>
 
         <button
           className="md:hidden p-1 text-gray-400 hover:text-gray-600"
@@ -130,10 +130,10 @@ export function AppLayout() {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
             <img src="/logo.svg" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded-md shrink-0" />
             <span className="font-bold text-gray-900 text-sm">Analytiq</span>
-          </div>
+          </Link>
 
           {showDateRange && (
             <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">

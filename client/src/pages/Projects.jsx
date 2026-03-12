@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, ArrowRight, LayoutGrid, LogOut, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -75,10 +75,10 @@ export function Projects() {
 
 
       <nav className="flex items-center justify-between px-4 md:px-10 py-3 md:py-4 border-b border-gray-100">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-6 md:w-7 h-6 md:h-7 object-contain rounded shrink-0" />
           <span className="font-bold text-gray-900 text-sm md:text-base tracking-tight">Analytiq</span>
-        </div>
+        </Link>
 
         <div className="relative">
           <button

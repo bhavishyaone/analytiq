@@ -108,10 +108,10 @@ export function Login() {
       <div className="hidden lg:flex lg:w-[42%] flex-col justify-between p-14 border-r border-gray-100">
 
 
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
           <span className="text-lg font-bold text-gray-900 tracking-tight">Analytiq</span>
-        </div>
+        </Link>
 
 
         <div className="space-y-10">
@@ -142,10 +142,10 @@ export function Login() {
         <div className="w-full max-w-sm space-y-6">
 
 
-          <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-5 h-5 bg-indigo-600 rotate-45 rounded-sm" />
+          <Link to="/" className="flex items-center gap-2 lg:hidden cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
+            <img src="/logo.svg" alt="Analytiq Logo" className="w-8 h-8 object-contain rounded-lg shrink-0" />
             <span className="text-lg font-bold text-gray-900">Analytiq</span>
-          </div>
+          </Link>
 
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Sign in to Analytiq</h2>

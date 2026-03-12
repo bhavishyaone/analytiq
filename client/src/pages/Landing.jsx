@@ -6,10 +6,10 @@ export function Landing() {
     <div className="min-h-screen bg-white font-sans text-gray-900 scroll-smooth">
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div className="flex items-center justify-between px-6 py-4 max-w-[1200px] mx-auto w-full">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
             <img src="/logo.svg" alt="Analytiq Logo" className="w-6 h-6 object-contain rounded shrink-0" />
             <span className="font-bold text-lg tracking-tight">Analytiq</span>
-          </div>
+          </Link>
           
           <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-gray-500">
             <a href="#why-analytiq" className="hover:text-gray-900 transition-colors">Why Analytiq?</a>

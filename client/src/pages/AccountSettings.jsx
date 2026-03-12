@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { Copy, Check, LayoutGrid } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -100,12 +100,12 @@ export function AccountSettings() {
 
 
       <nav className="flex items-center justify-between px-10 py-4 border-b border-gray-100">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <div className="w-7 h-7 bg-indigo-600 rounded flex items-center justify-center">
             <LayoutGrid className="w-3.5 h-3.5 text-white" />
           </div>
           <span className="font-bold text-gray-900 text-base tracking-tight">Analytiq</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/projects')}
