@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Analytiq
+# Analytiq
 
 **A lightweight, developer-first product analytics platform.** <br/>
 See exactly what your users do — in real time.
@@ -13,24 +13,29 @@ See exactly what your users do — in real time.
 ---
 
 ## What is Analytiq?
-
-Analytiq is a developer-focused product analytics platform that helps teams understand how users interact with their applications. It allows applications to send event data such as feature usage, user actions, and product interactions to a centralized analytics backend. These events are then processed and visualized through a dashboard that provides insights like user activity trends, feature usage patterns, conversion funnels, and retention metrics.
+* **Developer-focused product analytics:** A platform built helping teams understand how users truly interact with their software.
+* **Centralized event ingestion:** Allows applications to securely send event data such as feature usage, user actions, and product interactions to a centralized backend.
+* **Visualized insights:** Events are processed and visualized on a dashboard to provide deep insights like user activity trends, usage patterns, funnels, and retention metrics.
 
 ## Why was Analytiq Built?
-
-Modern applications need visibility into how users actually use their product. Many analytics tools focus primarily on marketing and traffic analytics, which do not provide clear insights into user behavior inside the product itself. Analytiq was built to provide a simple and developer-friendly way to track product events and understand real user behavior within an application.
+* **The need for product visibility:** Modern applications require transparent visibility into how users actually use their product.
+* **Breaking away from marketing metrics:** Many analytics tools focus strictly on marketing and traffic attribution, hiding clear insights into internal product behavior.
+* **Simplified tracking:** Analytiq was built to provide a simple, developer-friendly way to track these internal product events and understand real user journeys.
 
 ## What Problem Does It Solve?
-
-Without proper product analytics, teams often struggle to answer important questions about their product. It becomes difficult to identify where users drop off, which features are most used, or whether users return after their first interaction. Analytiq solves this problem by providing event-based analytics, allowing teams to track user actions, analyze behavior patterns, measure conversion funnels, and monitor user retention in a clear and structured way.
+* **Answering crucial product questions:** Helps teams stop struggling to identify where users drop off, which features are most used, or if users return.
+* **Structured event analytics:** Solves the visibility problem by providing event-based analytics to track user actions.
+* **Actionable measurements:** Empowers teams to analyze specific behavior patterns, measure conversion funnels, and monitor user retention accurately.
 
 ## Who is Analytiq For?
-
-Analytiq is designed for developers, startup founders, product managers, and SaaS teams who want to understand how users interact with their applications. It is particularly useful for teams that want deeper insights into product usage without relying on complex or expensive analytics platforms.
+* **Target Audience:** Designed from the ground up for developers, startup founders, product managers, and SaaS teams.
+* **The Goal:** To understand exactly how users interact with custom-built applications.
+* **The Use-Case:** Perfect for teams demanding deeper insights without relying on overly complex or prohibitively expensive analytics platforms.
 
 ## How is Analytiq Different?
-
-Unlike tools such as Google Analytics that focus on marketing attribution and traffic sources, Analytiq focuses on product behavior analytics. Instead of answering where users came from, it answers what users actually do inside the product. This makes it especially useful for understanding feature adoption, user journeys, and product engagement.
+* **Product Behavior over Attribution:** Unlike legacy tools that focus heavily on traffic sources and marketing attribution, Analytiq focuses purely on product behavior.
+* **"What" instead of "Where":** Instead of answering where users came from, Analytiq answers what users actually do inside the product.
+* **Engagement Insights:** This exact focus makes it incredibly useful for measuring real feature adoption, mapping user journeys, and boosting product engagement.
 
 ---
 
@@ -114,7 +119,7 @@ analytics/
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## Getting Started (Local Development)
 
 Follow these steps to run the entire platform locally on your machine.
 
