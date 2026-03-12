@@ -67,6 +67,16 @@ Open your terminal inside your project's frontend folder and run:
     pnpm add analytiq
     ```
   </Tab>
+  <Tab title="Node.js (CommonJS)">
+    For plain Node.js backends that use `require()` instead of `import`:
+    ```js
+    // No npm install needed if already installed above
+    const { init, track } = require('analytiq');
+
+    init('pk_live_YOUR_KEY_HERE');
+    track('server_event_triggered', { source: 'cron_job' });
+    ```
+  </Tab>
   <Tab title="CDN (No npm)">
     ```html
     <!-- No installation needed — paste this directly in your HTML -->
@@ -256,6 +266,7 @@ Instead of calling `track()` multiple times, you can send a list of events in on
 
 ---
 
+## Step 7b — Verify the setup is working
 
 1. Start your app: `npm run dev`
 2. Open your app in the browser (usually `http://localhost:5173` or `http://localhost:3000`)
@@ -273,6 +284,48 @@ Instead of calling `track()` multiple times, you can send a list of events in on
 <Check>
   If you see events in your dashboard — you're done! Analytiq is fully set up.
 </Check>
+
+<Info>
+  **Where to look on your dashboard:**
+  1. Go to [analytiq-two.vercel.app](https://analytiq-two.vercel.app) → **Log in** → click your project.
+  2. Click **Events** in the left sidebar.
+  3. You will see a table with your event names (e.g. `page_view`), the timestamp, and any properties you attached.
+  4. The **Dashboard** tab shows aggregated charts: Events Over Time, Top Events, DAU/WAU/MAU, and Retention.
+</Info>
+
+---
+
+## Step 8 — Identify your users (recommended)
+
+By default, every event is tracked **anonymously**. To link events to specific users so you can see individual journeys on the dashboard, call `identify()` right after a user logs in:
+
+```js
+import { identify, track } from 'analytiq'
+
+// Call this right after login or signup succeeds
+// user.id comes from your login API response, e.g.: const user = response.data.user
+identify(user.id)                        // link future events to this user
+track('login_completed', { method: 'email' })
+```
+
+<Note>
+  If you skip `identify()`, events are still tracked — they just won't be linked to a specific user. This is fine for anonymous visitor tracking.
+</Note>
+
+---
+
+## Step 9 — Reset identity on logout
+
+When the user logs out, call `reset()` to clear their identity. Without this, the next person who uses the same browser would have their events accidentally linked to the previous user:
+
+```js
+import { reset } from 'analytiq'
+
+function handleLogout() {
+  reset()          // clears the stored userId
+  navigate('/login')
+}
+```
 
 ---
 
@@ -292,3 +345,4 @@ Instead of calling `track()` multiple times, you can send a list of events in on
     Full function documentation
   </Card>
 </CardGroup>
+

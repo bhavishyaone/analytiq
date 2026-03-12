@@ -44,7 +44,7 @@ async function handleLogout() {
 | Cleared | Description |
 |---------|-------------|
 | `userId` | Removes the user set by `identify()`. Future events are anonymous. |
-| Event queue | Removes any pending events that haven't been sent yet |
+| Event queue | Clears any events queued before `init()` was called (rare edge case) |
 | Dedup cache | Clears the 300ms deduplication memory |
 
 ## Why this matters

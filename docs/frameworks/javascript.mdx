@@ -1,0 +1,152 @@
+---
+title: "JavaScript (Plain JS)"
+description: "Use Analytiq in a plain JavaScript project — no TypeScript, no build tools required."
+---
+
+<Note>
+  This guide is for developers using plain JavaScript (no TypeScript). If you use TypeScript, see the [TypeScript guide](/frameworks/typescript) instead.
+</Note>
+
+## Step 1 — Install the SDK
+
+Open your terminal inside your project folder and run:
+
+```bash
+npm install analytiq
+```
+
+If your project uses `require()` instead of `import`, no extra configuration is needed — the package ships with both formats built in.
+
+---
+
+## Step 2 — All 5 functions in plain JavaScript
+
+```js
+import { init, track, identify, reset, batchTrack } from 'analytiq'
+
+// 1. Initialize once at the very top of your app
+init('pk_live_YOUR_KEY_HERE')
+
+// 2. Identify the logged-in user (call after login)
+identify('user_abc123')
+
+// 3. Track any event anywhere in your app
+track('page_view', { page: '/home' })
+
+// 4. Track multiple events at once (optional)
+batchTrack([
+  { name: 'session_start' },
+  { name: 'page_view', properties: { path: '/dashboard' } },
+])
+
+// 5. Reset identity when the user logs out
+reset()
+```
+
+---
+
+## Step 3 — Using CommonJS `require()` syntax
+
+If your project uses the older `require()` syntax (common in plain Node.js backends or older JavaScript projects):
+
+```js
+const { init, track, identify, reset, batchTrack } = require('analytiq')
+
+// Initialize
+init('pk_live_YOUR_KEY_HERE')
+
+// Track an event
+track('server_job_completed', { duration: 320 })
+```
+
+---
+
+## Step 4 — In a React project (plain JS, no TypeScript)
+
+```jsx
+// src/main.jsx
+import { init } from 'analytiq'
+
+init('pk_live_YOUR_KEY_HERE')
+```
+
+```jsx
+// src/pages/Home.jsx
+import { useEffect } from 'react'
+import { track, identify } from 'analytiq'
+
+export function Home({ user }) {
+  useEffect(() => {
+    if (user) {
+      identify(user.id)
+    }
+    track('page_view', { page: 'Home' })
+  }, [])
+
+  return <h1>Welcome!</h1>
+}
+```
+
+---
+
+## Step 5 — In a Vue 3 project (plain JS)
+
+```js
+// src/main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import { init } from 'analytiq'
+
+init('pk_live_YOUR_KEY_HERE')
+
+createApp(App).mount('#app')
+```
+
+```vue
+<!-- src/components/Home.vue -->
+<script setup>
+import { onMounted } from 'vue'
+import { track } from 'analytiq'
+
+onMounted(() => {
+  track('page_view', { page: 'Home' })
+})
+</script>
+```
+
+---
+
+## Step 6 — Verify it is working
+
+1. Run your app: `npm run dev`
+2. Open the browser console (`F12` → Console tab)
+3. You should see:
+
+```
+[analytiq] Initialized successfully.
+```
+
+4. Go to your **Analytiq Dashboard** → click your project → click **Events** in the sidebar
+5. Your event should appear within **5–10 seconds**
+
+---
+
+## Using environment variables (recommended)
+
+Instead of pasting your API key directly in code, store it in a `.env` file:
+
+```
+VITE_ANALYTIQ_KEY=pk_live_your_key_here
+```
+
+Then read it in your code:
+
+```js
+import { init } from 'analytiq'
+
+init(import.meta.env.VITE_ANALYTIQ_KEY)  // for Vite projects
+```
+
+<Warning>
+  Never commit your `.env` file to GitHub. Make sure `.env` is listed in your `.gitignore` file.
+</Warning>

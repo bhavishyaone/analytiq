@@ -61,7 +61,7 @@ init('pk_live_YOUR_KEY_HERE')
 
 - Call it **before** any `track()`, `identify()`, or `batchTrack()` calls
 - The `host` option is optional — defaults to the Analytiq production server automatically
-- Calling `init()` multiple times is a no-op — only the first call takes effect
+- Do **not** call `init()` more than once — calling it twice will overwrite the previously stored API key and re-flush the event queue
 
 ## TypeScript
 

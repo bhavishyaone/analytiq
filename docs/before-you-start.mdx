@@ -9,7 +9,7 @@ description: "New to coding? No problem. This page explains everything you need 
 
 ## What is a Terminal?
 
-A terminal is a black (or white) window on your computer where you type commands. You don't need to be afraid of it — you'll only be typing simple commands like "install this package".
+A terminal (also called a command line or shell) is a text-based interface where you control your computer by typing commands instead of clicking buttons. In this guide, you will use it to install the Analytiq SDK by running commands like `npm install analytiq`.
 
 **How to open a terminal:**
 
@@ -29,10 +29,13 @@ A terminal is a black (or white) window on your computer where you type commands
 
 npm stands for **Node Package Manager**. It's a tool that lets you add other people's code (called "packages") to your project. Think of it like an App Store, but for code.
 
-When you type `npm install analytiq`, you're telling npm:
-*"Go find the 'analytiq' package and add it to my project."*
+For example, when you type:
+```bash
+npm install analytiq
+```
+you are telling npm: *"Go find the Analytiq package and add it to my project."*
 
-npm comes pre-installed with **Node.js**. If you don't have Node.js, [download it here](https://nodejs.org) (choose the LTS version).
+npm comes pre-installed with **Node.js**. If you don't have Node.js, [download it from nodejs.org](https://nodejs.org) and choose the **LTS** version.
 
 ## What is yarn or pnpm?
 
@@ -60,7 +63,7 @@ You'll get your API key from the Analytiq dashboard Settings page. We'll show yo
 
 ## What is a .env File?
 
-A `.env` file is a hidden file in your project folder where you store values that might change between environments (like your API key). Instead of hardcoding the key directly into your code, you store it here.
+A `.env` file is a special file in your project folder where you store values that should not be hardcoded directly in your code (like your API key). Files starting with a `.` are hidden by default in most operating system file explorers (Finder on Mac, File Explorer on Windows) — but they are fully visible and editable in your code editor (like VS Code). Always use your code editor — not your file explorer — to create and edit `.env` files.
 
 **Example `.env` file:**
 ```

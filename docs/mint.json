@@ -45,6 +45,7 @@
                 "frameworks/nextjs-pages-router",
                 "frameworks/vanilla-html",
                 "frameworks/vue",
+                "frameworks/javascript",
                 "frameworks/typescript",
                 "frameworks/angular"
             ]

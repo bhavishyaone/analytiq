@@ -52,17 +52,21 @@ batchTrack([
 
 ## Example — App startup events
 
-```js
+```jsx
 import { useEffect } from 'react'
 import { batchTrack } from 'analytiq'
 
-useEffect(() => {
-  batchTrack([
-    { name: 'app_opened' },
-    { name: 'page_view', properties: { path: window.location.pathname } },
-    { name: 'session_start', properties: { time: new Date().toISOString() } },
-  ])
-}, [])
+export function App() {
+  useEffect(() => {
+    batchTrack([
+      { name: 'app_opened' },
+      { name: 'page_view', properties: { path: window.location.pathname } },
+      { name: 'session_start', properties: { time: new Date().toISOString() } },
+    ])
+  }, [])
+
+  return <div>Welcome!</div>
+}
 ```
 
 ## TypeScript
