@@ -330,7 +330,7 @@ export function Funnels() {
           )}
 
           {enriched.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
 
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-lg font-bold text-gray-900">
