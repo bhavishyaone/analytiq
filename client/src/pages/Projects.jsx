@@ -74,7 +74,7 @@ export function Projects() {
     <div className="min-h-screen bg-white">
 
 
-      <nav className="flex items-center justify-between px-4 md:px-10 py-3 md:py-4 border-b border-gray-100">
+      <nav className="flex items-center justify-between px-4 md:px-10 py-3 md:py-4 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-6 md:w-7 h-6 md:h-7 object-contain rounded shrink-0" />
           <span className="font-bold text-gray-900 text-sm md:text-base tracking-tight">Analytiq</span>
@@ -135,7 +135,7 @@ export function Projects() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             {[1, 2].map(i => (
-              <div key={i} className="border border-gray-100 rounded-xl p-5 h-36 animate-pulse bg-gray-50" />
+              <div key={i} className="border border-gray-200 shadow-sm rounded-xl p-6 h-36 animate-pulse bg-gray-50" />
             ))}
           </div>
         ) : (
@@ -145,7 +145,7 @@ export function Projects() {
             {projects.map(project => (
               <div
                 key={project._id}
-                className="border-t-4 border-t-indigo-600 border border-gray-100 rounded-xl p-5 flex flex-col gap-6"
+                className="border-t-4 border-t-indigo-600 border border-gray-200 shadow-sm bg-white rounded-xl p-6 flex flex-col gap-6 hover:shadow-md transition-shadow"
               >
                 <div>
                   <p className="text-lg font-bold text-gray-900">{project.name}</p>
