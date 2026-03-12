@@ -99,130 +99,126 @@ export function AccountSettings() {
     <div className="min-h-screen bg-white">
 
 
-      <nav className="flex items-center justify-between px-10 py-4 border-b border-gray-100">
+      <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
-          <div className="w-7 h-7 bg-indigo-600 rounded flex items-center justify-center">
-            <LayoutGrid className="w-3.5 h-3.5 text-white" />
-          </div>
-          <span className="font-bold text-gray-900 text-base tracking-tight">Analytiq</span>
+          <img src="/logo.svg" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded-md shrink-0" />
+          <span className="font-bold text-gray-900 text-[15px] tracking-tight">Analytiq</span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <button
             onClick={() => navigate('/projects')}
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
           >
-            Projects
+            ← Back to Projects
           </button>
-          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
+          <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
             {initials}
           </div>
         </div>
       </nav>
 
 
-      <div className="max-w-2xl mx-auto px-10 py-12">
+      <div className="max-w-5xl mx-auto px-6 md:px-10 py-12">
 
         <h1 className="text-3xl font-bold text-gray-900 mb-1">Account Settings</h1>
         <p className="text-sm text-gray-400 mb-10">
           Manage your profile, security, and developer preferences.
         </p>
 
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+          <section className="mb-10">
+            <h2 className="text-lg font-bold text-gray-900 mb-3">Profile</h2>
+            <div className="border-t border-gray-200 pt-5">
+              <form onSubmit={handleProfileSave} noValidate className="space-y-4">
 
-        <section className="mb-10">
-          <h2 className="text-lg font-bold text-gray-900 mb-3">Profile</h2>
-          <div className="border-t border-gray-200 pt-5">
-            <form onSubmit={handleProfileSave} noValidate className="space-y-4 max-w-sm">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1.5">Full name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Full name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1.5">Email address</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Email address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+                <button
+                  type="submit"
+                  disabled={profileMutation.isPending}
+                  className="h-9 px-5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                >
+                  {profileMutation.isPending ? 'Saving…' : 'Save changes'}
+                </button>
 
-              <button
-                type="submit"
-                disabled={profileMutation.isPending}
-                className="h-9 px-5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-              >
-                {profileMutation.isPending ? 'Saving…' : 'Save changes'}
-              </button>
+                {profileError && (
+                  <p className="text-sm text-red-500 mt-1">{profileError}</p>
+                )}
 
-              {profileError && (
-                <p className="text-sm text-red-500 mt-1">{profileError}</p>
-              )}
+              </form>
+            </div>
+          </section>
 
-            </form>
-          </div>
-        </section>
+          <section className="mb-10">
+            <h2 className="text-lg font-bold text-gray-900 mb-3">Change Password</h2>
+            <div className="border-t border-gray-200 pt-5">
+              <form onSubmit={handlePasswordSave} noValidate className="space-y-4">
 
-        <div className="border-t border-gray-100 mb-10" />
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1.5">Current password</label>
+                  <input
+                    type="password"
+                    value={currentPw}
+                    onChange={e => setCurrentPw(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
 
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1.5">New password</label>
+                  <input
+                    type="password"
+                    value={newPw}
+                    onChange={e => setNewPw(e.target.value)}
+                    className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
 
-        <section className="mb-10">
-          <h2 className="text-lg font-bold text-gray-900 mb-3">Change Password</h2>
-          <div className="border-t border-gray-200 pt-5">
-            <form onSubmit={handlePasswordSave} noValidate className="space-y-4 max-w-sm">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1.5">Confirm new password</label>
+                  <input
+                    type="password"
+                    value={confirmPw}
+                    onChange={e => setConfirmPw(e.target.value)}
+                    className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Current password</label>
-                <input
-                  type="password"
-                  value={currentPw}
-                  onChange={e => setCurrentPw(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+                <button
+                  type="submit"
+                  disabled={passwordMutation.isPending}
+                  className="h-9 px-5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                >
+                  {passwordMutation.isPending ? 'Updating…' : 'Update password'}
+                </button>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">New password</label>
-                <input
-                  type="password"
-                  value={newPw}
-                  onChange={e => setNewPw(e.target.value)}
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+                {passwordError && (
+                  <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                )}
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1.5">Confirm new password</label>
-                <input
-                  type="password"
-                  value={confirmPw}
-                  onChange={e => setConfirmPw(e.target.value)}
-                  className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={passwordMutation.isPending}
-                className="h-9 px-5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-              >
-                {passwordMutation.isPending ? 'Updating…' : 'Update password'}
-              </button>
-
-              {passwordError && (
-                <p className="text-sm text-red-500 mt-1">{passwordError}</p>
-              )}
-
-            </form>
-          </div>
-        </section>
+              </form>
+            </div>
+          </section>
+        </div>
 
       </div>
     </div>
