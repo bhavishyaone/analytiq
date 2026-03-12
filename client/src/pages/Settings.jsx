@@ -135,12 +135,12 @@ export function Settings() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-8 py-8 space-y-10">
+        <div className="max-w-5xl mx-auto px-8 py-8 space-y-10">
 
 
 
           {projects.length > 1 && (
-            <section className="bg-white rounded-xl border border-gray-100 p-6">
+            <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
               <h2 className="text-base font-semibold text-gray-900 mb-3">Switch Project</h2>
               <div className="space-y-2">
                 {projects.map(p => (
@@ -176,7 +176,7 @@ export function Settings() {
                   <h2 className="text-lg font-bold text-indigo-700">API Keys</h2>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-6">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-6">
 
 
                   <div>
@@ -322,7 +322,7 @@ export function Settings() {
                   <h2 className="text-lg font-bold text-indigo-700">General</h2>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-5">
 
 
                   <div>
