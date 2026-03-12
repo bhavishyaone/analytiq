@@ -42,10 +42,10 @@ export function AppLayout() {
   )
 
   const Sidebar = (
-    <aside className="w-52 shrink-0 bg-white border-r border-gray-100 flex flex-col h-full">
+    <aside className="w-52 shrink-0 bg-white border-r border-gray-200 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)] flex flex-col h-full relative z-40">
 
 
-      <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+      <div className="flex items-center justify-between px-5 h-[69px] border-b border-gray-200">
         <Link to="/" className="flex items-center gap-2 cursor-pointer relative z-10 hover:opacity-80 transition-opacity">
           <img src="/logo.svg" alt="Analytiq Logo" className="w-7 h-7 object-contain rounded-md shrink-0" />
           <span className="font-bold text-gray-900 text-sm tracking-tight">Analytiq</span>
@@ -123,7 +123,7 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
 
-        <div className="flex md:hidden items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shrink-0">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm shrink-0 sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-50"
@@ -156,7 +156,7 @@ export function AppLayout() {
 
 
         {showDateRange && (
-          <div className="hidden md:flex items-center justify-end px-6 py-2 bg-white border-b border-gray-100 shrink-0">
+          <div className="hidden md:flex items-center justify-end px-6 h-[69px] bg-white border-b border-gray-200 shadow-sm shrink-0 sticky top-0 z-30">
             <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
               {DATE_RANGES.map(r => (
                 <button
