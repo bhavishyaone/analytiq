@@ -239,11 +239,11 @@ batchTrack('video_played', { videoId: 'intro_demo' });
 
 | Landing Page | Dashboard Overview |
 | :---: | :---: |
-| <img src="./screenshots/image-4.png" alt="Landing Page" /> | <img src="./screenshots/image-1.png" alt="Dashboard Overview" /> |
+| ![Landing Page](./screenshots/image-4.png) | ![Dashboard Overview](./screenshots/image-1.png) |
 | **Funnels & Drop-offs** | **Projects & Settings** |
-| <img src="./screenshots/image-2.png" alt="Funnels" /> | <img src="./screenshots/image-3.png" alt="Settings" /> |
+| ![Funnels](./screenshots/image-2.png) | ![Settings](./screenshots/image-3.png) |
 | **Documentation Intro** | **Framework Setup Guides** |
-| <img src="./screenshots/image-6.png" alt="Docs Intro" /> | <img src="./screenshots/image-5.png" alt="Docs Setup" /> |
+| ![Docs Intro](./screenshots/image-6.png) | ![Docs Setup](./screenshots/image-5.png) |
 
 ---
 
