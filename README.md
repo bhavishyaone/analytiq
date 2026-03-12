@@ -252,8 +252,3 @@ batchTrack('video_played', { videoId: 'intro_demo' });
 **Bhavishya Sharma**
 *   GitHub: [@bhavishyaone](https://github.com/bhavishyaone)
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
