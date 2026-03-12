@@ -18,7 +18,7 @@ function fmt(n = 0) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 animate-pulse">
       <div className="h-3 w-20 bg-gray-200 rounded mb-3" />
       <div className="h-8 w-28 bg-gray-200 rounded" />
     </div>
@@ -42,7 +42,7 @@ function ErrorRetry({ onRetry, label = 'Failed to load data.' }) {
 
 function MetricCard({ label, value, loading, trend, trendUp }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between">
       <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">{label}</p>
       <p className="text-3xl font-bold text-gray-900 mt-2">
         {loading ? <span className="text-gray-300">—</span> : fmt(value)}
@@ -175,7 +175,7 @@ export function Dashboard() {
       </div>
 
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-5">
+      <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8">
 
 
         {(overviewError || usersError) && (
@@ -184,7 +184,7 @@ export function Dashboard() {
             onRetry={() => { refetchOverview(); refetchUsers() }}
           />
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {overviewLoading ? (
             <><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
           ) : (
@@ -198,10 +198,10 @@ export function Dashboard() {
         </div>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
 
 
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-4 md:p-5">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-5 md:p-7">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-base font-semibold text-gray-900">Events over time</h3>
@@ -261,7 +261,7 @@ export function Dashboard() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5 flex flex-col">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 md:p-7 flex flex-col">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
               Top Events
             </h3>
@@ -297,10 +297,10 @@ export function Dashboard() {
         </div>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 md:p-7">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Active Users</h3>
             <div className="space-y-0">
               {[
@@ -322,7 +322,7 @@ export function Dashboard() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 md:p-7">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-gray-900">Retention Curve</h3>
               <Link
