@@ -93,7 +93,7 @@ export function Retention() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
               Users Tracked
             </p>
@@ -103,7 +103,7 @@ export function Retention() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
               Cohort Weeks
             </p>
@@ -113,7 +113,7 @@ export function Retention() {
           </div>
 
 
-          <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
               Avg Day‑30 Retention
             </p>
@@ -125,7 +125,7 @@ export function Retention() {
         </div>
 
 
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
 
           <div className="px-5 py-4 border-b border-gray-100">
