@@ -237,16 +237,22 @@ batchTrack('video_played', { videoId: 'intro_demo' });
 
 ## 📸 Screenshots
 
-### 1️⃣ Landing Page & Dashboard Overview
+### Landing Page
 ![Landing Page](./screenshots/image-4.png)
+
+### Dashboard Overview
 ![Dashboard Overview](./screenshots/image-1.png)
 
-### 2️⃣ Funnels & Drop-offs | Projects & Settings
+### Funnels & Drop-offs
 ![Funnels](./screenshots/image-2.png)
+
+### Projects & Settings
 ![Settings](./screenshots/image-3.png)
 
-### 3️⃣ Documentation Intro & Framework Setup
+### Documentation Intro
 ![Docs Intro](./screenshots/image-6.png)
+
+### Framework Setup Guides
 ![Docs Setup](./screenshots/image-5.png)
 
 ---
