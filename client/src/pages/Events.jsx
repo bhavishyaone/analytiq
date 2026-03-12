@@ -132,11 +132,11 @@ export function Events() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
@@ -152,7 +152,7 @@ export function Events() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
@@ -170,7 +170,7 @@ export function Events() {
 
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 md:px-5 py-4 border-b border-gray-100">
 
