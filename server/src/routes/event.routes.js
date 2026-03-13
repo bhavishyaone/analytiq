@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import { trackEvent ,batchTrackEvent,getEventsByProject} from '../controllers/event.controller.js'
 import apiKeyMiddleware from '../midlleware/apiKey.middleware.js'
 import rateLimit from 'express-rate-limit'
@@ -13,6 +14,7 @@ const rateLimiter = rateLimit({
 })
 
 
+const openCors = cors({ origin: '*' })
 
 const router = express.Router()
 
@@ -104,7 +106,7 @@ router.use(apiKeyMiddleware)
  *       413:
  *         description: Payload too large
  */
-router.post("/track",trackEvent)
+router.post("/track", openCors, trackEvent)
 
 
 
@@ -149,6 +151,6 @@ router.post("/track",trackEvent)
  *       401:
  *         description: Invalid API key
  */
-router.post("/batch",batchTrackEvent)
+router.post("/batch", openCors, batchTrackEvent)
 
 export default router;
