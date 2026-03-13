@@ -156,6 +156,7 @@ export const getRetentionService = async (projectId, days) => {
 
   const objectId = new mongoose.Types.ObjectId(projectId);
 
+  // Step 1: Get the first event timestamp for every user (their cohort entry point)
   const userFirstSeen = await Event.aggregate([
     {
       $match: {
@@ -172,29 +173,40 @@ export const getRetentionService = async (projectId, days) => {
     },
   ]);
 
-  const userLastSeen = await Event.aggregate([
+  if (userFirstSeen.length === 0) return [];
+
+  // Step 2: Get ALL event timestamps for each user so we can check point-in-time activity
+  const allUserIds = userFirstSeen.map((u) => u._id);
+  const allEvents = await Event.aggregate([
     {
       $match: {
         projectId: objectId,
-        userId: { $ne: null },
+        userId: { $in: allUserIds },
         timestamp: { $gte: startDate },
       },
     },
     {
       $group: {
         _id: '$userId',
-        lastSeen: { $max: '$timestamp' },
+        // Collect all timestamps as an array so we can query per retention period
+        timestamps: { $push: '$timestamp' },
       },
     },
   ]);
 
-  const lastSeenMap = {};
-  for (const u of userLastSeen) {
-    lastSeenMap[u._id] = u.lastSeen;
+  // Build a map: userId → Set of active day-offsets from firstSeen
+  const firstSeenMap = {};
+  for (const u of userFirstSeen) {
+    firstSeenMap[u._id] = u.firstSeen;
   }
 
-  const cohorts = {};
+  const userTimestampsMap = {};
+  for (const u of allEvents) {
+    userTimestampsMap[u._id] = u.timestamps;
+  }
 
+  // Step 3: Group users into weekly cohorts by their firstSeen date
+  const cohorts = {};
   for (const user of userFirstSeen) {
     const d = new Date(user.firstSeen);
     const dayOfWeek = d.getDay();
@@ -202,32 +214,36 @@ export const getRetentionService = async (projectId, days) => {
     monday.setDate(d.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
     const weekKey = monday.toISOString().split('T')[0];
 
-    if (!cohorts[weekKey]) {
-      cohorts[weekKey] = [];
-    }
-
-    cohorts[weekKey].push({
-      userId: user._id,
-      firstSeen: user.firstSeen,
-      lastSeen: lastSeenMap[user._id] || user.firstSeen,
-    });
+    if (!cohorts[weekKey]) cohorts[weekKey] = [];
+    cohorts[weekKey].push(user._id);
   }
 
+  // Step 4: For each cohort and each retention period, check if the user
+  // had ANY event within a ±1 day window around that target day.
+  // This is TRUE point-in-time cohort retention, not a last-seen approximation.
   const retentionPeriods = [1, 7, 14, 30];
+  const WINDOW_MS = 1 * 24 * 60 * 60 * 1000; // 1-day tolerance window
 
   const result = Object.keys(cohorts)
     .sort()
     .map((weekKey) => {
-      const users = cohorts[weekKey];
-      const totalUsers = users.length;
-
+      const userIds = cohorts[weekKey];
+      const totalUsers = userIds.length;
       const retention = {};
 
       for (const period of retentionPeriods) {
-        const count = users.filter((u) => {
-          const diffMs = new Date(u.lastSeen) - new Date(u.firstSeen);
-          const diffDays = diffMs / (1000 * 60 * 60 * 24);
-          return diffDays >= period;
+        const periodMs = period * 24 * 60 * 60 * 1000;
+
+        const count = userIds.filter((uid) => {
+          const firstSeen = firstSeenMap[uid];
+          const timestamps = userTimestampsMap[uid] || [];
+          const targetTime = new Date(firstSeen).getTime() + periodMs;
+
+          // Check if ANY of this user's events falls within ±1 day of the target retention day
+          return timestamps.some((ts) => {
+            const diff = Math.abs(new Date(ts).getTime() - targetTime);
+            return diff <= WINDOW_MS;
+          });
         }).length;
 
         retention[`day${period}`] = count;
