@@ -340,14 +340,17 @@ Use `batchTrack()` instead of `track()` when you want to send **multiple events 
   <Tab title="JavaScript (.jsx)">
     ```jsx src/pages/Dashboard.jsx
     import { useEffect } from 'react'
-    import { batchTrack } from 'analytiq'
+    import { identify, batchTrack } from 'analytiq'
 
     export function Dashboard({ user }) {
       useEffect(() => {
+        // First identify the user so ALL batch events are linked to them
+        if (user) identify(user.id)
+
         batchTrack([
           { name: 'app_opened' },
           { name: 'page_view', properties: { page: 'Dashboard' } },
-          { name: 'session_start', properties: { userId: user?.id } },
+          { name: 'session_start' },   // userId is automatically attached via identify()
         ])
       }, [])
 
@@ -358,7 +361,7 @@ Use `batchTrack()` instead of `track()` when you want to send **multiple events 
   <Tab title="TypeScript (.tsx)">
     ```tsx src/pages/Dashboard.tsx
     import { useEffect } from 'react'
-    import { batchTrack } from 'analytiq'
+    import { identify, batchTrack } from 'analytiq'
     import type { BatchEvent } from 'analytiq'
 
     interface DashboardProps {
@@ -367,10 +370,13 @@ Use `batchTrack()` instead of `track()` when you want to send **multiple events 
 
     export function Dashboard({ user }: DashboardProps): JSX.Element {
       useEffect(() => {
+        // First identify the user so ALL batch events are linked to them
+        if (user) identify(user.id)
+
         const events: BatchEvent[] = [
           { name: 'app_opened' },
           { name: 'page_view', properties: { page: 'Dashboard' } },
-          { name: 'session_start', properties: { userId: user?.id ?? null } },
+          { name: 'session_start' },  // userId auto-attached via identify()
         ]
         batchTrack(events)
       }, [])

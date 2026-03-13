@@ -24,15 +24,19 @@ identify(userId: string): void
 ```js
 import { identify } from 'analytiq'
 
-// After login — use any unique user identifier
+// Best: use a clean, human-readable ID from your auth system
 identify('user_abc123')
 
-// OR use their email
+// OK: use their email address
 identify('bhavishaya@gmail.com')
 
-// OR use their database ID
-identify(user._id)
+// OK: use their database ID from response.data.user.id
+identify(user.id)
 ```
+
+<Warning>
+  **Avoid using raw MongoDB `_id` directly** (e.g. `"67a3b2c1d4e5f6789012345"`). These ObjectId strings look unreadable on the dashboard. Use a cleaner identifier — like their email or a `user.id` field from your auth API response — so user journeys are easy to read on the dashboard.
+</Warning>
 
 ## When to call it
 
@@ -63,8 +67,14 @@ track('page_view', { page: 'Dashboard' })
 
 ## Important rules
 
+<Warning>
+  **Funnels and Retention require `identify()`.**
+
+  The Funnel and Retention engines only count events linked to a user. If you never call `identify()`, events are stored with `userId: null` and **Funnels will show 0 users in every step** and Retention cohorts will be empty. Always call `identify(user.id)` right after login.
+</Warning>
+
 <Note>
-  If you don't call `identify()`, events are still tracked — they just won't be linked to a specific user. That's fine for anonymous visitors.
+  If you don't call `identify()`, events are still tracked — they just won't be linked to a specific user. This is fine for anonymous visitor tracking on the Overview and Events pages only.
 </Note>
 
 - Call `identify()` once per session, right after login

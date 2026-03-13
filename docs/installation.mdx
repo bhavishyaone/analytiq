@@ -51,6 +51,10 @@ If you have a plain HTML website with no build process, use this script tag inst
 
 Paste this inside your HTML file, just before the closing `</body>` tag.
 
+<Warning>
+  **Browser compatibility:** The CDN method uses `<script type="module">` which requires a **modern browser** (Chrome 61+, Firefox 60+, Safari 10.1+, Edge 16+). If your site must support older browsers (like Internet Explorer), install via npm instead and use a bundler like Vite or Webpack.
+</Warning>
+
 <Info>
   All four installation methods (npm, yarn, pnpm, CDN) install the exact same SDK with identical features. Use whichever method your project is already using.
 </Info>

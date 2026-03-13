@@ -295,7 +295,7 @@ Instead of calling `track()` multiple times, you can send a list of events in on
 
 ---
 
-## Step 8 — Identify your users (recommended)
+## Step 8 — Identify your users (**Required for Funnels & Retention**)
 
 By default, every event is tracked **anonymously**. To link events to specific users so you can see individual journeys on the dashboard, call `identify()` right after a user logs in:
 
@@ -308,8 +308,16 @@ identify(user.id)                        // link future events to this user
 track('login_completed', { method: 'email' })
 ```
 
+<Warning>
+  **Funnels and Retention require `identify()`.**
+
+  The Funnel and Retention engines on your dashboard only count events that are linked to a specific user. If you skip `identify()`, all events are saved with `userId: null` and **your Funnel results will show 0 users in every step** and Retention will show no cohorts.
+
+  **Always call `identify(user.id)` immediately after a successful login or signup** before tracking any funnel-relevant events. Anonymous visitor tracking (without `identify`) is fine for the Overview and Events pages, but Funnels and Retention will remain empty.
+</Warning>
+
 <Note>
-  If you skip `identify()`, events are still tracked — they just won't be linked to a specific user. This is fine for anonymous visitor tracking.
+  If you are only using the **Overview** and **Events** pages and don't need Funnel or Retention analysis, you can skip `identify()` and anonymous events will still appear correctly on those two pages.
 </Note>
 
 ---

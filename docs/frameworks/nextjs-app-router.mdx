@@ -94,6 +94,14 @@ This file initializes Analytiq once for your entire app.
   Replace `pk_live_YOUR_KEY_HERE` with your actual API key from the Settings page.
 </Warning>
 
+<Info>
+  **Why do I see events twice in development?**
+
+  React 18 + Next.js enables **Strict Mode** by default. In development only, React intentionally unmounts and remounts every component once to help you find bugs. This means `useEffect` fires **twice**, which causes `init()` to run twice and duplicate any queued events.
+
+  **This is normal and only happens in development.** Once you run `npm run build` and open the production site, events will only fire once. You can safely ignore duplicate events in the browser console during local development.
+</Info>
+
 ---
 
 ## Step 3 — Wrap your app with the Provider
