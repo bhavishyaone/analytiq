@@ -1,53 +1,42 @@
 ---
 title: "Quickstart"
-description: "Go from zero to seeing live analytics data on your dashboard in under 10 minutes."
+description: "Go from zero to seeing live analytics data on your dashboard in under 3 minutes."
 ---
 
-## What you need before starting
+Welcome to Analytiq! Get set up in just a few minutes with our simple one-file setup.
 
-- An Analytiq account → [Register here](https://analytiq-two.vercel.app/register)
-- A project created in your Analytiq dashboard
-- Your API key (from Settings → Public API Key → Reveal)
-- A web app (React, Vue, Next.js, or any frontend)
-- Node.js installed on your computer ([Download here](https://nodejs.org))
+Analytiq is built on one core principle: **Real Data Only**. We don't track automatic garbage or noisy intent metrics. We track exactly what you explicitly tell us to.
 
----
-
-## Step 1 — Create your Analytiq account
-
-1. Go to [analytiq-two.vercel.app/register](https://analytiq-two.vercel.app/register)
-2. Fill in your name, email and password
-3. Click **Create Account**
-4. You'll be redirected to the Projects page
+By creating a single `analytics.jsx` file, Analytiq will:
+- Safely initialize your tracking across any React/Next.js environment
+- Tie perfectly into your own custom Authentication system
+- Save events when users go offline and retry later
+- Deduplicate accidentally repeated events
 
 ---
 
-## Step 2 — Create a Project
+## Step 1 — Create your account & project
 
-1. On the Projects page, click **New Project**
-2. Give your project a name (e.g. "My App")
-3. Click **Create**
-4. Your new project will appear in the list
+1. Go to [analytiq-two.vercel.app/register](https://analytiq-two.vercel.app/register) and create your account.
+2. Click **New Project**, give it a name, and click **Create**.
 
 ---
 
-## Step 3 — Get your API Key
+## Step 2 — Get your API Key
 
 1. Click on your project to open it
 2. Go to **Settings** in the left sidebar
-3. Scroll to **Public API Key**
-4. Click the **Reveal** button
-5. Click the **Copy** button to copy your key
-
-Your key will look like: `pk_live_xxxxxxxxxxxxxxxxxx`
+3. Scroll to **Public API Key** and click **Reveal**
+4. Copy your key (it looks like `pk_live_xxxxxxxxxxxxxxxxxx`)
 
 <Warning>
-  Keep this key safe. You will paste it into your frontend code in the next step.
+  **API Key Security:**
+  Your Analytiq API Key (`pk_live_...`) is designed to be public. It is perfectly safe to expose it in your frontend code, environment variables, or bundled JavaScript.
 </Warning>
 
 ---
 
-## Step 4 — Install the SDK
+## Step 3 — Install the SDK
 
 Open your terminal inside your project's frontend folder and run:
 
@@ -67,290 +56,190 @@ Open your terminal inside your project's frontend folder and run:
     pnpm add analytiq
     ```
   </Tab>
-  <Tab title="Node.js (CommonJS)">
-    For plain Node.js backends that use `require()` instead of `import`:
-    ```js
-    // No npm install needed if already installed above
-    const { init, track } = require('analytiq');
-
-    init('pk_live_YOUR_KEY_HERE');
-    track('server_event_triggered', { source: 'cron_job' });
-    ```
-  </Tab>
-  <Tab title="CDN (No npm)">
-    ```html
-    <!-- No installation needed — paste this directly in your HTML -->
-    <script type="module">
-      import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-    </script>
-    ```
-  </Tab>
 </Tabs>
 
 ---
 
-## Step 5 — Add the setup code
+## Step 4 — The One-File Setup
 
-You only need to initialize Analytiq **once** in your entire app. Find the main starting file of your project and paste the code at the very top:
+You only need to set up Analytiq **once** in your entire app by creating a central tracking file. 
+
+Create a file called `analytics.jsx` (or `.tsx`) anywhere in your project. We highly recommend placing it next to your other providers or in your `src/` folder.
+
+This file acts as a bridge between **Your Auth System** and **Our SDK**.
 
 <Tabs>
-  <Tab title="React (Vite)">
-    Open `src/main.jsx` and add at the very top:
-    ```jsx src/main.jsx
-    import { init } from 'analytiq'
+  <Tab title="React (Vite/CRA)">
+    Create `src/analytics.jsx`. Customize the `useAuth()` import to point to whatever authentication system you use (Firebase, Supabase, Custom JWT, etc).
 
-    init('pk_live_YOUR_KEY_HERE')
-    ```
-  </Tab>
-  <Tab title="React (Create React App)">
-    Open `src/index.js` and add at the very top:
-    ```js src/index.js
-    import { init } from 'analytiq'
-
-    init('pk_live_YOUR_KEY_HERE')
-    ```
-  </Tab>
-  <Tab title="Next.js">
-    Create a new file `app/providers.tsx` and paste:
-    ```tsx app/providers.tsx
-    'use client'
+    ```jsx src/analytics.jsx
+    import { Analytiq, identify, reset, track } from 'analytiq/react'
     import { useEffect } from 'react'
-    import { init } from 'analytiq'
 
-    export function AnalytiqProvider({ children }: { children: React.ReactNode }) {
+    // IMPORT YOUR APP'S AUTHENTICATION HOOK HERE
+    import { useAuth } from './context/AuthContext' 
+
+    export function AnalyticsProvider({ children }) {
+      
+      // Get the logged-in user from your system
+      const { user } = useAuth() 
+
       useEffect(() => {
-        init('pk_live_YOUR_KEY_HERE')
-      }, [])
-      return <>{children}</>
-    }
-    ```
-    Then wrap your app in `app/layout.tsx`:
-    ```tsx app/layout.tsx
-    import { AnalytiqProvider } from './providers'
+        if (user && user._id) {
+           identify(user._id) // Tell the SDK who logged in
+        } else {
+           reset()            // Tell the SDK they logged out
+        }
+      }, [user])
 
-    export default function RootLayout({ children }) {
       return (
-        <html><body>
-          <AnalytiqProvider>{children}</AnalytiqProvider>
-        </body></html>
+        <>
+          {/* Initialize the SDK once globally */}
+          <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY} />
+          {children}
+        </>
+      )
+    }
+
+    // Export track so you can import it easily in other files
+    export { track }
+    ```
+
+    Then, open your root `App.jsx` or `main.jsx` and wrap your app in the `AnalyticsProvider` you just created. Make sure it goes *inside* your Auth provider!
+    
+    ```jsx src/App.jsx
+    import { AnalyticsProvider } from './analytics.jsx'
+    import { AuthProvider } from './context/AuthContext.jsx'
+
+    function App() {
+      return (
+        <AuthProvider>
+           <AnalyticsProvider>
+              <Router>
+                 ...
+              </Router>
+           </AnalyticsProvider>
+        </AuthProvider>
       )
     }
     ```
   </Tab>
-  <Tab title="Vue 3">
-    Open `src/main.js` and add at the very top:
+  <Tab title="Next.js (App Router)">
+    Create `components/analytics.tsx`. Ensure you put `'use client'` at the top.
+
+    ```tsx components/analytics.tsx
+    'use client'
+    import { Analytiq, identify, reset, track } from 'analytiq/react'
+    import { useEffect } from 'react'
+
+    // IMPORT YOUR APP'S AUTHENTICATION HOOK HERE
+    import { useAuth } from '@/context/AuthContext' 
+
+    export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+      
+      const { user } = useAuth() 
+
+      useEffect(() => {
+        if (user && user.id) {
+           identify(user.id)
+        } else {
+           reset()
+        }
+      }, [user])
+
+      return (
+        <>
+          <Analytiq apiKey={process.env.NEXT_PUBLIC_ANALYTIQ_KEY!} />
+          {children}
+        </>
+      )
+    }
+
+    export { track }
+    ```
+
+    Then wrap your app in `app/layout.tsx`:
+    ```tsx app/layout.tsx
+    import { AnalyticsProvider } from '@/components/analytics'
+    import { AuthProvider } from '@/context/AuthContext'
+
+    export default function RootLayout({ children }) {
+      return (
+        <html>
+          <body>
+            <AuthProvider>
+              <AnalyticsProvider>
+                {children}
+              </AnalyticsProvider>
+            </AuthProvider>
+          </body>
+        </html>
+      )
+    }
+    ```
+  </Tab>
+  <Tab title="Vue / Vanilla JS">
+    Instead of a React component, you simply call `init()` at the very start of your application (like in `main.js`). You will need to manually call `identify(user.id)` after your login API succeeds.
+    
     ```js src/main.js
     import { init } from 'analytiq'
-
-    init('pk_live_YOUR_KEY_HERE')
-    ```
-  </Tab>
-  <Tab title="Vanilla HTML">
-    Paste inside your `index.html` before the closing `</body>` tag:
-    ```html index.html
-    <script type="module">
-      import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-      init('pk_live_YOUR_KEY_HERE')
-
-      track('page_view', { path: window.location.pathname })
-    </script>
+    
+    // Initialize before mounting the app
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    
+    // ... mount your app 
     ```
   </Tab>
 </Tabs>
 
-<Warning>
-  Replace `pk_live_YOUR_KEY_HERE` with your actual API key from Step 3.
-</Warning>
-
 ---
 
-## Step 6 — Track your first event
+## Step 5 — Track Events!
 
-Now let's track a page view so an event gets sent to your dashboard. Open any file that represents a page (like a Home page or Dashboard):
+Analytiq relies entirely on manual tracking. We don't automatically guess what a user did; you explicitly tell the SDK when something important happens. 
 
-<Tabs>
-  <Tab title="React / Next.js">
-    Open a page file (e.g., `src/pages/Home.jsx`) and add the highlighted lines:
-    ```jsx src/pages/Home.jsx
-    import { useEffect } from 'react'
-    import { track } from 'analytiq'
+Just import `track` from the `analytics.jsx` file you created in Step 4, and drop it anywhere you need it.
 
-    export function Home() {
-      // Add this block inside your function
-      useEffect(() => {
-        track('page_view', { page: 'Home' })
-      }, [])
+```jsx title="LandingPage.jsx"
+import { useEffect } from 'react';
+import { track } from '../analytics.jsx';
 
-      return <h1>Welcome!</h1>
-    }
-    ```
-  </Tab>
-  <Tab title="Vue 3">
-    In any `.vue` component:
-    ```vue src/components/Home.vue
-    <script setup>
-    import { onMounted } from 'vue'
-    import { track } from 'analytiq'
+export function LandingPage() {
+  
+  // Track Page Views explicitly
+  useEffect(() => {
+    track('Home_page_view')
+  }, [])
 
-    onMounted(() => {
-      track('page_view', { page: 'Home' })
-    })
-    </script>
-    ```
-  </Tab>
-  <Tab title="Vanilla HTML">
-    Already done in Step 5! The `track()` call is included in the script tag.
-  </Tab>
-</Tabs>
+  const handleCheckout = () => {
+    // Track specific button clicks
+    track('checkout_started', { 
+      plan: 'pro',
+      value: 49
+    });
+    // ... proceed to payment ...
+  };
 
----
-
-## Step 7 — Send multiple events at once (optional)
-
-Instead of calling `track()` multiple times, you can send a list of events in one shot using `batchTrack()`. This is useful when a page loads and you want to record several things simultaneously:
-
-<Tabs>
-  <Tab title="React / Next.js">
-    ```jsx src/pages/Dashboard.jsx
-    import { useEffect } from 'react'
-    import { batchTrack } from 'analytiq'
-
-    export function Dashboard() {
-      useEffect(() => {
-        batchTrack([
-          { name: 'app_opened' },
-          { name: 'page_view', properties: { page: 'Dashboard' } },
-          { name: 'session_start', properties: { time: new Date().toISOString() } },
-        ])
-      }, [])
-
-      return <h1>Dashboard</h1>
-    }
-    ```
-  </Tab>
-  <Tab title="Vue 3">
-    ```vue src/components/Dashboard.vue
-    <script setup>
-    import { onMounted } from 'vue'
-    import { batchTrack } from 'analytiq'
-
-    onMounted(() => {
-      batchTrack([
-        { name: 'app_opened' },
-        { name: 'page_view', properties: { page: 'Home' } },
-      ])
-    })
-    </script>
-    ```
-  </Tab>
-  <Tab title="Vanilla HTML">
-    ```html index.html
-    <script type="module">
-      import { init, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-      init('pk_live_YOUR_KEY_HERE')
-
-      batchTrack([
-        { name: 'page_view', properties: { page: document.title } },
-        { name: 'session_start' },
-      ])
-    </script>
-    ```
-  </Tab>
-</Tabs>
-
-<Info>
-  `batchTrack()` sends all events in a **single network request** — more efficient than multiple `track()` calls fired at the same time.
-</Info>
-
----
-
-## Step 7b — Verify the setup is working
-
-1. Start your app: `npm run dev`
-2. Open your app in the browser (usually `http://localhost:5173` or `http://localhost:3000`)
-3. Press **F12** to open browser DevTools
-4. Click the **Console** tab
-5. You should see:
-
-```
-[analytiq] Initialized successfully.
-```
-
-6. Go to your **Analytiq Dashboard** → click on your project → check the **Events** section
-7. Your `page_view` event should appear within **5-10 seconds**
-
-<Check>
-  If you see events in your dashboard — you're done! Analytiq is fully set up.
-</Check>
-
-<Info>
-  **Where to look on your dashboard:**
-  1. Go to [analytiq-two.vercel.app](https://analytiq-two.vercel.app) → **Log in** → click your project.
-  2. Click **Events** in the left sidebar.
-  3. You will see a table with your event names (e.g. `page_view`), the timestamp, and any properties you attached.
-  4. The **Dashboard** tab shows aggregated charts: Events Over Time, Top Events, DAU/WAU/MAU, and Retention.
-</Info>
-
----
-
-## Step 8 — Identify your users (**Required for Funnels & Retention**)
-
-By default, every event is tracked **anonymously**. To link events to specific users so you can see individual journeys on the dashboard, call `identify()` right after a user logs in:
-
-```js
-import { identify, track } from 'analytiq'
-
-// Call this right after login or signup succeeds
-// user.id comes from your login API response, e.g.: const user = response.data.user
-identify(user.id)                        // link future events to this user
-track('login_completed', { method: 'email' })
-```
-
-<Warning>
-  **Funnels and Retention require `identify()`.**
-
-  The Funnel and Retention engines on your dashboard only count events that are linked to a specific user. If you skip `identify()`, all events are saved with `userId: null` and **your Funnel results will show 0 users in every step** and Retention will show no cohorts.
-
-  **Always call `identify(user.id)` immediately after a successful login or signup** before tracking any funnel-relevant events. Anonymous visitor tracking (without `identify`) is fine for the Overview and Events pages, but Funnels and Retention will remain empty.
-</Warning>
-
-<Note>
-  If you are only using the **Overview** and **Events** pages and don't need Funnel or Retention analysis, you can skip `identify()` and anonymous events will still appear correctly on those two pages.
-</Note>
-
----
-
-## Step 9 — Reset identity on logout
-
-When the user logs out, call `reset()` to clear their identity. Without this, the next person who uses the same browser would have their events accidentally linked to the previous user:
-
-```js
-import { reset } from 'analytiq'
-
-function handleLogout() {
-  reset()          // clears the stored userId
-  navigate('/login')
+  return <button onClick={handleCheckout}>Upgrade Now</button>;
 }
 ```
+
+That's it! If the `AnalyticsProvider` is active and your API key is correct, the event will instantly appear on your dashboard.
 
 ---
 
 ## What's next?
 
 <CardGroup cols={2}>
-  <Card title="Track Button Clicks" href="/guides/tracking-page-views">
-    Track any user interaction
-  </Card>
-  <Card title="Identify Users" href="/guides/identifying-users">
-    Link events to specific users
+  <Card title="Track Custom Events" href="/guides/tracking-page-views">
+    Learn more about adding properties to your `track()` calls.
   </Card>
   <Card title="All Framework Guides" href="/frameworks/react">
-    Detailed setup for every framework
+    Detailed, step-by-step setup guides for every framework.
   </Card>
-  <Card title="API Reference" href="/api-reference/init">
-    Full function documentation
+  <Card title="API Reference" href="/api-reference/use-analytiq">
+    Full documentation for the `useAnalytiq` hook and core functions.
   </Card>
 </CardGroup>
+
 

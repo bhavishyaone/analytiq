@@ -1,79 +1,80 @@
 ---
 title: "Installation"
-description: "Install the Analytiq SDK in your project using npm, yarn, pnpm, or a CDN script tag."
+description: "How to install the Analytiq SDK."
+icon: "download"
 ---
 
-## Option A — npm (Most Common)
+The Analytiq SDK is designed to be lightweight, zero-dependency, and environment-agnostic.
 
-npm comes pre-installed with Node.js. This is the most common way to install packages.
+## Using NPM / Yarn / PNPM (Recommended)
+
+This is the recommended approach for any modern JavaScript application using a bundler (Vite, Next.js, Webpack, etc.).
 
 ```bash
 npm install analytiq
-```
-
-## Option B — yarn
-
-If your project uses yarn instead of npm:
-
-```bash
+# or
 yarn add analytiq
-```
-
-<Note>
-  Don't have yarn? Install it with: `npm install -g yarn`
-</Note>
-
-## Option C — pnpm
-
-If your project uses pnpm:
-
-```bash
+# or
 pnpm add analytiq
 ```
 
-<Note>
-  Don't have pnpm? Install it with: `npm install -g pnpm`
-</Note>
+### Import Paths
 
-## Option D — CDN (No npm/Node.js Required)
+Analytiq exports two entry points depending on your framework:
 
-If you have a plain HTML website with no build process, use this script tag instead of installing via npm:
+1. **The React Hook:** Used strictly once in your root component for automatic setup (React & Next.js only).
+   ```javascript
+   import { useAnalytiq } from 'analytiq/react';
+   ```
+
+2. **The Core SDK:** Used for triggering events via `track()` in React, or for manual setup and tracking in Vanilla JS and Vue.
+   ```javascript
+   import { init, identify, track, reset } from 'analytiq';
+   ```
+
+---
+
+## Using a CDN (Vanilla HTML/JS)
+
+If you aren't using a bundler and just want to include Analytiq in a basic HTML file, you can load it directly from the unpkg CDN.
+
+Place this script tags in your `<head>`:
 
 ```html
-<script type="module">
-  import { init, track, identify, reset, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+<script src="https://unpkg.com/analytiq/dist/index.global.js"></script>
+```
 
-  init('pk_live_YOUR_KEY_HERE')
+When loaded via `<script>`, the SDK exposes a global `analytiq` object attached to the `window`.
 
-  track('page_view', { path: window.location.pathname })
+```html
+<script>
+  // Initialize the SDK
+  analytiq.init('pk_live_your_key_here', {
+    autoTrackPageViews: true,
+    debug: true
+  });
+
+  // Track an event
+  document.getElementById('buy-btn').addEventListener('click', () => {
+    analytiq.track('button_clicked', { source: 'landing_page' });
+  });
 </script>
 ```
 
-Paste this inside your HTML file, just before the closing `</body>` tag.
+---
 
-<Warning>
-  **Browser compatibility:** The CDN method uses `<script type="module">` which requires a **modern browser** (Chrome 61+, Firefox 60+, Safari 10.1+, Edge 16+). If your site must support older browsers (like Internet Explorer), install via npm instead and use a bundler like Vite or Webpack.
-</Warning>
+## Environment Compatibility
 
-<Info>
-  All four installation methods (npm, yarn, pnpm, CDN) install the exact same SDK with identical features. Use whichever method your project is already using.
-</Info>
+Analytiq handles SSR (Server-Side Rendering) gracefully. It works seamlessly with:
+- **React** (via `analytiq/react` hook)
+- **Next.js** App Router & Pages Router (via `analytiq/react` hook)
+- **Vue & Nuxt** (via core `analytiq` library)
+- **Vanilla JS** (via NPM or CDN)
 
-## Verifying the Installation
-
-After installing, run your app:
-
-```bash
-npm run dev
-```
-
-Open your browser, press **F12** → **Console** tab. After adding `init()` to your code, you should see:
-
-```
-[analytiq] Initialized successfully.
-```
-
-If you see this message — your installation is complete!
+<Note>
+**React Native Support:**
+The current stable version of Analytiq relies on browser `localStorage` and `window` objects. It is **not currently compatible** with React Native without polyfills. A dedicated React Native SDK is on our roadmap. Let us know if you need this!
+</Note>
 
 ## What's Next?
 

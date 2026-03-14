@@ -91,10 +91,50 @@ Instead of hardcoding your key directly in code, store it in a `.env` file:
   Add `.env` to your `.gitignore` file so it never gets uploaded to GitHub.
 </Note>
 
-## What if my API key is compromised?
+---
 
-If you believe your API key has been exposed, **delete your project** from the Analytiq dashboard and create a new one. A new project will generate a fresh API key automatically.
+## Local vs Production API Keys
 
-<Warning>
-  After creating a new project and getting a new API key, remember to update your code with the new key and redeploy your app.
-</Warning>
+Each Analytiq project has its own API key. This means you should use **separate projects** for local development and production so that your test events don't pollute your real analytics data.
+
+### Recommended setup
+
+Create two projects in the Analytiq dashboard:
+1. `My App - Development` — for local testing
+2. `My App - Production` — for your live users
+
+Then use the matching key in each environment.
+
+### Setting the key in your local `.env` file
+
+```bash
+# .env (local, never committed to git)
+VITE_ANALYTIQ_KEY=pk_live_DEV_KEY_HERE        # React / Vite
+NEXT_PUBLIC_ANALYTIQ_KEY=pk_live_DEV_KEY_HERE  # Next.js
+```
+
+### Setting the key in your hosting platform (production)
+
+Do **not** put your production key in a `.env` file committed to GitHub. Instead, set it as an environment variable directly in your hosting platform's dashboard:
+
+| Platform | Where to add it |
+|----------|----------------|
+| **Vercel** | Project Settings > Environment Variables |
+| **Render** | Service Settings > Environment > Add Environment Variable |
+| **Railway** | Service Settings > Variables |
+| **Netlify** | Site Settings > Environment Variables |
+| **Heroku** | Settings > Config Vars |
+| **AWS / GCP / Azure** | Use their respective secrets manager or environment config |
+
+Set `VITE_ANALYTIQ_KEY` (or `NEXT_PUBLIC_ANALYTIQ_KEY` for Next.js) to your **production** project's API key in each platform.
+
+### Summary
+
+| Environment | Where the key lives | Which project key to use |
+|-------------|---------------------|--------------------------|
+| Local development | `.env` file (not committed) | Development project key |
+| Production (deployed) | Hosting platform env variables | Production project key |
+
+<Note>
+  After updating an environment variable on your hosting platform, you must redeploy your app for the change to take effect.
+</Note>
