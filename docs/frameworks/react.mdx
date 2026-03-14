@@ -1,423 +1,221 @@
 ---
 title: "React.js"
-description: "Step-by-step guide to add Analytiq to your React app. Works for both JavaScript (.jsx) and TypeScript (.tsx) projects."
+description: "Add Analytiq to your React app in one file. Works with Vite and Create React App."
 ---
 
 <Note>
-  **Before starting:** Get your API key from the [Settings page →](/api-key)
+  **Before starting:** Get your API key from the [Settings page](/api-key)
 </Note>
 
-<Info>
-  **Do you have `.jsx` files or `.tsx` files?**
-  - `.jsx` = your project uses **JavaScript** (no types)
-  - `.tsx` = your project uses **TypeScript** (with types)
+## What you'll need
 
-  Both work exactly the same with Analytiq. Use the correct tab in each step below.
-</Info>
+- React app (Vite or Create React App)
+- Your Analytiq API key
+- An existing auth state (like `useAuth()`, a `useState`, or a Context)
+
+---
 
 ## Step 1 — Install the SDK
-
-Open your terminal inside your React project folder and run:
 
 ```bash
 npm install analytiq
 ```
 
-## Step 2 — Initialize once in your root file
+---
 
-This is where you "activate" Analytiq. You do this **once** — in your app's root entry file. After this, Analytiq works everywhere in your project.
+## Step 2 — Create `src/analytics.jsx` (One-time setup)
 
-**Find your entry file:**
-- Vite + JavaScript → `src/main.jsx`
-- Vite + TypeScript → `src/main.tsx`
-- Create React App + JavaScript → `src/index.js`
-- Create React App + TypeScript → `src/index.tsx`
-
-Add these lines **at the very top**, before everything else:
+Create a new file in your `src/` folder called `analytics.jsx`. This is the **only place** Analytiq is configured. You never touch it again after this.
 
 <Tabs>
-  <Tab title="JavaScript (.jsx / .js)">
-    ```jsx src/main.jsx
-    import { init } from 'analytiq'
+  <Tab title="JavaScript (analytics.jsx)">
+    ```jsx src/analytics.jsx
+    import { Analytiq, identify, reset, track } from 'analytiq/react'
+    import { useEffect } from 'react'
 
-    init('pk_live_YOUR_KEY_HERE')
+    // Import YOUR app's authentication hook here
+    import { useAuth } from './context/AuthContext'
+
+    export function AnalyticsProvider({ children }) {
+      const { user } = useAuth()
+
+      // Bridges your Auth system to the Analytics SDK
+      useEffect(() => {
+        if (user && (user.id || user._id)) {
+          identify(user.id || user._id)  // use _id if using MongoDB
+        } else {
+          reset()
+        }
+      }, [user])
+
+      return (
+        <>
+          <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY} />
+          {children}
+        </>
+      )
+    }
+
+    // Re-export so other files import from here, not from the package directly
+    export { track }
     ```
-
-    Your full `src/main.jsx` will look like this:
-
-    ```jsx src/main.jsx
-    import { init } from 'analytiq'
-    import React from 'react'
-    import ReactDOM from 'react-dom/client'
-    import App from './App.jsx'
-    import './index.css'
-
-    // Initialize Analytiq once at the top
-    init('pk_live_YOUR_KEY_HERE')
-
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    )
-    ```
-    
-    *(Note: If you use React 17 or older, use `ReactDOM.render(<App />, document.getElementById('root'))` instead)*
   </Tab>
-  <Tab title="TypeScript (.tsx / .ts)">
-    ```tsx src/main.tsx
-    import { init } from 'analytiq'
+  <Tab title="TypeScript (analytics.tsx)">
+    ```tsx src/analytics.tsx
+    'use client'
+    import { Analytiq, identify, reset, track } from 'analytiq/react'
+    import { useEffect } from 'react'
+    import { useAuth } from './context/AuthContext'
 
-    init('pk_live_YOUR_KEY_HERE')
+    export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+      const { user } = useAuth()
+
+      useEffect(() => {
+        if (user && user.id) {
+          identify(user.id)
+        } else {
+          reset()
+        }
+      }, [user])
+
+      return (
+        <>
+          <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY as string} />
+          {children}
+        </>
+      )
+    }
+
+    export { track }
     ```
-
-    Your full `src/main.tsx` will look like this:
-
-    ```tsx src/main.tsx
-    import { init } from 'analytiq'
-    import React from 'react'
-    import ReactDOM from 'react-dom/client'
-    import App from './App.tsx'
-    import './index.css'
-
-    // Initialize Analytiq once at the top
-    init('pk_live_YOUR_KEY_HERE')
-
-    ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    )
-    ```
-    
-    *(Note: If you use React 17 or older, use `ReactDOM.render(<App />, document.getElementById('root'))` instead)*
   </Tab>
 </Tabs>
 
-<Warning>
-  Replace `pk_live_YOUR_KEY_HERE` with your actual API key from the Settings page.
-</Warning>
+**Add your API key to `.env`:**
+```bash
+VITE_ANALYTIQ_KEY=pk_live_your_actual_key_here
+```
 
-## Step 3 — Track a page view
+---
 
-Open any page component and add a `track()` call inside it. Example: your `Home` component already exists — just add the highlighted lines inside it.
+## Step 3 — Wrap your app with AnalyticsProvider
+
+Open `src/App.jsx` (or `App.tsx`) and wrap your existing app with the provider you just created. Make sure it goes **inside** your Auth provider.
+
+```jsx src/App.jsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { AnalyticsProvider } from './analytics.jsx'  // Import your new file
+
+function App() {
+  return (
+    <AuthProvider>
+      <AnalyticsProvider>      {/* Wrap your app here */}
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Routes>
+        </BrowserRouter>
+      </AnalyticsProvider>
+    </AuthProvider>
+  )
+}
+
+export default App
+```
+
+<Check>
+  That's the entire setup! You never touch these files again for analytics purposes.
+</Check>
+
+---
+
+## What the setup handles automatically
+
+| Action | What happens |
+|---|---|
+| App loads (user logged out) | `init()` runs once, anonymous tracking begins |
+| App loads (user already logged in) | `userId` restored from `localStorage`, user identified immediately |
+| User logs in (your auth changes) | `useEffect` detects new user → `identify(user.id)` called automatically |
+| User logs out (your auth clears) | `user` becomes `null` → `reset()` called automatically |
+| User goes offline | Events saved to `localStorage`, retried on reconnect |
+
+---
+
+## Step 4 — Track Custom Events
+
+For any specific action you want to measure (page views, clicks, purchases), import `track()` **from your `analytics.jsx` file** and call it where the action happens.
 
 <Tabs>
-  <Tab title="JavaScript (.jsx)">
+  <Tab title="Track a page view">
     ```jsx src/pages/Home.jsx
-    // src/pages/Home.jsx — your existing file, add the 3 lines shown
     import { useEffect } from 'react'
-    import { track } from 'analytiq'       // ← ADD this import
+    import { track } from '../analytics.jsx'   // Import from your hub, not the package!
 
     export function Home() {
       useEffect(() => {
-        track('page_view', { page: 'Home' })  // ← ADD this inside useEffect
-      }, [])
-      // The [] means: run once when this page first loads
-
-      return <h1>Home Page</h1>
-    }
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/pages/Home.tsx
-    // src/pages/Home.tsx — your existing file, add the 3 lines shown
-    import { useEffect } from 'react'
-    import { track } from 'analytiq'       // ← ADD this import
-
-    export function Home(): JSX.Element {
-      useEffect(() => {
-        track('page_view', { page: 'Home' })  // ← ADD this inside useEffect
-      }, [])
-      // The [] means: run once when this page first loads
-
-      return <h1>Home Page</h1>
-    }
-    ```
-  </Tab>
-</Tabs>
-
-## Step 4 — Identify who the user is (after login)
-
-After login succeeds, call `identify()` with the user's ID. Add this one line inside your existing login function.
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/pages/Login.jsx
-    import { identify } from 'analytiq'   // ← ADD this import
-
-    // Your existing login function — add ONE line inside it
-    async function handleLogin(email, password) {
-      const response = await api.post('/auth/login', { email, password })
-      identify(response.data.user.id)         // ← ADD this line after login
-      navigate('/dashboard')
-    }
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/pages/Login.tsx
-    import { identify } from 'analytiq'   // ← ADD this import
-
-    // Your existing login function — add ONE line inside it
-    async function handleLogin(email: string, password: string): Promise<void> {
-      const response = await api.post('/auth/login', { email, password })
-      identify(response.data.user.id)         // ← ADD this line after login
-      navigate('/dashboard')
-    }
-    ```
-  </Tab>
-</Tabs>
-
-## Step 5 — Track a button click
-
-Find your existing button. Add `track()` inside the existing click handler — or add a short `onClick` directly.
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/components/Signup.jsx
-    import { track } from 'analytiq'   // ← ADD this import
-
-    // Option A: Add to existing click handler
-    function handleSignup() {
-      track('signup_clicked', { location: 'hero' })  // ← ADD inside existing function
-      // ... rest of your signup logic
-    }
-
-    // Option B: Add directly on the button (if no handler exists)
-    <button onClick={() => track('signup_clicked')}>
-      Sign Up Free
-    </button>
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/components/Signup.tsx
-    import { track } from 'analytiq'   // ← ADD this import
-
-    // Option A: Add to existing click handler
-    function handleSignup(): void {
-      track('signup_clicked', { location: 'hero' })  // ← ADD inside existing function
-      // ... rest of your signup logic
-    }
-
-    // Option B: Add directly on the button (if no handler exists)
-    <button onClick={(): void => track('signup_clicked')}>
-      Sign Up Free
-    </button>
-    ```
-  </Tab>
-</Tabs>
-
-## Step 6 — Reset on logout
-
-Add `reset()` inside your existing logout function:
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/components/Header.jsx
-    import { reset } from 'analytiq'   // ← ADD this import
-
-    // Your existing logout function — add ONE line
-    function handleLogout() {
-      reset()              // ← ADD this line first
-      navigate('/login')
-    }
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/components/Header.tsx
-    import { reset } from 'analytiq'   // ← ADD this import
-
-    // Your existing logout function — add ONE line
-    function handleLogout(): void {
-      reset()              // ← ADD this line first
-      navigate('/login')
-    }
-    ```
-  </Tab>
-</Tabs>
-
-## Step 7 — Verify it's working
-
-1. Run your app: `npm run dev`
-2. Open your browser (`http://localhost:5173` or `http://localhost:3000`)
-3. Press **F12** → click the **Console** tab
-4. Look for this message:
-   ```
-   [analytiq] Initialized successfully.
-   ```
-5. Go to your **Analytiq Dashboard** → Events section
-6. Your `page_view` event should appear within **5-10 seconds**
-
-## Complete Example
-
-Here is a fully working component showing all features together:
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/pages/Dashboard.jsx
-    // src/pages/Dashboard.jsx
-    import { useEffect } from 'react'
-    import { track, identify, reset } from 'analytiq'
-
-    export function Dashboard({ user }) {
-
-      useEffect(() => {
-        if (user) {
-          identify(user.id)    // link events to this user
-        }
-        track('page_view', { page: 'Dashboard' })
+        track('Home_page_view')
       }, [])
 
-      function handleUpgrade() {
-        track('upgrade_clicked', { plan: 'pro' })
+      return <h1>Welcome!</h1>
+    }
+    ```
+  </Tab>
+  <Tab title="Button click">
+    ```jsx src/components/PricingCard.jsx
+    import { track } from '../analytics.jsx'
+
+    function PricingCard({ plan }) {
+      const handleUpgrade = () => {
+        track('upgrade_clicked', { plan: plan.name, price: plan.price })
+        // your existing upgrade logic...
       }
 
-      function handleLogout() {
-        reset()               // clear user identity
-        window.location.href = '/login'
+      return <button onClick={handleUpgrade}>Upgrade to {plan.name}</button>
+    }
+    ```
+  </Tab>
+  <Tab title="After an API call succeeds">
+    ```jsx src/pages/Checkout.jsx
+    import { track } from '../analytics.jsx'
+
+    async function handlePayment(paymentData) {
+      const result = await processPayment(paymentData)
+
+      if (result.success) {
+        track('order_completed', {
+          order_id: result.orderId,
+          total: result.total,
+        })
+      } else {
+        track('payment_failed', { reason: result.errorCode })
       }
-
-      return (
-        <div>
-          <h1>Dashboard</h1>
-          <button onClick={handleUpgrade}>Upgrade to Pro</button>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )
     }
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/pages/Dashboard.tsx
-    // src/pages/Dashboard.tsx
-    import { useEffect } from 'react'
-    import { track, identify, reset } from 'analytiq'
-
-    interface User {
-      id: string
-      email: string
-    }
-
-    interface DashboardProps {
-      user: User | null
-    }
-
-    export function Dashboard({ user }: DashboardProps): JSX.Element {
-
-      useEffect(() => {
-        if (user) {
-          identify(user.id)    // link events to this user
-        }
-        track('page_view', { page: 'Dashboard' })
-      }, [])
-
-      function handleUpgrade(): void {
-        track('upgrade_clicked', { plan: 'pro' })
-      }
-
-      function handleLogout(): void {
-        reset()               // clear user identity
-        window.location.href = '/login'
-      }
-
-      return (
-        <div>
-          <h1>Dashboard</h1>
-          <button onClick={handleUpgrade}>Upgrade to Pro</button>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )
-    }
-    ```
-  </Tab>
-</Tabs>
-
-## Advanced — Send multiple events at once
-
-Use `batchTrack()` instead of `track()` when you want to send **multiple events in a single network request**. Perfect for app startup or when a page loads and you need to record several things at once.
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/pages/Dashboard.jsx
-    import { useEffect } from 'react'
-    import { identify, batchTrack } from 'analytiq'
-
-    export function Dashboard({ user }) {
-      useEffect(() => {
-        // First identify the user so ALL batch events are linked to them
-        if (user) identify(user.id)
-
-        batchTrack([
-          { name: 'app_opened' },
-          { name: 'page_view', properties: { page: 'Dashboard' } },
-          { name: 'session_start' },   // userId is automatically attached via identify()
-        ])
-      }, [])
-
-      return <h1>Dashboard</h1>
-    }
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/pages/Dashboard.tsx
-    import { useEffect } from 'react'
-    import { identify, batchTrack } from 'analytiq'
-    import type { BatchEvent } from 'analytiq'
-
-    interface DashboardProps {
-      user: { id: string } | null
-    }
-
-    export function Dashboard({ user }: DashboardProps): JSX.Element {
-      useEffect(() => {
-        // First identify the user so ALL batch events are linked to them
-        if (user) identify(user.id)
-
-        const events: BatchEvent[] = [
-          { name: 'app_opened' },
-          { name: 'page_view', properties: { page: 'Dashboard' } },
-          { name: 'session_start' },  // userId auto-attached via identify()
-        ]
-        batchTrack(events)
-      }, [])
-
-      return <h1>Dashboard</h1>
-    }
-    ```
-  </Tab>
-</Tabs>
-
-<Info>
-  Use `track()` for single events that happen at different times (button clicks, form submits).
-  Use `batchTrack()` for multiple events you want to send together at the same moment (page load, app startup).
-</Info>
-
-## Using Environment Variables (Recommended)
-
-Instead of hardcoding your API key in the file, store it in a `.env` file:
-
-**Create `.env` in your project root:**
-```
-VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
-```
-
-**Update your entry file:**
-
-<Tabs>
-  <Tab title="JavaScript (.jsx)">
-    ```jsx src/main.jsx
-    import { init } from 'analytiq'
-    init(import.meta.env.VITE_ANALYTIQ_KEY)
-    ```
-  </Tab>
-  <Tab title="TypeScript (.tsx)">
-    ```tsx src/main.tsx
-    import { init } from 'analytiq'
-    init(import.meta.env.VITE_ANALYTIQ_KEY as string)
     ```
   </Tab>
 </Tabs>
 
 <Note>
-  Add `.env` to your `.gitignore` file so your API key never gets uploaded to GitHub.
+  **Rule of thumb:** Always import `track` from your local `analytics.jsx` file, not directly from `analytiq`. This ensures your tracking is always correctly initialized before it fires.
 </Note>
+
+---
+
+## Step 5 — Verify it's working
+
+1. Run your app: `npm run dev`
+2. Log into your app (so your `useAuth` returns a user)
+3. Open browser DevTools (`F12`) → **Network** tab, filter by `track`
+4. You should see a `POST /api/events/track` request for every event you fire
+
+---
+
+## Common Mistakes
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| Using `ANALYTIQ_KEY` without `VITE_` prefix | `undefined` key error in console | Rename to `VITE_ANALYTIQ_KEY` in `.env` |
+| Importing `track` from `analytiq` instead of `analytics.jsx` | Events fire before SDK initializes | Always import from your local `analytics.jsx` hub |
+| `AnalyticsProvider` placed outside `AuthProvider` | `useAuth()` crashes with context error | Ensure Auth wraps Analytics in `App.jsx` |
+| Not calling `identify()` after login | Active Users shows 0 on dashboard | The `analytics.jsx` `useEffect` must receive a truthy `user` object |
