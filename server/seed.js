@@ -104,6 +104,9 @@ async function seed() {
     { weekStart: 21, size: 15 },
     { weekStart: 14, size: 20 },
     { weekStart:  7, size: 22 },
+    // Always include recent cohorts so DAU is non-zero on demo
+    { weekStart:  2, size: 14 },
+    { weekStart:  0, size: 10 },
   ];
 
   let userCounter = 1;
@@ -154,6 +157,33 @@ async function seed() {
         events.push({ projectId: pid, name: 'page_view',           userId, properties: props, timestamp: dateFromNow(joinDay - 30) });
         events.push({ projectId: pid, name: 'checkout_started',    userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(15, 45)) });
         events.push({ projectId: pid, name: 'checkout_completed',  userId, properties: props, timestamp: dateFromNow(joinDay - 30, randomMinutes(45, 90)) });
+      }
+    }
+  }
+
+
+  console.log('Seeding future demo events');
+
+  const APRIL_30 = new Date('2026-04-30T23:59:59Z');
+  const TODAY    = new Date();
+  const futureDays = Math.ceil((APRIL_30 - TODAY) / (1000 * 60 * 60 * 24));
+
+  for (let dayOffset = 0; dayOffset <= futureDays; dayOffset++) {
+    // Generate a unique set of demo users for this future day
+    const dayUserCount = randomBetween(8, 15);
+    for (let u = 0; u < dayUserCount; u++) {
+      const fUserId = `future_demo_${dayOffset}_${u}`;
+      const fProps  = {
+        page:    pickRandom(PAGES),
+        browser: pickRandom(BROWSERS),
+        os:      pickRandom(OS_LIST),
+        country: pickRandom(COUNTRIES),
+      };
+
+      events.push({ projectId: pid, name: 'page_view',    userId: fUserId, properties: fProps, timestamp: dateFromNow(-dayOffset) });
+      events.push({ projectId: pid, name: 'feature_used', userId: fUserId, properties: fProps, timestamp: dateFromNow(-dayOffset, randomMinutes(10, 40)) });
+      if (Math.random() < 0.6) {
+        events.push({ projectId: pid, name: 'button_click', userId: fUserId, properties: fProps, timestamp: dateFromNow(-dayOffset, randomMinutes(40, 90)) });
       }
     }
   }
