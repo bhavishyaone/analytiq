@@ -16,8 +16,6 @@ app.use(httpLogger);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Reflect the actual origin back to the client for full SDK access
-    // This solves the Access-Control-Allow-Origin: * conflict with credentials: true
     callback(null, origin || '*');
   },
   credentials: true,
