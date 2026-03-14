@@ -18,7 +18,7 @@ export const getOverviewServices = async(projectId,days)=>{
 
     const uniqueUserId = await Event.distinct('userId',{
         projectId:projectId,
-        userId:{$ne:null},
+        userId: { $nin: [null, "null", "undefined", ""] },
         timestamp:{$gt:startDate}
     })
 
@@ -102,7 +102,7 @@ export const getTopEventsService = async(projectId,days)=>{
     return result.map((e)=>({
         name:        e._id,
         count:       e.count,
-        uniqueUsers: e.uniqueUsers.filter(u => u !== null).length,  
+        uniqueUsers: e.uniqueUsers.filter(u => u !== null && u !== 'null' && u !== 'undefined' && u !== '').length,  
         lastSeen:    e.lastSeen
     }))
 }
@@ -121,19 +121,19 @@ export const getActiveUsersService = async(projectId)=>{
 
       Event.distinct('userId',{
         projectId: projectId,
-        userId: { $ne: null },
+        userId: { $nin: [null, "null", "undefined", ""] },
         timestamp: { $gte: oneDayAgo },
       }),
 
       Event.distinct('userId',{
         projectId: projectId,
-        userId: { $ne: null },
+        userId: { $nin: [null, "null", "undefined", ""] },
         timestamp: { $gte: sevenDaysAgo }
       }),
 
       Event.distinct('userId', {
         projectId: projectId,
-        userId: { $ne: null },
+        userId: { $nin: [null, "null", "undefined", ""] },
         timestamp: { $gte: thirtyDaysAgo },
       }),
 
