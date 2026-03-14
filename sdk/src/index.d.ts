@@ -1,11 +1,17 @@
 export interface InitOptions {
-    /** Override the Analytiq backend URL. Leave empty — defaults to the production Analytiq server automatically. Only set this for self-hosted deployments. */
+    /** Override the Analytiq backend URL. Leave empty — defaults to the production Analytiq server. Only set for self-hosted deployments. */
     host?: string;
+    /** Automatically track page_view on every client-side navigation (React Router, Next.js Router). Default: false */
+    autoTrackPageViews?: boolean;
+    /** Log every SDK action to the browser console during development. Remove in production. Default: false */
+    debug?: boolean;
 }
 
 export interface EventProperties {
     [key: string]: string | number | boolean | null | undefined;
 }
+
+
 
 export interface BatchEvent {
     name: string;

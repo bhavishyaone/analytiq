@@ -1,6 +1,6 @@
 {
   "name": "analytiq",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Lightweight analytics SDK for Analytiq",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -8,16 +8,30 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm,iife --global-name analytiq --minify --dts",
+    "build": "tsup src/index.js src/react.js --format cjs,esm,iife --global-name analytiq --minify --dts && cp src/react.d.ts dist/react.d.ts",
     "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "keywords": [
     "analytics",
