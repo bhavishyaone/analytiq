@@ -1,6 +1,6 @@
 ---
 title: "Vanilla HTML & JavaScript"
-description: "Add Analytiq to a plain HTML website — no npm, no React, no framework needed. Two methods covered: CDN script tag and npm bundler."
+description: "Add Analytiq to a plain HTML website — no npm, no React, no framework needed."
 ---
 
 <Info>
@@ -17,29 +17,24 @@ description: "Add Analytiq to a plain HTML website — no npm, no React, no fram
 
 ## Option A — CDN (No npm, No Installation)
 
-This is the simplest method. You paste one `<script>` tag into your HTML — nothing to install.
+This is the simplest method. Just paste a `<script>` tag into your HTML and you are done.
 
-### Step 1 — Open your HTML file
+### Step 1 — Paste just before `</body>`
 
-Open `index.html` (or whichever `.html` page you want to track) in your code editor.
-
-### Step 2 — Paste just before `</body>`
-
-Find the closing `</body>` tag at the bottom of your HTML file. Paste this block just above it:
+Open `index.html` and paste this block just above the closing `</body>` tag:
 
 ```html
-<!-- Paste this just before </body> -->
-<script type="module">
-  import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
+<!-- Analytiq — paste just before </body> -->
+<script src="https://unpkg.com/analytiq/dist/index.global.js"></script>
+<script>
+  // Initialize with auto page view tracking
+  analytiq.init('pk_live_YOUR_KEY_HERE', {
+    autoTrackPageViews: true,  // tracks 'page_view' on every navigation automatically
+    debug: true               // remove in production
+  });
 
-  // Step 1: Start Analytiq with your API key
-  init('pk_live_YOUR_KEY_HERE')
-
-  // Step 2: Track that this page was viewed
-  track('page_view', {
-    page: document.title,
-    path: window.location.pathname
-  })
+  // Optional: identify a logged-in user
+  // analytiq.identify(currentUser.id);
 </script>
 ```
 
@@ -47,7 +42,7 @@ Find the closing `</body>` tag at the bottom of your HTML file. Paste this block
   Replace `pk_live_YOUR_KEY_HERE` with your actual API key from the Settings page.
 </Warning>
 
-Your full `index.html` will look like this:
+**Your full `index.html` example:**
 
 ```html
 <!DOCTYPE html>
@@ -62,180 +57,119 @@ Your full `index.html` will look like this:
   <button id="signupBtn">Sign Up Free</button>
 
   <!-- Analytiq — paste just before </body> -->
-  <script type="module">
-    import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-    init('pk_live_YOUR_KEY_HERE')
-    track('page_view', { page: document.title, path: window.location.pathname })
+  <script src="https://unpkg.com/analytiq/dist/index.global.js"></script>
+  <script>
+    analytiq.init('pk_live_YOUR_KEY_HERE', { autoTrackPageViews: true, debug: true });
   </script>
 
 </body>
 </html>
 ```
 
-### Step 3 — Track a button click
+---
 
-Give your button an `id` attribute, then listen for its click:
+### Track a button click
 
 ```html
-<!-- Your existing button — add an id if it doesn't have one -->
 <button id="signupBtn">Sign Up Free</button>
 
-<script type="module">
-  import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-  init('pk_live_YOUR_KEY_HERE')
-
-  // Track the button click
+<script>
   document.getElementById('signupBtn').addEventListener('click', function() {
-    track('signup_clicked', { button: 'hero_cta' })
-  })
+    // Just one line wherever the action happens
+    analytiq.track('signup_clicked', { button: 'hero_cta' });
+  });
 </script>
 ```
 
-### Step 4 — Track across multiple pages
+---
 
-If your site has multiple HTML pages (e.g., `about.html`, `contact.html`), paste the init + track code in **each file**:
+### Track across multiple pages
 
-```html
-<!-- Put this in every .html page you want to track -->
-<script type="module">
-  import { init, track } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-  init('pk_live_YOUR_KEY_HERE')
-
-  // document.title and window.location.pathname automatically
-  // change on each page — no extra code needed
-  track('page_view', {
-    page: document.title,
-    path: window.location.pathname
-  })
-</script>
-```
+If your site has multiple HTML pages (e.g., `about.html`, `contact.html`), paste the script tag in **each file**. Because you set `autoTrackPageViews: true`, the SDK automatically records the page URL — no extra code needed per page.
 
 <Tip>
-  To avoid repeating the code on every page, create a shared `analytics.js` file and import it with `<script type="module" src="analytics.js"></script>` on every page.
+  To avoid repeating the script tag on every page, create a shared `analytics.js` file and include it on every page with `&lt;script src="analytics.js"&gt;&lt;/script&gt;`.
 </Tip>
 
-### Step 5 — Verify it's working
+---
 
-1. Open your `.html` file in a browser (double-click it, or run a local server)
-2. Press **F12** → click the **Console** tab
-3. You should see: `[analytiq] Initialized successfully.`
-4. Go to your Analytiq dashboard → Events
+### Identify users after login
+
+```html
+<script>
+  // Call this right after your login API call succeeds
+  function onLoginSuccess(userId) {
+    analytiq.identify(userId);  // links all future events to this user
+  }
+
+  // Call this when the user logs out
+  function onLogout() {
+    analytiq.reset();           // clears the stored user identity
+  }
+</script>
+```
 
 ---
 
 ## Option B — npm + Bundler (Vite, Webpack, Parcel)
 
-Use this if you have a bundler set up but no framework like React or Vue.
+Use this if you have a bundler but no framework like React or Vue.
 
-### Step 1 — Install the SDK
+### Step 1 — Install
 
 ```bash
 npm install analytiq
 ```
 
-### Step 2 — Create `analytics.js`
+### Step 2 — Initialize in your entry file
 
-Create a new file called `analytics.js` (or `src/analytics.js`) and paste:
+Open your bundler's entry file (usually `main.js` or `index.js`) and add at the top:
 
-```js
-import { init, track } from 'analytiq'
+```js main.js
+import { init } from 'analytiq'
 
-// Initialize Analytiq
-init('pk_live_YOUR_KEY_HERE')
-
-// Track the current page
-track('page_view', {
-  page: document.title,
-  path: window.location.pathname
+// Initialize once with auto page view tracking
+init(import.meta.env.VITE_ANALYTIQ_KEY, {
+  autoTrackPageViews: true,
+  debug: true
 })
 ```
 
-### Step 3 — Import this file in your main entry
+### Step 3 — Track events anywhere in your project
 
-Open your bundler's entry file (usually `main.js` or `index.js`) and import it:
+```js any-file.js
+import { track, identify, reset } from 'analytiq'
 
-```js
-import './analytics.js'   // ← ADD this at the top
-
-// ... rest of your existing code
-```
-
-### Step 4 — Track a button click (in any JS file)
-
-In whichever JS file handles your button:
-
-```js
-import { track } from 'analytiq'   // ← ADD this import
-
-// Add ONE line inside your existing click handler
-document.getElementById('signupBtn').addEventListener('click', function() {
-  track('signup_clicked', { page: 'home' })  // ← ADD this line
+// Track a button click
+document.getElementById('buyBtn').addEventListener('click', () => {
+  track('buy_clicked', { price: 49 })
 })
+
+// Identify a user after login
+async function handleLogin(email, password) {
+  const res = await fetch('/api/login', { method: 'POST', body: JSON.stringify({ email, password }) })
+  const data = await res.json()
+  identify(data.user.id)  // call right after login
+}
+
+// Reset on logout
+function handleLogout() {
+  reset()
+  window.location.href = '/login.html'
+}
 ```
-
-### Step 5 — Run and verify
-
-```bash
-npm run dev
-```
-
-Open your browser → **F12** → **Console** → look for `[analytiq] Initialized successfully.`
 
 ---
 
-## Advanced — Send multiple events at once (both methods)
+## Verify it's working
 
-Instead of separate `track()` calls, send multiple events in one shot using `batchTrack()`:
+1. Open your HTML file in a browser
+2. Press **F12** and go to **Console** tab
+3. You should see:
 
-<Tabs>
-  <Tab title="CDN">
-    ```html
-    <script type="module">
-      import { init, batchTrack } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-      init('pk_live_YOUR_KEY_HERE')
-
-      batchTrack([
-        { name: 'page_view', properties: { page: document.title } },
-        { name: 'session_start' },
-      ])
-    </script>
-    ```
-  </Tab>
-  <Tab title="npm + Bundler">
-    ```js
-    import { batchTrack } from 'analytiq'
-
-    batchTrack([
-      { name: 'page_view', properties: { path: window.location.pathname } },
-      { name: 'session_start' },
-    ])
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Identifying users (both methods)
-
-
-If your HTML site has a login system, call `identify()` after login to link events to a specific user. Add this inside your existing login success handler:
-
-```html
-<script type="module">
-  import { identify, reset } from 'https://cdn.jsdelivr.net/npm/analytiq/dist/index.js'
-
-  // After login succeeds — paste inside your existing login function
-  function onLoginSuccess(userId) {
-    identify(userId)    // ← ADD this line
-  }
-
-  // After logout — paste inside your existing logout function
-  function onLogout() {
-    reset()             // ← ADD this line
-  }
-</script>
 ```
+[analytiq] Initialized successfully. {userId: null}
+[analytiq] Auto page view tracking enabled.
+```
+
+4. Go to your **Analytiq Dashboard** then **Events** — events appear within 10 seconds.

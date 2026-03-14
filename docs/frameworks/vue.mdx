@@ -1,6 +1,12 @@
 ---
 title: "Vue.js 3"
-description: "Step-by-step guide to add Analytiq to your Vue 3 app."
+description: "Add Analytiq to your Vue 3 app with a single init() call and manual event tracking."
+---
+
+<Note>
+  **Before starting:** Get your API key from the [Settings page](/api-key)
+</Note>
+
 ---
 
 ## Step 1 — Install the SDK
@@ -9,115 +15,176 @@ description: "Step-by-step guide to add Analytiq to your Vue 3 app."
 npm install analytiq
 ```
 
-## Step 2 — Initialize in `src/main.js`
+---
 
-Open `src/main.js`. Add the init call at the very top:
+## Step 2 — Initialize in `src/main.js` (One-time setup)
+
+Open **`src/main.js`**. This is the **only file you need to change** for the core setup. Add the `init()` call before you mount the app.
 
 ```js src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
-import { init } from 'analytiq'
+import router from './router'
+import { init, track } from 'analytiq'
 
-// Initialize Analytiq once
-init('pk_live_YOUR_KEY_HERE')
-
-createApp(App).mount('#app')
-```
-
-## Step 3 — Track a page view in any component
-
-Open any `.vue` component and add:
-
-```vue src/App.vue
-<script setup>
-import { onMounted } from 'vue'
-import { track } from 'analytiq'
-
-onMounted(() => {
-  track('page_view', { page: 'Home' })
-})
-</script>
-
-<template>
-  <h1>Home Page</h1>
-</template>
-```
-
-## Step 4 — Track button clicks
-
-```vue src/components/Signup.vue
-<script setup>
-import { track } from 'analytiq'
-
-function handleSignup() {
-  track('signup_clicked', { plan: 'pro' })
-}
-</script>
-
-<template>
-  <button @click="handleSignup">Sign Up</button>
-</template>
-```
-
-## Step 5 — Identify users after login
-
-```js src/components/Login.vue
-import { identify } from 'analytiq'
-
-function onLoginSuccess(user) {
-  identify(user.id) // links all future events to this user
-}
-```
-
-## Step 6 — Reset on logout
-
-```js src/components/Settings.vue
-import { reset } from 'analytiq'
-
-function onLogout() {
-  reset()
-}
-```
-
-## Using Environment Variables
-
-Create `.env` in your project root:
-```bash .env
-VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
-```
-
-Update `src/main.js`:
-```js src/main.js
+// Initialize the SDK once before mounting the app
 init(import.meta.env.VITE_ANALYTIQ_KEY)
-```
 
-## Advanced — Send multiple events at once
-
-Use `batchTrack()` to send multiple events in a **single network request**:
-
-```vue src/components/Dashboard.vue
-<script setup>
-import { onMounted } from 'vue'
-import { batchTrack } from 'analytiq'
-
-onMounted(() => {
-  batchTrack([
-    { name: 'app_opened' },
-    { name: 'page_view', properties: { page: 'Home' } },
-    { name: 'session_start' },
-  ])
+// Optional: Track page views on every Vue Router navigation
+router.afterEach((to) => {
+  track('page_view', { path: to.path })
 })
-</script>
 
-<template>
-  <h1>Home</h1>
-</template>
+const app = createApp(App)
+app.use(router)
+app.mount('#app')
 ```
 
-## Step 7 — Verify it's working
+**Add your API key to `.env`:**
+```bash
+VITE_ANALYTIQ_KEY=pk_live_your_actual_key_here
+```
 
+<Check>
+  That's the core setup! You can now track events from anywhere in your app.
+</Check>
+
+---
+
+## What the SDK handles automatically
+
+| Action | What happens |
+|---|---|
+| App initializes | `init()` runs once, anonymous tracking begins |
+| User goes offline | Events saved to `localStorage`, retried on reconnect |
+
+---
+
+## Step 3 — Identify users and reset on logout
+
+Vue doesn't use hooks, so you call `identify()` and `reset()` directly. The best place is your **Pinia store** or **auth composable**:
+
+<Tabs>
+  <Tab title="Pinia Store (Recommended)">
+    ```js src/stores/auth.js
+    import { defineStore } from 'pinia'
+    import { identify, reset } from 'analytiq'
+
+    export const useAuthStore = defineStore('auth', {
+      state: () => ({ user: null }),
+      actions: {
+        async login(email, password) {
+          const res = await api.post('/auth/login', { email, password })
+          this.user = res.data.user
+          identify(this.user.id)  // call immediately after login succeeds
+        },
+        logout() {
+          this.user = null
+          reset()                 // call immediately on logout
+          router.push('/login')
+        }
+      }
+    })
+    ```
+  </Tab>
+  <Tab title="Inside a component">
+    ```vue src/pages/Login.vue
+    <script setup>
+    import { identify } from 'analytiq'
+    import { useRouter } from 'vue-router'
+
+    const router = useRouter()
+
+    async function handleLogin(email, password) {
+      const res = await api.post('/auth/login', { email, password })
+      identify(res.data.user.id)  // call right after login
+      router.push('/dashboard')
+    }
+    </script>
+
+    <template>
+      <form @submit.prevent="handleLogin(email, password)">
+        <!-- your form fields -->
+        <button type="submit">Login</button>
+      </form>
+    </template>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 4 — Track Custom Events
+
+For specific actions (button clicks, purchases, etc.), import `track()` in any component:
+
+<Tabs>
+  <Tab title="Button click">
+    ```vue src/components/PricingCard.vue
+    <script setup>
+    import { track } from 'analytiq'
+
+    function handleUpgrade(plan) {
+      track('upgrade_clicked', { plan: plan.name, price: plan.price })
+      // your existing upgrade logic...
+    }
+    </script>
+
+    <template>
+      <button @click="handleUpgrade(plan)">Upgrade to {{ plan.name }}</button>
+    </template>
+    ```
+  </Tab>
+  <Tab title="On page load with extra data">
+    ```vue src/pages/ProductPage.vue
+    <script setup>
+    import { onMounted } from 'vue'
+    import { track } from 'analytiq'
+
+    const props = defineProps(['product'])
+
+    // Only needed if you want extra data beyond the URL
+    onMounted(() => {
+      track('product_viewed', {
+        product_id: props.product.id,
+        name: props.product.name,
+        price: props.product.price
+      })
+    })
+    </script>
+    ```
+  </Tab>
+  <Tab title="After an API call">
+    ```vue src/pages/Checkout.vue
+    <script setup>
+    import { track } from 'analytiq'
+
+    async function handlePayment(paymentData) {
+      const result = await processPayment(paymentData)
+
+      if (result.success) {
+        track('order_completed', { order_id: result.id, total: result.total })
+      } else {
+        track('payment_failed', { reason: result.error })
+      }
+    }
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Step 5 — Verify it's working
 
 1. Run: `npm run dev`
-2. Press **F12** → Console
-3. You should see: `[analytiq] Initialized successfully.`
-4. Go to your Analytiq dashboard → Events
+2. Open your browser, Press **F12** and go to **Console**
+3. You should see:
+
+```
+[analytiq] Initialized successfully. {host: "...", userId: null}
+[analytiq] Auto page view tracking enabled.
+```
+
+4. Navigate between pages in your app
+5. Go to your **Analytiq Dashboard** → **Events** — `page_view` events appear within 10 seconds.
