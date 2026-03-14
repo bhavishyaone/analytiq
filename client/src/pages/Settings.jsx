@@ -293,21 +293,32 @@ export function Settings() {
                         <RefreshCw className="w-3.5 h-3.5" /> Rotate key
                       </button>
                     ) : (
-                      <div className="flex items-center gap-3">
-                        <p className="text-sm text-red-500 font-medium">Are you sure? Old key stops working.</p>
-                        <button
-                          onClick={() => rotateMutation.mutate(activeProject._id)}
-                          disabled={rotateMutation.isPending}
-                          className="h-8 px-4 text-xs font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50"
-                        >
-                          {rotateMutation.isPending ? 'Rotating…' : 'Yes, rotate'}
-                        </button>
-                        <button
-                          onClick={() => setRotateConfirm(false)}
-                          className="text-sm text-gray-500 hover:text-gray-700"
-                        >
-                          Cancel
-                        </button>
+                      <div className="bg-red-50 border border-red-100 rounded-lg p-4 mt-2">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm text-red-800 font-bold">Are you absolutely sure?</p>
+                            <p className="text-xs text-red-600 mt-1 mb-3">
+                              Rotating your key will immediately break any live applications using the current key.
+                              You will need to update the key in your app's code and redeploy. This cannot be undone.
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => rotateMutation.mutate(activeProject._id)}
+                                disabled={rotateMutation.isPending}
+                                className="h-8 px-4 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                              >
+                                {rotateMutation.isPending ? 'Rotating…' : 'Yes, break my old key and rotate'}
+                              </button>
+                              <button
+                                onClick={() => setRotateConfirm(false)}
+                                className="text-sm text-gray-500 hover:text-gray-700 font-medium"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Download, Calendar, BarChart2, Layers, RefreshCw } from 'lucide-react'
@@ -87,12 +87,22 @@ export function Events() {
     enabled: !!projectId,
   })
 
-  const { data: topEventsData, isLoading } = useQuery({
+  const { data: topEventsData, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ['top-events', projectId, days],
     queryFn:  () =>
       api.get(`/analytics/${projectId}/top-events?days=${days}`).then(r => r.data.data),
     enabled: !!projectId,
+    refetchInterval: 30000, 
   })
+
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  useEffect(() => {
+    if (!dataUpdatedAt) return;
+    const interval = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - dataUpdatedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [dataUpdatedAt]);
 
   const allEvents   = Array.isArray(topEventsData) ? topEventsData : []
   const filtered    = search.trim()
@@ -117,12 +127,21 @@ export function Events() {
 
       <div className="flex items-start justify-between px-4 md:px-8 py-4 md:py-5 bg-white border-b border-gray-100 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Events</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Events</h1>
+            {dataUpdatedAt && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-medium border border-green-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                Updated {secondsAgo}s ago
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-500 mt-0.5">
             Manage and analyze your raw event stream data.
           </p>
         </div>
         <div className="flex items-center gap-2">
+
           <span className="text-sm text-gray-600 font-medium">
             {user?.name || user?.email?.split('@')[0] || 'User'}
           </span>
