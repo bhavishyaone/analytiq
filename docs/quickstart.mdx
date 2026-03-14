@@ -85,9 +85,8 @@ This file acts as a bridge between **Your Auth System** and **Our SDK**.
       const { user } = useAuth() 
 
       useEffect(() => {
-        const id = user.id || user._id || user.uid || user.email;
-        if (id) {
-           identify(id) // Tell the SDK who logged in
+        if (user) {
+           identify(user) // Tell the SDK who logged in
         } else {
            reset()            // Tell the SDK they logged out
         }
@@ -142,7 +141,7 @@ This file acts as a bridge between **Your Auth System** and **Our SDK**.
 
       useEffect(() => {
         if (user && user.id) {
-           identify(user.id)
+           identify(user)
         } else {
            reset()
         }
@@ -180,7 +179,7 @@ This file acts as a bridge between **Your Auth System** and **Our SDK**.
     ```
   </Tab>
   <Tab title="Vue / Vanilla JS">
-    Instead of a React component, you simply call `init()` at the very start of your application (like in `main.js`). You will need to manually call `identify(user.id)` after your login API succeeds.
+    Instead of a React component, you simply call `init()` at the very start of your application (like in `main.js`). You will need to manually call `identify(user)` after your login API succeeds.
     
     ```js src/main.js
     import { init } from 'analytiq'

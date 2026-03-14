@@ -18,7 +18,7 @@ Call `identify()` in exactly one place: **right after login or signup succeeds**
 ```
 User clicks Login button
   - Your API call succeeds
-  - Call identify(user.id) here
+  - Call identify(user) here
   - User is redirected to dashboard
 ```
 
@@ -78,7 +78,7 @@ You can use:
       const response = await api.post('/auth/register', { email, password })
       const user = response.data.user
 
-      identify(user.id)
+      identify(user)
       track('signup_completed', { method: 'email' })
 
       router.push('/dashboard')
@@ -116,7 +116,7 @@ You can use:
 
     async function handleLogin(email, password) {
       const response = await api.post('/auth/login', { email, password })
-      identify(response.data.user.id)
+      identify(response.data.user)
       router.push('/dashboard')
     }
     ```
@@ -144,7 +144,7 @@ If your app keeps users logged in, you need to re-identify them when the app loa
     // Re-identify if user is already logged in
     const savedUser = JSON.parse(localStorage.getItem('user') || 'null')
     if (savedUser?.id) {
-      identify(savedUser.id)
+      identify(savedUser)
     }
     ```
   </Tab>

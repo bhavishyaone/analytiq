@@ -165,7 +165,7 @@ If the user is already logged in when the batch fires, you can include `userId` 
 import { identify, batchTrack } from '../analytics.jsx'
 
 // First identify the user
-identify(user.id)
+identify(user)
 
 // Then batchTrack — userId is automatically attached
 batchTrack([

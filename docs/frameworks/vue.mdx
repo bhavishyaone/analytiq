@@ -76,7 +76,7 @@ Vue doesn't use hooks, so you call `identify()` and `reset()` directly. The best
         async login(email, password) {
           const res = await api.post('/auth/login', { email, password })
           this.user = res.data.user
-          identify(this.user.id)  // call immediately after login succeeds
+          identify(this.user)  // call immediately after login succeeds
         },
         logout() {
           this.user = null
@@ -97,7 +97,7 @@ Vue doesn't use hooks, so you call `identify()` and `reset()` directly. The best
 
     async function handleLogin(email, password) {
       const res = await api.post('/auth/login', { email, password })
-      identify(res.data.user.id)  // call right after login
+      identify(res.data.user)  // call right after login
       router.push('/dashboard')
     }
     </script>

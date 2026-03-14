@@ -33,8 +33,8 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
       const { user } = useAuth()
 
       useEffect(() => {
-        if (user && (user.id || user._id)) {
-          identify(user.id || user._id)
+        if (user) {
+          identify(user)
         } else {
           reset()
         }
@@ -63,7 +63,7 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
 
       useEffect(() => {
         if (user && user.id) {
-          identify(user.id)
+          identify(user)
         } else {
           reset()
         }
@@ -145,7 +145,7 @@ NEXT_PUBLIC_ANALYTIQ_KEY=pk_live_your_actual_key_here
 |---|---|
 | App loads (user logged out) | `init()` runs once, anonymous tracking begins |
 | App loads (user already logged in) | `userId` restored from `localStorage`, user identified immediately |
-| User logs in (your auth changes) | `useEffect` detects new user → `identify(user.id)` called automatically |
+| User logs in (your auth changes) | `useEffect` detects new user → `identify(user)` called automatically |
 | User logs out | `user` becomes `null` → `reset()` called automatically |
 
 ---

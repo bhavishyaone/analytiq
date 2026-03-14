@@ -41,8 +41,8 @@ Create a new file in your `src/` folder called `analytics.jsx`. This is the **on
 
       // Bridges your Auth system to the Analytics SDK
       useEffect(() => {
-        if (user && (user.id || user._id)) {
-          identify(user.id || user._id)  // use _id if using MongoDB
+        if (user) {
+          identify(user)
         } else {
           reset()
         }
@@ -72,7 +72,7 @@ Create a new file in your `src/` folder called `analytics.jsx`. This is the **on
 
       useEffect(() => {
         if (user && user.id) {
-          identify(user.id)
+          identify(user)
         } else {
           reset()
         }
@@ -137,7 +137,7 @@ export default App
 |---|---|
 | App loads (user logged out) | `init()` runs once, anonymous tracking begins |
 | App loads (user already logged in) | `userId` restored from `localStorage`, user identified immediately |
-| User logs in (your auth changes) | `useEffect` detects new user → `identify(user.id)` called automatically |
+| User logs in (your auth changes) | `useEffect` detects new user → `identify(user)` called automatically |
 | User logs out (your auth clears) | `user` becomes `null` → `reset()` called automatically |
 | User goes offline | Events saved to `localStorage`, retried on reconnect |
 

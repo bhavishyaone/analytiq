@@ -58,7 +58,7 @@ track('form_submitted', { form: 'signup' })
 
           // Track success AFTER the API call succeeds
           track('signup_completed', { method: 'email' })
-          identify(user.id)   // link future events to this user
+          identify(user)   // link future events to this user
 
           navigate('/dashboard')
 
@@ -109,7 +109,7 @@ track('form_submitted', { form: 'signup' })
           const user: { id: string } = response.data.user
 
           track('signup_completed', { method: 'email' })
-          identify(user.id)
+          identify(user)
 
           navigate('/dashboard')
 
@@ -148,7 +148,7 @@ async function handleLogin(email, password) {
     const user = response.data.user
 
     track('login', { method: 'email' })
-    identify(user.id)
+    identify(user)
     navigate('/dashboard')
 
   } catch (error) {

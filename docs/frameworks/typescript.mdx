@@ -62,7 +62,7 @@ interface DashboardProps {
 
 export function Dashboard({ user }: DashboardProps) {
   useEffect(() => {
-    identify(user.id)
+    identify(user)
     track('page_view', { page: 'Dashboard', email: user.email })
   }, [user.id])
 
