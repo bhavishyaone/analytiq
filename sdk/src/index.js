@@ -87,22 +87,33 @@ export function init(apiKey, options = {}) {
 
 
 
-export function identify(userId) {
-
-  if (userId === undefined || userId === null) {
+export function identify(userData) {
+  if (userData === undefined || userData === null) {
     console.warn(
-      '[analytiq] identify() was called with null or undefined.\n' +
-      '  Tip: Check whether your user object uses "id" or "_id".\n' +
-      '  Example: identify(user.id || user._id)'
+      '[analytiq] identify() called with null or undefined.\n' +
+      '  Call reset() to clear user session.'
     );
     return;
   }
 
-  _userId = String(userId);
 
+  if (typeof userData === 'object' && !Array.isArray(userData)) {
+    const extractedId = userData.id || userData._id || userData.uid || userData.email || userData.sub;
+    
+    if (!extractedId) {
+      console.warn('[analytiq] identify() received an object, but could not find a valid ID field (id, _id, uid, email). User not identified.');
+      return;
+    }
+    _userId = String(extractedId);
+  } else if (typeof userData === 'string' || typeof userData === 'number') {
+
+    _userId = String(userData);
+  } else {
+    console.warn('[analytiq] identify() expects a string, number, or user object.');
+    return;
+  }
 
   _lsSet('_aq_uid', _userId);
-
   _log('User identified:', _userId);
 }
 
@@ -124,11 +135,18 @@ export function reset() {
 
 
 export function track(eventName, properties = {}) {
-  if (!eventName) {
-    console.warn('[analytiq] track() requires an event name.');
+  if (!eventName || typeof eventName !== 'string') {
+    console.warn('[analytiq] track() requires an event name as a string.');
     return;
   }
 
+
+  if (properties && typeof properties !== 'object') {
+    console.warn(`[analytiq] track("${eventName}") expects properties to be an object. Ignored.`);
+    properties = {};
+  } else if (Array.isArray(properties) || properties === null) {
+    properties = {};
+  }
 
   const dedupKey = `${eventName}:${JSON.stringify(properties)}`;
   const lastFired = _recentEvents.get(dedupKey);
