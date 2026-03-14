@@ -17,9 +17,9 @@ Call `identify()` in exactly one place: **right after login or signup succeeds**
 
 ```
 User clicks Login button
-  → Your API call succeeds
-  → Call identify(user.id) here
-  → User is redirected to dashboard
+  - Your API call succeeds
+  - Call identify(user.id) here
+  - User is redirected to dashboard
 ```
 
 ---
@@ -43,19 +43,24 @@ You can use:
 ## After signup
 
 <Tabs>
-  <Tab title="React / Next.js (JavaScript)">
+  <Tab title="React / Next.js">
+    If you used the `analytics.jsx` "One-File Setup" from the Quickstart, **you don't need to call identify manually.**
+    
+    When your user signs up successfully, your app's authentication state changes. 
+    The `useEffect` inside your `analytics.jsx` file detects the new user and calls `identify()` for you automatically.
+
     ```jsx components/Signup.jsx
-    import { track, identify } from 'analytiq'
+    import { track } from '../analytics.jsx'    // Import from your hub, not the package!
 
     async function handleSignup(email, password) {
       try {
         const response = await api.post('/auth/register', { email, password })
-        const user = response.data.user
+        
+        // 1. Update your app's user state (triggers your analytics.jsx hook)
+        setUser(response.data.user)
 
-        // Identify first, then track
-        identify(user.id)
+        // 2. Track the signup event manually
         track('signup_completed', { method: 'email' })
-
         navigate('/dashboard')
 
       } catch (error) {
@@ -64,29 +69,8 @@ You can use:
     }
     ```
   </Tab>
-  <Tab title="React / Next.js (TypeScript)">
-    ```tsx components/Signup.tsx
-    import { track, identify } from 'analytiq'
 
-    async function handleSignup(email: string, password: string): Promise<void> {
-      try {
-        const response = await api.post('/auth/register', { email, password })
-        const user: { id: string } = response.data.user
-
-        identify(user.id)
-        track('signup_completed', { method: 'email' })
-
-        navigate('/dashboard')
-
-      } catch (error: unknown) {
-        track('signup_failed', {
-          reason: error instanceof Error ? error.message : 'unknown'
-        })
-      }
-    }
-    ```
-  </Tab>
-  <Tab title="Vue 3">
+  <Tab title="Vue / Vanilla JS">
     ```js
     import { track, identify } from 'analytiq'
 
@@ -108,22 +92,25 @@ You can use:
 ## After login
 
 <Tabs>
-  <Tab title="React / Next.js (JavaScript)">
+  <Tab title="React / Next.js">
+    Just like signup, **you don't need to call identify manually.**
+    
+    When the login succeeds and you update your user state, the `useEffect` in your `analytics.jsx` file automatically fires `identify()`.
+
     ```jsx components/Login.jsx
-    import { identify } from 'analytiq'
+    import { track } from '../analytics.jsx'
 
     async function handleLogin(email, password) {
       const response = await api.post('/auth/login', { email, password })
-      const user = response.data.user
 
-      // Call identify after login succeeds
-      identify(user.id)
-
+      // Just update your auth state — your analytics.jsx handles identify!
+      setUser(response.data.user)
+      track('login_success')
       navigate('/dashboard')
     }
     ```
   </Tab>
-  <Tab title="Vue 3">
+  <Tab title="Vue / Vanilla JS">
     ```js
     import { identify } from 'analytiq'
 
@@ -140,45 +127,24 @@ You can use:
 
 ## When the user is already logged in (page refresh)
 
-If your app keeps users logged in via a session cookie or JWT, you need to re-identify them when the app loads — otherwise their events after a page refresh won't be linked to them.
+If your app keeps users logged in, you need to re-identify them when the app loads after a page refresh — otherwise events after a refresh won't be linked to their identity.
 
 <Tabs>
-  <Tab title="React — in root component">
-    ```jsx src/App.jsx
-    import { useEffect } from 'react'
-    import { identify } from 'analytiq'
-
-    export function App() {
-      useEffect(() => {
-        // Check if user is already logged in
-        const user = getCurrentUser()  // your auth function
-        if (user) {
-          identify(user.id)  // re-identify on every app load
-        }
-      }, [])
-
-      return <Router>...</Router>
-    }
-    ```
+  <Tab title="React / Next.js">
+    **This is handled automatically.** When your app loads, your `useAuth` hook automatically fetches the user from local storage or cookies. Because that variable updates, the `useEffect` inside `analytics.jsx` runs again and successfully calls `identify()` automatically.
   </Tab>
-  <Tab title="Next.js App Router">
-    ```tsx src/components/Providers.tsx
-    'use client'
+  <Tab title="Vue / Vanilla JS (manual)">
+    Call `identify()` when the app loads and the user is already logged in:
 
-    import { useEffect } from 'react'
-    import { identify } from 'analytiq'
-    import { useSession } from 'next-auth/react'
+    ```js src/main.js
+    import { init, identify } from 'analytiq'
 
-    export function AnalytiqProvider({ children }: { children: React.ReactNode }) {
-      const { data: session } = useSession()
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
 
-      useEffect(() => {
-        if (session?.user?.id) {
-          identify(session.user.id)
-        }
-      }, [session])
-
-      return <>{children}</>
+    // Re-identify if user is already logged in
+    const savedUser = JSON.parse(localStorage.getItem('user') || 'null')
+    if (savedUser?.id) {
+      identify(savedUser.id)
     }
     ```
   </Tab>
@@ -188,16 +154,27 @@ If your app keeps users logged in via a session cookie or JWT, you need to re-id
 
 ## Resetting on logout
 
-When a user logs out, call `reset()` to clear their identity. This prevents the next person who uses the same device from having their events linked to the previous user.
+When a user logs out, their identity must be cleared so the next person using the device doesn't inherit it.
 
-```jsx components/Header.jsx
-import { reset } from 'analytiq'
+<Tabs>
+  <Tab title="React / Next.js">
+    **This is handled automatically.** When you clear your user state, your auth hook becomes empty. The `useEffect` inside `analytics.jsx` detects this and automatically calls `reset()`.
+    
+    You do not need to call `reset()` manually inside your Logout button if you have the `analytics.jsx` file installed perfectly.
+  </Tab>
+  <Tab title="Vue / Vanilla JS">
+    Call `reset()` manually right when the user logs out.
 
-function handleLogout() {
-  reset()              // ← always call this first
-  navigate('/login')  // then redirect
-}
-```
+    ```jsx components/Header.jsx
+    import { reset } from 'analytiq'
+
+    function handleLogout() {
+      reset()              // always call this first
+      navigate('/login')  // then redirect
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ---
 
@@ -207,11 +184,11 @@ After `identify()` is called, all subsequent `track()` calls are automatically l
 
 ```
 identify('user_abc')
-track('page_view', { page: 'Dashboard' })     ← linked to user_abc
-track('upgrade_clicked', { plan: 'pro' })     ← linked to user_abc
-track('purchase', { amount: 49 })             ← linked to user_abc
+track('page_view', { page: 'Dashboard' })     // linked to user_abc
+track('upgrade_clicked', { plan: 'pro' })     // linked to user_abc
+track('purchase', { amount: 49 })             // linked to user_abc
 reset()
-track('page_view', { page: 'Landing' })       ← anonymous again
+track('page_view', { page: 'Landing' })       // anonymous again
 ```
 
 ---
@@ -220,7 +197,7 @@ track('page_view', { page: 'Landing' })       ← anonymous again
 
 | Don't | Why |
 |---------|-----|
-| `identify(user.email)` if emails can change | User gets new email → their history is split |
+| `identify(user.email)` if emails can change | User gets new email, resulting in their history being split |
 | `identify(user.name)` | Names aren't always unique |
 | Call `identify()` before login succeeds | You might identify the wrong user |
 | Skip `reset()` on logout | Next user inherits previous user's identity |

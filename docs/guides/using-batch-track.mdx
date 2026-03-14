@@ -11,13 +11,13 @@ Think of it like this:
 
 ```
 Using track() three times:
-  Request 1 → send "app_opened"
-  Request 2 → send "page_view"
-  Request 3 → send "session_start"
+  Request 1 sent "app_opened"
+  Request 2 sent "page_view"
+  Request 3 sent "session_start"
   (3 separate network calls)
 
 Using batchTrack() once:
-  Request 1 → send ["app_opened", "page_view", "session_start"]
+  Request 1 sent ["app_opened", "page_view", "session_start"]
   (1 single network call with all 3 events)
 ```
 
@@ -60,7 +60,7 @@ Each item in the array has:
   <Tab title="JavaScript (.jsx)">
     ```jsx pages/Dashboard.jsx
     import { useEffect } from 'react'
-    import { batchTrack } from 'analytiq'
+    import { batchTrack } from '../analytics.jsx'
 
     export function App() {
       useEffect(() => {
@@ -79,7 +79,7 @@ Each item in the array has:
   <Tab title="TypeScript (.tsx)">
     ```tsx
     import { useEffect } from 'react'
-    import { batchTrack } from 'analytiq'
+    import { batchTrack } from '../analytics'
     import type { BatchEvent } from 'analytiq'
 
     export function App(): JSX.Element {
@@ -106,7 +106,7 @@ Each item in the array has:
 'use client'
 
 import { useEffect } from 'react'
-import { batchTrack } from 'analytiq'
+import { batchTrack } from '../analytics'
 
 export default function DashboardPage(): JSX.Element {
   useEffect(() => {
@@ -162,7 +162,7 @@ onMounted(() => {
 If the user is already logged in when the batch fires, you can include `userId` per event:
 
 ```js
-import { identify, batchTrack } from 'analytiq'
+import { identify, batchTrack } from '../analytics.jsx'
 
 // First identify the user
 identify(user.id)
