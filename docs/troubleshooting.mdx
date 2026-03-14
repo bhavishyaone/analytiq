@@ -41,8 +41,8 @@ init('pk_live_your_actual_key_here')
 ```
 
 For environment variables, make sure you're using the right prefix:
-- Vite projects: `VITE_ANALYTIQ_KEY` → access with `import.meta.env.VITE_ANALYTIQ_KEY`
-- Next.js: `NEXT_PUBLIC_ANALYTIQ_KEY` → access with `process.env.NEXT_PUBLIC_ANALYTIQ_KEY`
+- Vite projects: `VITE_ANALYTIQ_KEY` - access with `import.meta.env.VITE_ANALYTIQ_KEY`
+- Next.js: `NEXT_PUBLIC_ANALYTIQ_KEY` - access with `process.env.NEXT_PUBLIC_ANALYTIQ_KEY`
 
 ---
 
@@ -53,7 +53,7 @@ For environment variables, make sure you're using the right prefix:
 **Fix:** You're calling SDK functions in a Server Component. Add `'use client'` at the very top of the file:
 
 ```tsx
-'use client'   // ← This MUST be the first line
+'use client'   // This MUST be the first line
 
 import { useEffect } from 'react'
 import { track } from 'analytiq'
@@ -67,22 +67,27 @@ Also make sure all `track()` and `init()` calls are inside `useEffect()`.
 
 **Problem:** Every event shows up twice on the dashboard.
 
-**Fix:** You're calling `init()` twice. This usually happens when `init()` is placed inside a component that re-renders.
+**There are two possible causes:**
+
+**Cause 1 — React Strict Mode (development only)**
+React 18 enables Strict Mode by default, which intentionally runs effects twice to help you find bugs. This is **normal and only happens in development**. Once you deploy to production (`npm run build`), events fire exactly once.
+
+**Cause 2 — `useAnalytiq()` or `init()` called more than once**
+The SDK guards against double-init automatically, but if you're seeing real duplicates in production:
+
+- Make sure `useAnalytiq()` is only called **in one place** (your root `App.jsx` or `providers.tsx`)
+- For Vue/Vanilla, make sure `init()` is only in `main.js`, not in any component
 
 ```js
-// Wrong — called inside a component that re-renders
-function App() {
+// Wrong — init inside a component that re-renders
+function SomePage() {
   init('pk_live_...')  // called every render!
-  return <div>...</div>
 }
 
-// Correct — called once, outside all components
-init('pk_live_...')  // at the top of main.jsx
-
-function App() {
-  return <div>...</div>
-}
+// Correct — for Vue/Vanilla only, in main.js once
+init('pk_live_...')  // 
 ```
+
 
 ---
 
@@ -125,4 +130,4 @@ track('page_view')
 
 ## Still stuck?
 
-Open the browser console (F12 → Console tab) and look for any message starting with `[analytiq]`. Copy that message and check the FAQ, or [contact support](https://analytiq-two.vercel.app).
+Open the browser console (F12, then Console tab) and look for any message starting with `[analytiq]`. Copy that message and check the FAQ, or [contact support](https://analytiq-two.vercel.app).

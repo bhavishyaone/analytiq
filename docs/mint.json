@@ -53,6 +53,7 @@
         {
             "group": "API Reference",
             "pages": [
+                "api-reference/use-analytiq",
                 "api-reference/init",
                 "api-reference/identify",
                 "api-reference/track",
