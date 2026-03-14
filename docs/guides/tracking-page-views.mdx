@@ -34,11 +34,11 @@ Add a `track()` call inside each page component. If the page function already ex
     ```jsx src/pages/Home.jsx
     // src/pages/Home.jsx — your existing file, add highlighted lines
     import { useEffect } from 'react'
-    import { track } from 'analytiq'       // ← ADD import
+    import { track } from 'analytiq'       // ADD import
 
     export function Home() {
       useEffect(() => {
-        track('page_view', { page: 'Home', path: '/home' })  // ← ADD inside useEffect
+        track('page_view', { page: 'Home', path: '/home' })  // ADD inside useEffect
       }, [])
       // [] = runs once when this page first loads
 
@@ -126,64 +126,52 @@ Add a `track()` call inside each page component. If the page function already ex
 
 ---
 
-## Approach 2 — Auto-track every page (recommended)
+## Approach 2 — Global Router Tracking (Optional)
 
-Instead of adding `track()` to every component, listen for route changes at the root level. This catches every navigation automatically — even pages you forget to add tracking to.
+If you don't want to copy-paste `useEffect` into every single page component, you can listen to your router globally.
 
 <Tabs>
-  <Tab title="React + React Router">
-    Add this to `src/App.jsx` or `src/App.tsx`:
+  <Tab title="React (React Router)">
+    Add a listener inside your `App.jsx` that watches the `location` object:
 
     ```jsx src/App.jsx
     import { useEffect } from 'react'
     import { useLocation } from 'react-router-dom'
-    import { track } from 'analytiq'
+    import { track } from './analytics.jsx'
 
-    export function App() {
+    function App() {
       const location = useLocation()
 
       useEffect(() => {
-        // This fires every time the URL changes
-        track('page_view', {
-          path: location.pathname,
-          search: location.search
-        })
-      }, [location.pathname])
-      // ↑ The [location.pathname] means: re-run whenever the path changes
+        // This fires automatically every time the route changes!
+        track('page_view', { path: location.pathname })
+      }, [location])
 
-      return (
-        <Routes>
-          {/* your existing routes */}
-        </Routes>
-      )
+      return <Routes>...</Routes>
     }
     ```
   </Tab>
-  <Tab title="Next.js Pages Router">
-    Add this to `pages/_app.tsx`:
+  <Tab title="Next.js (App Router)">
+    Create a `NavigationTracker` component and put it in your root `layout.tsx`:
 
-    ```tsx pages/_app.tsx
+    ```tsx components/NavigationTracker.tsx
+    'use client'
     import { useEffect } from 'react'
-    import { useRouter } from 'next/router'
-    import { init, track } from 'analytiq'
-    import type { AppProps } from 'next/app'
+    import { usePathname, useSearchParams } from 'next/navigation'
+    import { track } from './analytics'
 
-    export default function MyApp({ Component, pageProps }: AppProps) {
-      const router = useRouter()
+    export function NavigationTracker() {
+      const pathname = usePathname()
+      const searchParams = useSearchParams()
 
       useEffect(() => {
-        init('pk_live_YOUR_KEY_HERE')
+        track('page_view', { 
+          path: pathname,
+          search: searchParams.toString() 
+        })
+      }, [pathname, searchParams])
 
-        // Track every navigation automatically
-        const handleRouteChange = (url: string): void => {
-          track('page_view', { path: url })
-        }
-
-        router.events.on('routeChangeComplete', handleRouteChange)
-        return () => router.events.off('routeChangeComplete', handleRouteChange)
-      }, [])
-
-      return <Component {...pageProps} />
+      return null
     }
     ```
   </Tab>
@@ -219,7 +207,7 @@ The SDK has built-in deduplication — if `track()` is called with the exact sam
 ## Verifying it works
 
 1. Open your app in the browser
-2. Press **F12** → Console
+2. Press **F12**, then Console
 3. Navigate between pages
 4. Watch the Console for:
    ```

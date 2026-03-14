@@ -52,7 +52,7 @@ if (result.paymentIntent.status === 'succeeded') {
 <Tabs>
   <Tab title="React (JavaScript)">
     ```jsx components/Checkout.jsx
-    import { track } from 'analytiq'
+    import { track } from '../analytics.jsx'    // Import from your hub!
     import { useStripe, useElements } from '@stripe/react-stripe-js'
 
     export function CheckoutForm({ plan, price }) {
@@ -96,7 +96,7 @@ if (result.paymentIntent.status === 'succeeded') {
   </Tab>
   <Tab title="React (TypeScript)">
     ```tsx
-    import { track } from 'analytiq'
+    import { track } from '../analytics'
     import { useStripe, useElements } from '@stripe/react-stripe-js'
 
     interface CheckoutFormProps {
@@ -249,6 +249,6 @@ track('cart_abandoned', {
 ## Verifying purchases are tracked
 
 1. Make a test purchase (use Stripe's test card `4242 4242 4242 4242`)
-2. Go to Analytiq dashboard → Events
+2. Go to Analytiq dashboard, click Events
 3. Filter by event name `purchase`
 4. Verify all properties appear correctly

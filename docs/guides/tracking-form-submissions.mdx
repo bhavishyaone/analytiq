@@ -36,8 +36,8 @@ track('form_submitted', { form: 'signup' })
   <Tab title="JavaScript (.jsx)">
     ```jsx components/SignupForm.jsx
     import { useState } from 'react'
-    import { track } from 'analytiq'
-    import { identify } from 'analytiq'
+    import { track } from '../analytics.jsx'    // Import from your hub!
+    import { identify } from 'analytiq/react'
 
     export function SignupForm() {
       const [email, setEmail] = useState('')
@@ -90,7 +90,8 @@ track('form_submitted', { form: 'signup' })
   <Tab title="TypeScript (.tsx)">
     ```tsx components/SignupForm.tsx
     import { useState, FocusEvent, FormEvent } from 'react'
-    import { track, identify } from 'analytiq'
+    import { track } from '../analytics'
+    import { identify } from 'analytiq/react'
 
     export function SignupForm(): JSX.Element {
       const [email, setEmail] = useState<string>('')
@@ -138,7 +139,8 @@ track('form_submitted', { form: 'signup' })
 ## Login form example
 
 ```jsx components/LoginForm.jsx
-import { track, identify } from 'analytiq'
+import { track } from '../analytics.jsx'
+import { identify } from 'analytiq/react'
 
 async function handleLogin(email, password) {
   try {
@@ -160,7 +162,7 @@ async function handleLogin(email, password) {
 ## Contact / enquiry form example
 
 ```jsx components/ContactForm.jsx
-import { track } from 'analytiq'
+import { track } from '../analytics.jsx'
 
 async function handleContactSubmit(formData) {
   try {
@@ -182,7 +184,7 @@ async function handleContactSubmit(formData) {
 ## Checkout / payment form example
 
 ```jsx components/CheckoutForm.jsx
-import { track } from 'analytiq'
+import { track } from '../analytics.jsx'
 
 async function handleCheckout(cartData) {
   // Track when they START the checkout
