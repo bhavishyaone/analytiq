@@ -85,8 +85,9 @@ This file acts as a bridge between **Your Auth System** and **Our SDK**.
       const { user } = useAuth() 
 
       useEffect(() => {
-        if (user && user._id) {
-           identify(user._id) // Tell the SDK who logged in
+        const id = user.id || user._id || user.uid || user.email;
+        if (id) {
+           identify(id) // Tell the SDK who logged in
         } else {
            reset()            // Tell the SDK they logged out
         }

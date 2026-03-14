@@ -26,8 +26,9 @@ export function AnalyticsProvider({ children }) {
   const { user } = useAuth()
 
   useEffect(() => {
-    if (user && user._id) {
-      identify(user._id)
+    const id = user.id || user._id || user.uid || user.email;
+    if (id) {
+      identify(id)
     } else {
       reset()
     }
