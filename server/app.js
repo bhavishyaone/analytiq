@@ -13,18 +13,16 @@ import swaggerSpec from '../server/src/config/swagger.js';
 
 const app = express();
 app.use(httpLogger);
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:5173',
-  'http://localhost:5174',
-].filter(Boolean);
 
 app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, true);
+  origin: function (origin, callback) {
+    // Reflect the actual origin back to the client for full SDK access
+    // This solves the Access-Control-Allow-Origin: * conflict with credentials: true
+    callback(null, origin || '*');
   },
   credentials: true,
 }));
+
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
