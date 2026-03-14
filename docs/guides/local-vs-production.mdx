@@ -26,13 +26,13 @@ You don't need to deploy your app to test Analytiq. Just run it locally:
 npm run dev
 ```
 
-Open your browser → navigate to your app → check the **Console** (F12):
+Open your browser, navigate to your app, and check the **Console** (F12):
 
 ```
 [analytiq] Initialized successfully.
 ```
 
-Then go to your Analytiq Dashboard → Events → your events appear within **5-10 seconds**.
+Then go to your Analytiq Dashboard, click Events, and your events appear within **5-10 seconds**.
 
 <Tip>
   Always test Analytiq locally first before deploying. This lets you confirm events are being sent before pushing to production.
@@ -61,9 +61,9 @@ You deploy for your **users**, not for Analytiq. Once your app is deployed and r
 
 ```
 User visits your deployed app
-  → SDK fires track() in their browser
-  → Event sent to Analytiq server
-  → Appears on your dashboard
+  - SDK fires track() in their browser
+  - Event sent to Analytiq server
+  - Appears on your dashboard
 ```
 
 ---
@@ -74,17 +74,17 @@ When you deploy, your `.env` file is NOT uploaded to the hosting platform. You m
 
 **On Vercel:**
 1. Go to your project on [vercel.com](https://vercel.com)
-2. Click **Settings** → **Environment Variables**
+2. Click **Settings**, then **Environment Variables**
 3. Add:
    ```
    VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
    ```
    *(Note: If using Next.js, name it `NEXT_PUBLIC_ANALYTIQ_KEY` instead)*
-4. Click **Save** → Vercel redeploys automatically
+4. Click **Save**, and Vercel redeploys automatically
 
 **On Netlify:**
 1. Go to your project on [netlify.com](https://netlify.com)
-2. Click **Site Settings** → **Environment variables**
+2. Click **Site Settings**, then **Environment variables**
 3. Add:
    ```
    VITE_ANALYTIQ_KEY=pk_live_YOUR_KEY_HERE
@@ -106,7 +106,7 @@ This is the most common issue after first deployment. The fix is almost always o
 |---------|-----|
 | Forgot to add env var to Vercel/Netlify | Add `VITE_ANALYTIQ_KEY` in dashboard settings, redeploy |
 | Used wrong env var prefix | Vite needs `VITE_`, Next.js needs `NEXT_PUBLIC_` |
-| Redeployed but env var not picked up | Go to Vercel → Deployments → trigger a new manual deploy |
+| Redeployed but env var not picked up | Go to Vercel, click Deployments, then trigger a new manual deploy |
 | Calling `init()` in a Server Component (Next.js) | Move to a `'use client'` file |
 
 ---
