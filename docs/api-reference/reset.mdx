@@ -43,8 +43,10 @@ async function handleLogout() {
 
 | Cleared | Description |
 |---------|-------------|
-| `userId` | Removes the user set by `identify()`. Future events are anonymous. |
-| Event queue | Clears any events queued before `init()` was called (rare edge case) |
+| `userId` (memory) | Removes the user set by `identify()`. Future events are anonymous. |
+| `userId` (localStorage) | Clears the persisted `userId` so the user is not re-identified on next page load. |
+| Offline event queue | Clears any events saved to `localStorage` while the user was offline. |
+| Event queue (memory) | Clears any events queued before `init()` was called |
 | Dedup cache | Clears the 300ms deduplication memory |
 
 ## Why this matters
@@ -54,7 +56,7 @@ If you don't call `reset()` on logout:
 - User B logs in on the same browser
 - User B's events are attributed to User A's identity on the dashboard
 
-Calling `reset()` prevents this by wiping User A's identity from memory.
+Calling `reset()` prevents this by wiping User A's identity from both memory **and** `localStorage`.
 
 ## Complete login/logout flow
 

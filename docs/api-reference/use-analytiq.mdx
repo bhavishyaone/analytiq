@@ -1,0 +1,97 @@
+---
+title: "Analytiq Component"
+description: "The React component that initializes the SDK. Place it once inside your analytics.jsx provider file."
+---
+
+## Overview
+
+The `Analytiq` component is the core initialization component for React and Next.js. It safely calls `init()` once when your app mounts and is fully compatible with React 18 Strict Mode.
+
+You should **never use this component directly in your pages.** Instead, wrap it inside your `analytics.jsx` bridge file alongside your Auth hook, then add `AnalyticsProvider` at the root of your application.
+
+## Import
+
+```js
+import { Analytiq } from 'analytiq/react'
+```
+
+## Usage (inside your analytics.jsx)
+
+```jsx src/analytics.jsx
+import { Analytiq, identify, reset, track } from 'analytiq/react'
+import { useEffect } from 'react'
+import { useAuth } from './context/AuthContext'
+
+export function AnalyticsProvider({ children }) {
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (user && user._id) {
+      identify(user._id)
+    } else {
+      reset()
+    }
+  }, [user])
+
+  return (
+    <>
+      <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY} />
+      {children}
+    </>
+  )
+}
+
+export { track }
+```
+
+## Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `apiKey` | `string` | Yes | Your project's API key. Starts with `pk_live_`. Get it from your project Settings page. |
+| `debug` | `boolean` | Optional | If `true`, logs SDK actions to the browser console. Default: `false`. Remove in production. |
+
+## What it does
+
+| Trigger | Action |
+|---|---|
+| Component mounts (first render) | Calls `init()` once — guarded against double-init in React Strict Mode |
+| App reloads with an existing session | Restores `userId` from `localStorage` automatically |
+| Component renders | Returns `null` — renders nothing visible |
+
+## Important Rules
+
+<Warning>
+  Place the `Analytiq` component in **only one place** — inside your `analytics.jsx` provider file. Mounting it in multiple components will trigger a double-init warning.
+</Warning>
+
+- Only works in React and Next.js (it uses `useEffect` and `useRef` internally)
+- For Next.js App Router, the file using the `Analytiq` component must have `'use client'` at the top
+- For Vue and Vanilla JS, use `init()` from the core `analytiq` package instead
+
+## TypeScript
+
+```tsx
+import { Analytiq } from 'analytiq/react'
+import type { AnalytiqProps } from 'analytiq/react'
+
+const props: AnalytiqProps = {
+  apiKey: process.env.NEXT_PUBLIC_ANALYTIQ_KEY!,
+  debug: false
+}
+
+// Inside JSX:
+<Analytiq {...props} />
+```
+
+## Other exports from `analytiq/react`
+
+The `analytiq/react` package also re-exports all core tracking functions so you can import everything from one place inside your `analytics.jsx` file:
+
+| Export | Description |
+|--------|-------------|
+| `Analytiq` | The initialization component (documented above) |
+| `identify(userId)` | Link all future events to a specific user |
+| `reset()` | Clear the current user identity (call on logout) |
+| `track(name, props?)` | Track a named event with optional properties |
+| `batchTrack(events[])` | Track multiple events in one network request |

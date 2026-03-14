@@ -5,9 +5,13 @@ description: "Initialize the Analytiq SDK. Must be called once before any other 
 
 ## Overview
 
-`init()` sets up the SDK with your API key and backend URL. It must be called **once**, at the very start of your app.
+`init()` sets up the SDK with your API key. It must be called **once**, at the very start of your app.
 
-Any events tracked before `init()` is called are automatically queued in memory and sent as soon as `init()` is called.
+<Note>
+  **React / Next.js users:** You don't need to call `init()` directly. The `useAnalytiq()` hook calls it automatically. See the [useAnalytiq reference](/api-reference/use-analytiq)
+</Note>
+
+Any events tracked before `init()` is called are automatically queued and sent as soon as `init()` finishes.
 
 ## Signature
 
@@ -20,38 +24,43 @@ init(apiKey: string, options?: InitOptions): void
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `apiKey` | `string` | Yes | Your project's API key from the Settings page. Starts with `pk_live_` |
-| `options` | `InitOptions` | Recommended | Configuration object |
+| `options.autoTrackPageViews` | `boolean` | Optional | If `true`, automatically fires a `page_view` event on every URL/route change via the History API. Default: `false` |
+| `options.debug` | `boolean` | Optional | If `true`, logs SDK actions to the browser console. Useful during development. Default: `false` |
 | `options.host` | `string` | Optional | Override the Analytiq backend URL. Leave blank — defaults to the production server automatically. |
 
-## Example
+## Example (Vue / Vanilla JS)
 
 ```js
 import { init } from 'analytiq'
 
-init('pk_live_YOUR_KEY_HERE')
+init(import.meta.env.VITE_ANALYTIQ_KEY, {
+  autoTrackPageViews: true,  // automatically tracks every page navigation
+  debug: true                // remove in production
+})
 ```
 
-## With environment variables (recommended)
+## With environment variables
 
 <Tabs>
   <Tab title="React / Vite">
     ```js
-    init(import.meta.env.VITE_ANALYTIQ_KEY)
+    init(import.meta.env.VITE_ANALYTIQ_KEY, { autoTrackPageViews: true })
     ```
   </Tab>
   <Tab title="Next.js">
     ```js
-    init(process.env.NEXT_PUBLIC_ANALYTIQ_KEY)
+    init(process.env.NEXT_PUBLIC_ANALYTIQ_KEY, { autoTrackPageViews: true })
     ```
   </Tab>
 </Tabs>
 
 ## What it does
 
-1. Stores your API key in memory
-2. Stores the backend host URL in memory
-3. Sends any events that were queued before `init()` was called
-4. Logs `[analytiq] Initialized successfully.` to the browser console
+1. Validates and stores your API key
+2. Enables automatic page view tracking if `autoTrackPageViews: true`
+3. Restores a previously identified `userId` from `localStorage` (persists across page refreshes)
+4. Retries any events that were queued offline in a previous session
+5. Logs `[analytiq] Initialized successfully.` to the browser console
 
 ## Important rules
 
@@ -60,8 +69,8 @@ init('pk_live_YOUR_KEY_HERE')
 </Warning>
 
 - Call it **before** any `track()`, `identify()`, or `batchTrack()` calls
-- The `host` option is optional — defaults to the Analytiq production server automatically
-- Do **not** call `init()` more than once — calling it twice will overwrite the previously stored API key and re-flush the event queue
+- If called a second time, it is safely ignored (guarded against double-init)
+- **React / Next.js users:** Use `useAnalytiq()` instead — it handles `init()` for you
 
 ## TypeScript
 
@@ -70,8 +79,11 @@ import { init } from 'analytiq'
 import type { InitOptions } from 'analytiq'
 
 const options: InitOptions = {
-  host: 'https://your-custom-backend.com' // Only needed if you self-host the backend
+  autoTrackPageViews: true,
+  debug: process.env.NODE_ENV === 'development',
+  host: 'https://your-custom-backend.com' // only needed if self-hosting
 }
 
-init('pk_live_YOUR_KEY_HERE', options)
+init(import.meta.env.VITE_ANALYTIQ_KEY, options)
 ```
+

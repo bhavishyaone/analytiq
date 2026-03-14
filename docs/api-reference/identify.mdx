@@ -7,6 +7,11 @@ description: "Associate all future events with a specific user ID."
 
 `identify()` links all future `track()` calls to a specific user. Call this **after a user logs in**. This lets you see which events belong to which user on your dashboard.
 
+<Note>
+  **React / Next.js users:** If you are using the `useAnalytiq()` hook and passing `userId: user?.id`, you **do not need to call `identify()` manually**. The hook calls it automatically whenever your `userId` changes. You only need `identify()` if you are using Vue, Vanilla JS, or another non-React framework.
+</Note>
+
+
 ## Signature
 
 ```ts
@@ -40,19 +45,41 @@ identify(user.id)
 
 ## When to call it
 
-Call `identify()` immediately after a successful login:
+<Tabs>
+  <Tab title="React / Next.js">
+    If using the `useAnalytiq()` hook, **you don't need to call `identify()`**. Just update your authentication state, and the hook handles it.
 
-```js
-// React example
-async function handleLogin(email, password) {
-  const response = await api.post('/auth/login', { email, password })
-  const user = response.data.user
+    ```js
+    // React example
+    async function handleLogin(email, password) {
+      const response = await api.post('/auth/login', { email, password })
+      const user = response.data.user
 
-  identify(user.id)   // ← call here, right after login
+      // Just save the user to your state/context.
+      // The useAnalytiq({ userId: user.id }) hook will see the change
+      // and call identify() automatically.
+      setUser(user)
 
-  navigate('/dashboard')
-}
-```
+      navigate('/dashboard')
+    }
+    ```
+  </Tab>
+  <Tab title="Vue / Vanilla JS">
+    Call `identify()` immediately after a successful login:
+
+    ```js
+    // Vue / Vanilla example
+    async function handleLogin(email, password) {
+      const response = await api.post('/auth/login', { email, password })
+      const user = response.data.user
+
+      identify(user.id)   // call here, right after login
+
+      navigate('/dashboard')
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ## What happens after identify()
 
@@ -62,7 +89,7 @@ Every `track()` call after `identify()` will automatically include the `userId`:
 identify('user_abc123')
 
 track('page_view', { page: 'Dashboard' })
-// → Event sent with userId: 'user_abc123' attached automatically
+// Event sent with userId: 'user_abc123' attached automatically
 ```
 
 ## Important rules
