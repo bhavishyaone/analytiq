@@ -1,6 +1,5 @@
 import Event from '../models/Event.js'
 
-// Track Event Services
 export const trackEventService = async({projectId,name,userId,properties,timestamp})=>{
     const event = await Event.create({
         projectId:projectId,
@@ -11,8 +10,6 @@ export const trackEventService = async({projectId,name,userId,properties,timesta
     });
     return event
 }
-
-// Batch Track Service
 
 export const batchTrackService = async({projectId,events})=>{   
     const docs = events.map((e)=>({

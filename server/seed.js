@@ -104,7 +104,6 @@ async function seed() {
     { weekStart: 21, size: 15 },
     { weekStart: 14, size: 20 },
     { weekStart:  7, size: 22 },
-    // Always include recent cohorts so DAU is non-zero on demo
     { weekStart:  2, size: 14 },
     { weekStart:  0, size: 10 },
   ];
@@ -169,7 +168,6 @@ async function seed() {
   const futureDays = Math.ceil((APRIL_30 - TODAY) / (1000 * 60 * 60 * 24));
 
   for (let dayOffset = 0; dayOffset <= futureDays; dayOffset++) {
-    // Generate a unique set of demo users for this future day
     const dayUserCount = randomBetween(8, 15);
     for (let u = 0; u < dayUserCount; u++) {
       const fUserId = `future_demo_${dayOffset}_${u}`;

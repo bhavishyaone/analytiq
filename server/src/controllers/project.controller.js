@@ -2,7 +2,6 @@ import { createProjectService,getAllProjectService ,getProjectByIDService,delete
 import Project from "../models/Project.js";
 import mongoose from "mongoose";
 
-// Create Project 
 export const createProject = async(req,res)=>{
     try{
         const {name} = req.body
@@ -35,8 +34,6 @@ export const createProject = async(req,res)=>{
     }
 
 }
-
-// GET ALL THE PROJECT
 
 export const getProject = async(req,res)=>{
     try{
@@ -74,9 +71,6 @@ export const getProjectById = async(req,res)=>{
         
     }
 }
-
-
-// Delete by ID 
 export const deleteProjectByID = async(req,res)=>{
     try{
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -115,9 +109,6 @@ export const rotateApiKey = async (req, res) => {
     return res.status(500).json({ message: "Server error."});
   }
 };
-
-
-// Update Project Name
 export const updateProject = async (req, res) => {
     try {
         const { name } = req.body

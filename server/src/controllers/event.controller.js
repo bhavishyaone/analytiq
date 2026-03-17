@@ -2,8 +2,6 @@ import { trackEventService,batchTrackService } from "../services/event.service.j
 
 const MAX_EVENT_PAYLOAD_BYTES = parseInt(process.env.MAX_EVENT_PAYLOAD_BYTES) || 10240;
 
-// Track EVENT 
-
 export const trackEvent = async(req,res)=>{
     try{
         const payloadSize = Buffer.byteLength(JSON.stringify(req.body))
@@ -51,10 +49,6 @@ export const trackEvent = async(req,res)=>{
         return res.status(500).json({ message: 'Server error' });
     }
 }
-
-
-// Batch Track Event 
-
 export const batchTrackEvent = async(req,res)=>{
     try{
         const payloadSize = Buffer.byteLength(JSON.stringify(req.body))
@@ -74,7 +68,6 @@ export const batchTrackEvent = async(req,res)=>{
         if(events.length==0){
             return res.status(400).json({message:"events array can not be empty."})
         }
-        // Yeh toh over load se bachne ke liye kya hua hai , limit batch size
         if(events.length>100){
             return res.status(400).json({message:"Maximum 100 events per batch is allowed only."})
         }

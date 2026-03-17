@@ -10,7 +10,6 @@ const getOwnedProject = async(projectId,userId)=>{
     return project
 }
 
-// Overview of last N days on my project 
 export const getOverview = async(req,res)=>{
 
     try{
@@ -34,7 +33,6 @@ export const getOverview = async(req,res)=>{
 
 };
 
-// Each day event overview
 export const getEventsOverTime = async(req,res)=>{
     try{
         const project = await getOwnedProject(req.params.projectId,req.user.id)
@@ -56,9 +54,6 @@ export const getEventsOverTime = async(req,res)=>{
         return res.status(500).json({message:"Server error."})
     }
 }
-
-
-// Top 10 event 
 export const getTopEvents = async(req,res)=>{
     try{
         const project = await getOwnedProject(req.params.projectId, req.user.id)
@@ -81,15 +76,9 @@ export const getTopEvents = async(req,res)=>{
         return res.status(500).json({message:"Server error."})
     }
 }
-
-
-// GEt Active USers 
-
-
 export const getActiveUser = async(req,res)=>{
     try{
         const project = await getOwnedProject(req.params.projectId,req.user.id)
-        // console.log(project)
         
         if(!project){
             return res.status(400).json({message:"Project not found"})

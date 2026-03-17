@@ -11,18 +11,15 @@ const eventSchema =  new mongoose.Schema({
         required:true,
         trim:true
     },
-    // UserId is the customer's  end user user joh trigger  karga event ko .
     userId:{
         type:String,
         default:null
     },
 
-    // Extra data joh developer event ke saath add karna chahe
     properties:{
         type:Object,
         default:{}
     },
-    // Konse time pe event hua hai 
     timestamp: {
     type: Date,
     default: Date.now

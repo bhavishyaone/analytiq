@@ -2,7 +2,6 @@ import { generateApiKey } from '../utils/generateApiKey.js';
 import Project from "../models/Project.js";
 import crypto from 'crypto';
 
-// Create Project 
 export const createProjectService = async({name,owner})=>{
     const project = await Project.create({
         name:name,
@@ -13,7 +12,6 @@ export const createProjectService = async({name,owner})=>{
     return project
 }
 
-// Gel All Project 
 export const getAllProjectService = async(owner)=>{
     const projects  =await Project.find({
         owner:owner
@@ -22,14 +20,10 @@ export const getAllProjectService = async(owner)=>{
     return projects
 }
 
-// GET PROJECT BY ID
 export const getProjectByIDService = async(projectId, owner)=>{
     const project = await Project.findOne({ _id: projectId, owner: owner })
     return project
 }
-
-
-// Delet Project BY id
 
 export const deleteProjectByIDService = async(projectId, owner)=>{
     const project = await Project.findOne({_id: projectId, owner: owner})
@@ -39,8 +33,6 @@ export const deleteProjectByIDService = async(projectId, owner)=>{
     return Project.findByIdAndDelete(projectId)
 }
 
-
-// Update Project Name
 export const updateProjectService = async (projectId, ownerId, name) => {
     const project = await Project.findOneAndUpdate(
         { _id: projectId, owner: ownerId },

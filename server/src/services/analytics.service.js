@@ -3,11 +3,8 @@ import Event from '../models/Event.js'
 
 const toObjectId = (id) => new mongoose.Types.ObjectId(id)
 
-// Overview dega - total events, unique user count — all time or last N days
-
 export const getOverviewServices = async(projectId,days)=>{
 
-    // Start date , N days ago from now
     const startDate = new Date()
     startDate.setDate(startDate.getDate()-days)
 
@@ -29,19 +26,10 @@ export const getOverviewServices = async(projectId,days)=>{
     };
 };
 
-
-
-// Events Over Time , har din ka count dega event ke saath 
-
 export const getEventsOverTimeService = async(projectId,days)=>{
     const startDate = new Date();
     startDate.setDate(startDate.getDate()-days)
    
-
-    // MONGODB Aggregation 
-    // 1. $match -filter to this project and within date range
-    // 2. $group —group events by calendar date, count each group
-    // 3. $sort  — sort by date ascending 
     const result = await Event.aggregate([
         {
             $match:{
@@ -61,17 +49,11 @@ export const getEventsOverTimeService = async(projectId,days)=>{
             $sort: { _id: 1 }
         }
     ])
-
-    // _id ko date mein rename kiya hai , better responses ke liye    
     return result.map((e)=>({
         date: e._id,
         count: e.count,
     }))
 }
-
-
-// Top 10 Events joh ho rahe hai 
-
 export const getTopEventsService = async(projectId,days)=>{
     const startDate  = new Date()
     startDate.setDate(startDate.getDate()-days)
@@ -106,10 +88,6 @@ export const getTopEventsService = async(projectId,days)=>{
         lastSeen:    e.lastSeen
     }))
 }
-
-
-// Active User services 
-
 export const getActiveUsersService = async(projectId)=>{
     const now = new Date()
     const pid = toObjectId(projectId)
@@ -157,7 +135,6 @@ export const getRetentionService = async (projectId, days) => {
 
   const objectId = new mongoose.Types.ObjectId(projectId);
 
-  // Step 1: Get the first event timestamp for every user (their cohort entry point)
   const userFirstSeen = await Event.aggregate([
     {
       $match: {
@@ -176,7 +153,6 @@ export const getRetentionService = async (projectId, days) => {
 
   if (userFirstSeen.length === 0) return [];
 
-  // Step 2: Get ALL event timestamps for each user so we can check point-in-time activity
   const allUserIds = userFirstSeen.map((u) => u._id);
   const allEvents = await Event.aggregate([
     {
@@ -189,13 +165,11 @@ export const getRetentionService = async (projectId, days) => {
     {
       $group: {
         _id: '$userId',
-        // Collect all timestamps as an array so we can query per retention period
         timestamps: { $push: '$timestamp' },
       },
     },
   ]);
 
-  // Build a map: userId → Set of active day-offsets from firstSeen
   const firstSeenMap = {};
   for (const u of userFirstSeen) {
     firstSeenMap[u._id] = u.firstSeen;
@@ -206,7 +180,6 @@ export const getRetentionService = async (projectId, days) => {
     userTimestampsMap[u._id] = u.timestamps;
   }
 
-  // Step 3: Group users into weekly cohorts by their firstSeen date
   const cohorts = {};
   for (const user of userFirstSeen) {
     const d = new Date(user.firstSeen);
@@ -219,11 +192,8 @@ export const getRetentionService = async (projectId, days) => {
     cohorts[weekKey].push(user._id);
   }
 
-  // Step 4: For each cohort and each retention period, check if the user
-  // had ANY event within a ±1 day window around that target day.
-  // This is TRUE point-in-time cohort retention, not a last-seen approximation.
   const retentionPeriods = [1, 7, 14, 30];
-  const WINDOW_MS = 1 * 24 * 60 * 60 * 1000; // 1-day tolerance window
+  const WINDOW_MS = 1 * 24 * 60 * 60 * 1000;
 
   const result = Object.keys(cohorts)
     .sort()
@@ -240,7 +210,6 @@ export const getRetentionService = async (projectId, days) => {
           const timestamps = userTimestampsMap[uid] || [];
           const targetTime = new Date(firstSeen).getTime() + periodMs;
 
-          // Check if ANY of this user's events falls within ±1 day of the target retention day
           return timestamps.some((ts) => {
             const diff = Math.abs(new Date(ts).getTime() - targetTime);
             return diff <= WINDOW_MS;
