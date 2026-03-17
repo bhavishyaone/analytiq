@@ -2,7 +2,7 @@
 
 # Analytiq
 
-**A lightweight, developer-first product analytics platform.** <br/>
+**A product analytics platform built for teams.** <br/>
 See exactly what your users do — in real time.
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Analytiq-blue?style=for-the-badge&logo=vercel)](https://analytiq-two.vercel.app/)
@@ -10,50 +10,55 @@ See exactly what your users do — in real time.
 
 </div>
 
----
+Analytiq is a product analytics platform focused on one thing: helping you understand how users actually behave inside your product. It tracks events (like button clicks, purchases, and page views), stores them in your own database, and turns that raw data into live insights on your dashboard.
 
-## What is Analytiq?
-* **Developer-focused product analytics:** A platform built helping teams understand how users truly interact with their software.
-* **Centralized event ingestion:** Allows applications to securely send event data such as feature usage, user actions, and product interactions to a centralized backend.
-* **Visualized insights:** Events are processed and visualized on a dashboard to provide deep insights like user activity trends, usage patterns, funnels, and retention metrics.
+The platform has three parts that work together:
 
-## Why was Analytiq Built?
-* **The need for product visibility:** Modern applications require transparent visibility into how users actually use their product.
-* **Breaking away from marketing metrics:** Many analytics tools focus strictly on marketing and traffic attribution, hiding clear insights into internal product behavior.
-* **Simplified tracking:** Analytiq was built to provide a simple, developer-friendly way to track these internal product events and understand real user journeys.
+**The SDK** (`analytiq` on npm) is an npm package you install in your web app. It sends event data to your backend whenever users do something. It also handles offline queuing automatically and links each event to a specific user so you can track individual journeys.
 
-## What Problem Does It Solve?
-* **Answering crucial product questions:** Helps teams stop struggling to identify where users drop off, which features are most used, or if users return.
-* **Structured event analytics:** Solves the visibility problem by providing event-based analytics to track user actions.
-* **Actionable measurements:** Empowers teams to analyze specific behavior patterns, measure conversion funnels, and monitor user retention accurately.
+**The Backend** is a Node.js + Express API that receives events and stores them in your MongoDB instance. Each event is saved with the user's ID, timestamp, event name, and any custom properties (like `{ plan: "pro" }`). The API also securely handles batch ingestion.
 
-## Who is Analytiq For?
-* **Target Audience:** Designed from the ground up for developers, startup founders, product managers, and SaaS teams.
-* **The Goal:** To understand exactly how users interact with custom-built applications.
-* **The Use-Case:** Perfect for teams demanding deeper insights without relying on overly complex or prohibitively expensive analytics platforms.
-
-## How is Analytiq Different?
-* **Product Behavior over Attribution:** Unlike legacy tools that focus heavily on traffic sources and marketing attribution, Analytiq focuses purely on product behavior.
-* **"What" instead of "Where":** Instead of answering where users came from, Analytiq answers what users actually do inside the product.
-* **Engagement Insights:** This exact focus makes it incredibly useful for measuring real feature adoption, mapping user journeys, and boosting product engagement.
+**The Dashboard** reads your event data using MongoDB aggregation pipelines and shows it in real time. You can quickly see daily active users, top events, step-by-step funnel drop-offs, and weekly cohort retention tables.
 
 ---
 
-## 🌟 Key Features
+## Screenshots
 
-*   **Real-Time Tracking:** Events appear on your dashboard within 5–10 seconds.
+### Landing Page
+![Landing Page](./screenshots/image-4.png)
+
+### Dashboard Overview
+![Dashboard Overview](./screenshots/image-1.png)
+
+### Funnels & Drop-offs
+![Funnels](./screenshots/image-2.png)
+
+### Projects & Settings
+![Settings](./screenshots/image-3.png)
+
+### Documentation Intro
+![Docs Intro](./screenshots/image-6.png)
+
+### Framework Setup Guides
+![Docs Setup](./screenshots/image-5.png)
+
+---
+
+## Key Features
+
+*   **Real-Time Tracking:** Events show up on your dashboard within 5–10 seconds.
 *   **Own Your Data:** Full control over your event data using your own MongoDB instance.
-*   **Developer - SDK:** An ultra-lightweight NPM package (`analytiq`) with intelligent queueing, batching, and auto-retries.
+*   **SDK:** An npm package (`analytiq`) with queueing, batching, and auto-retries.
 *   **Powerful Dashboard:** Custom charting built with Recharts for DAU/WAU/MAU, Top Events, and Trends.
 *   **Funnel Analysis:** See exactly where users drop off in multi-step processes.
-*   **Retention Matrices:** Automatically calculated Weekly Cohort Retention tables.
+*   **Retention Matrices:** Weekly Cohort Retention tables calculated automatically.
 *   **Secure Authentication:** Standard Email/Password login combined with Google OAuth SSO.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-This project is organized as a monorepo utilizing a modern JavaScript stack:
+This project is organized as a monorepo and uses a modern JavaScript stack:
 
 ### Frontend (`/client`)
 *   **Core:** React 18, Vite
@@ -65,7 +70,7 @@ This project is organized as a monorepo utilizing a modern JavaScript stack:
 
 ### Backend (`/server`)
 *   **Core:** Node.js, Express.js
-*   **Database:** MongoDB, Mongoose (Heavy use of Aggregation Pipelines)
+*   **Database:** MongoDB, Mongoose
 *   **Auth:** JSON Web Tokens (JWT), Google Auth Library, bcryptjs
 *   **Security:** Helmet, express-rate-limit, CORS
 
@@ -75,7 +80,7 @@ This project is organized as a monorepo utilizing a modern JavaScript stack:
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 analytics/
@@ -111,7 +116,7 @@ analytics/
 
 ---
 
-## 🏗️ Architecture Flow
+## Architecture Flow
 
 <div align="center">
   <img src="https://mermaid.ink/svg/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG5cbiUlIERlZmluZSBsYXlvdXRcbmRpcmVjdGlvbiBMUlxuXG4lJSBEYXRhYmFzZXMgd2l0aCBEQiBzdHlsaW5nXG5zdWJncmFwaCBTdG9yYWdlIFtTdG9yYWdlIExheWVyXVxuICAgIERCWyhNb25nb0RCXG5FdmVudHMgREIpXTo6OmRiXG5lbmRcblxuJSUgQmFja2VuZCB3aXRoIGFwcCBzdHlsaW5nXG5zdWJncmFwaCBQcm9jZXNzaW5nIFtCYWNrZW5kIEluZnJhc3RydWN0dXJlXVxuICAgIGRpcmVjdGlvbiBUQlxuICAgIEFQSVtFeHByZXNzIEFQSVxuUmF0ZSBMaW1pdGVyXTo6OmFwcFxuICAgIEFnZ1tBZ2dyZWdhdGlvblxuRW5naW5lXTo6OmFwcFxuICAgIEFQSSAtLT4gQWdnXG5lbmRcblxuJSUgRnJvbnRlbmQgd2l0aCBVSSBzdHlsaW5nXG5zdWJncmFwaCBQcmVzZW50YXRpb24gW0FkbWluIERhc2hib2FyZF1cbiAgICBkaXJlY3Rpb24gVEJcbiAgICBVSVtSZWFjdCBJbnRlcmZhY2VdOjo6dWlcbiAgICBDaGFydHNbUmVjaGFydHMgRGF0YV06Ojp1aVxuICAgIFVJIC0tLSBDaGFydHNcbmVuZFxuXG4lJSBTREsgd2l0aCBTREsgc3R5bGluZ1xuc3ViZ3JhcGggQ2xpZW50U0RLIFtBbmFseXRpcSBTREtdXG4gICAgZGlyZWN0aW9uIFRCXG4gICAgVHJhY2tbRXZlbnQgVHJhY2tlcl06OjpzZGtcbiAgICBCYXRjaFtCYXRjaCBFbmdpbmVdOjo6c2RrXG4gICAgVHJhY2sgLS0+IEJhdGNoXG5lbmRcblxuJSUgQ29ubmVjdGlvbnMgYmV0d2VlbiBzeXN0ZW1zXG5CYXRjaCAtLT58SFRUUCBQT1NUfCBBUElcbkFQSSAtLT58SW5zZXJ0c3wgREJcblVJIC0tPnxGZXRjaGVzfCBBZ2dcbkFnZyAtLT58TW9uZ29vc2UgQWdncmVnYXRpb258IERCXG5EQiAtLi0+fFJhdyBEYXRhfCBBZ2dcbkFnZyAtLi0+fEpTT04gQXJyYXlzfCBVSVxuXG4lJSBDdXN0b20gQ2xhc3MgRGVmaW5pdGlvbnMgZm9yIGdvcmdlb3VzIGNvbG9yc1xuY2xhc3NEZWYgZGIgZmlsbDojZjBmZGY0LHN0cm9rZTojMjJjNTVlLHN0cm9rZS13aWR0aDoycHgsY29sb3I6IzE0NTMyZFxuY2xhc3NEZWYgYXBwIGZpbGw6I2VmZjZmZixzdHJva2U6IzNiODJmNixzdHJva2Utd2lkdGg6MnB4LGNvbG9yOiMxZTNhOGFcbmNsYXNzRGVmIHVpIGZpbGw6I2ZkZjRmZixzdHJva2U6I2Q5NDZlZixzdHJva2Utd2lkdGg6MnB4LGNvbG9yOiM3MDFhNzVcbmNsYXNzRGVmIHNkayBmaWxsOiNmZmZiZWIsc3Ryb2tlOiNmNTllMGIsc3Ryb2tlLXdpZHRoOjJweCxjb2xvcjojNzgzNTBmXG4iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ==" alt="Analytiq Data Architecture Flow" />
@@ -121,10 +126,10 @@ analytics/
 
 ## Getting Started (Local Development)
 
-Follow these steps to run the entire platform locally on your machine.
+Follow these steps to run the full platform locally.
 
 ### Environment Variables (.env)
-You will need to configure these variables in their respective directories before starting the applications:
+Configure these variables in their respective directories before starting the apps:
 
 | Variable | Location | Description |
 | :--- | :--- | :--- |
@@ -136,7 +141,7 @@ You will need to configure these variables in their respective directories befor
 | `VITE_API_URL` | `/client` | Backend API endpoint |
 
 ### 1. Prerequisites
-Make sure you have installed:
+Make sure you have these installed:
 *   [Node.js](https://nodejs.org/) (v18 or higher recommended)
 *   [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas URI)
 
@@ -193,18 +198,21 @@ Then in your test project: `npm link analytiq`.
 
 ---
 
-## 📖 Usage & Documentation
+## Usage & Documentation
 
-Integrating the SDK into your own apps is incredibly simple. For comprehensive guides, check out the [Official Documentation](https://bhavishaya.mintlify.app/).
+Integrating the SDK into your app is straightforward. For full guides, check the [Official Documentation](https://bhavishaya.mintlify.app/).
 
-**Basic Setup:**
+### Install
 
 First, install the package:
 ```bash
 npm install analytiq
 ```
 
-Then, initialize and track events in your app:
+### Core SDK (Vanilla JS / Vue)
+
+Initialize once, identify users after login, then track events:
+
 ```javascript
 import { init, track, identify } from 'analytiq';
 
@@ -215,49 +223,62 @@ init('pk_live_YOUR_API_KEY');
 identify('user_12345');
 
 // 3. Track events
-track('purchase_completed', { plan: 'Pro', amount: 29 });
+track('purchase_completed', { plan: 'pro', amount: 29 });
 ```
 
-**Advanced Usage (Batching & Queueing):**
+### React / Next.js
 
-For high-volume environments, use `batchTrack` to automatically queue and flush multiple events in single HTTP requests, saving network overhead.
+Use the React package and initialize once with the `Analytiq` component:
+
+```javascript
+import { Analytiq, identify, reset, track } from 'analytiq/react';
+import { useEffect } from 'react';
+
+export function AnalyticsProvider({ children, user }) {
+  useEffect(() => {
+    if (user) identify(user.id);
+    else reset();
+  }, [user]);
+
+  return (
+    <>
+      <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY} />
+      {children}
+    </>
+  );
+}
+
+export { track };
+```
+
+### Batch Tracking
+
+Use `batchTrack` to send an array of events in one request:
 
 ```javascript
 import { batchTrack } from 'analytiq';
 
-// Queue multiple events
-batchTrack('button_clicked', { buttonId: 'pricing_tier_2' });
-batchTrack('page_scrolled', { scrollDepth: 75 });
-batchTrack('video_played', { videoId: 'intro_demo' });
-
-// The SDK handles all intelligent batching, delay logic, and auto-retries for you!
+batchTrack([
+  { name: 'button_click', properties: { button: 'pricing_tier_2' } },
+  { name: 'page_view', properties: { path: '/pricing' } },
+  { name: 'video_played', properties: { video_id: 'intro_demo' } },
+]);
 ```
 
----
+### API Reference
 
-## 📸 Screenshots
+- `init(apiKey, options?)`
+- `identify(userId)`
+- `track(eventName, properties?)`
+- `batchTrack(events[])`
+- `reset()`
 
-### Landing Page
-![Landing Page](./screenshots/image-4.png)
-
-### Dashboard Overview
-![Dashboard Overview](./screenshots/image-1.png)
-
-### Funnels & Drop-offs
-![Funnels](./screenshots/image-2.png)
-
-### Projects & Settings
-![Settings](./screenshots/image-3.png)
-
-### Documentation Intro
-![Docs Intro](./screenshots/image-6.png)
-
-### Framework Setup Guides
-![Docs Setup](./screenshots/image-5.png)
+Full docs:
+- https://bhavishaya.mintlify.app/
 
 ---
 
-## 🧑‍💻 Author
+## Author
 
 **Bhavishya Sharma**
 *   GitHub: [@bhavishyaone](https://github.com/bhavishyaone)
