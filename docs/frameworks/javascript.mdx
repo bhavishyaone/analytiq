@@ -78,7 +78,7 @@ import { track, identify } from 'analytiq'
 export function Home({ user }) {
   useEffect(() => {
     if (user) {
-      identify(user.id)
+      identify(user)  // SDK extracts id, _id, uid, or email automatically
     }
     track('page_view', { page: 'Home' })
   }, [])

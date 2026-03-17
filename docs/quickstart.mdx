@@ -140,7 +140,7 @@ This file acts as a bridge between **Your Auth System** and **Our SDK**.
       const { user } = useAuth() 
 
       useEffect(() => {
-        if (user && user.id) {
+        if (user) {
            identify(user)
         } else {
            reset()

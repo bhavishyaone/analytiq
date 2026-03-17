@@ -62,7 +62,6 @@ Create a new file in your `src/` folder called `analytics.jsx`. This is the **on
   </Tab>
   <Tab title="TypeScript (analytics.tsx)">
     ```tsx src/analytics.tsx
-    'use client'
     import { Analytiq, identify, reset, track } from 'analytiq/react'
     import { useEffect } from 'react'
     import { useAuth } from './context/AuthContext'
@@ -71,7 +70,7 @@ Create a new file in your `src/` folder called `analytics.jsx`. This is the **on
       const { user } = useAuth()
 
       useEffect(() => {
-        if (user && user.id) {
+        if (user) {
           identify(user)
         } else {
           reset()

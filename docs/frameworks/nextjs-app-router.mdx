@@ -74,7 +74,7 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
       const { user } = useAuth()
 
       useEffect(() => {
-        if (user && user.id) {
+        if (user) {
           identify(user)
         } else {
           reset()

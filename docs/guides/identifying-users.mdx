@@ -143,8 +143,8 @@ If your app keeps users logged in, you need to re-identify them when the app loa
 
     // Re-identify if user is already logged in
     const savedUser = JSON.parse(localStorage.getItem('user') || 'null')
-    if (savedUser?.id) {
-      identify(savedUser)
+    if (savedUser) {
+      identify(savedUser)  // SDK extracts id, _id, uid, or email automatically
     }
     ```
   </Tab>
@@ -207,3 +207,111 @@ track('page_view', { page: 'Landing' })       // anonymous again
 ## Anonymous events before identify()
 
 Any events tracked before `identify()` is called are stored anonymously. Once you call `identify()`, future events are linked — but past anonymous events remain anonymous. This is expected behavior.
+
+---
+
+## Tracking anonymous visitors (no login required)
+
+If your app or website has users who **never log in** (a marketing landing page, a blog, a documentation site), `identify()` is never called naturally — and all events will have `userId = null`, meaning they won't appear in your Unique Users, DAU, or MAU counts.
+
+The fix is to generate a **stable visitor ID** using `localStorage`. This creates a unique ID the first time someone visits, stores it in their browser, and reuses it on every future visit — all without requiring any login.
+
+<Tabs>
+  <Tab title="React / Next.js">
+    Add this to your `analytics.jsx` provider file, **before** or **alongside** the `useAuth` identify logic:
+
+    ```jsx src/analytics.jsx
+    import { Analytiq, identify, reset, track } from 'analytiq/react'
+    import { useEffect } from 'react'
+    import { useAuth } from './context/AuthContext'
+
+    // Generate a stable anonymous visitor ID
+    function getVisitorId() {
+      let id = localStorage.getItem('_visitor_id')
+      if (!id) {
+        id = crypto.randomUUID()
+        localStorage.setItem('_visitor_id', id)
+      }
+      return id
+    }
+
+    export function AnalyticsProvider({ children }) {
+      const { user } = useAuth()
+
+      useEffect(() => {
+        if (user) {
+          identify(user)          // Logged-in user: use their real identity
+        } else {
+          identify(getVisitorId()) // Anonymous visitor: use stable browser ID
+        }
+      }, [user])
+
+      return (
+        <>
+          <Analytiq apiKey={import.meta.env.VITE_ANALYTIQ_KEY} />
+          {children}
+        </>
+      )
+    }
+
+    export { track }
+    ```
+  </Tab>
+  <Tab title="Vue 3">
+    Add this to your `src/main.js`, right after `init()`:
+
+    ```js src/main.js
+    import { init, identify } from 'analytiq'
+
+    init(import.meta.env.VITE_ANALYTIQ_KEY)
+
+    // Identify every visitor — logged in or not
+    function getVisitorId() {
+      let id = localStorage.getItem('_visitor_id')
+      if (!id) {
+        id = crypto.randomUUID()
+        localStorage.setItem('_visitor_id', id)
+      }
+      return id
+    }
+
+    identify(getVisitorId())
+
+    // Later, after login, override with the real user:
+    // identify(user)
+    ```
+  </Tab>
+  <Tab title="Vanilla HTML / JS">
+    Add this to your main `<script>` block right after `analytiq.init()`:
+
+    ```html index.html
+    <script>
+      analytiq.init('pk_live_YOUR_KEY_HERE')
+
+      // Identify every visitor — logged in or not
+      let visitorId = localStorage.getItem('_visitor_id')
+      if (!visitorId) {
+        visitorId = crypto.randomUUID()
+        localStorage.setItem('_visitor_id', visitorId)
+      }
+      analytiq.identify(visitorId)
+    </script>
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  **How this works:** `crypto.randomUUID()` generates a unique ID (like `"f47ac10b-58cc-4372-a567-0e02b2c3d479"`) the very first time someone visits. It is saved in `localStorage` so future visits by the same person reuse the same ID — giving you accurate repeat visitor counts.
+</Note>
+
+<Warning>
+  This visitor ID is **device and browser specific**. If the same person visits from Chrome and Safari, they will appear as two different visitors. This is expected for anonymous tracking — it is the same behavior used by most analytics platforms for unauthenticated users.
+</Warning>
+
+| Scenario | What happens |
+|---|---|
+| First visit, no login | New visitor ID generated → DAU and Unique Users count this visitor |
+| Return visit, no login | Same visitor ID reused → recognized as the same visitor |
+| User logs in after browsing | `identify(user)` overrides the visitor ID → events now linked to their real account |
+| User logs out | Back to visitor ID → browsing continues tracked anonymously |
+

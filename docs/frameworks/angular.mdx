@@ -33,8 +33,8 @@ export class AnalyticsService {
     track(name, properties)
   }
 
-  identifyUser(userId: string) {
-    identify(userId) // Or just identify(userObject)
+  identifyUser(user: any) {
+    identify(user) // Pass the whole user object — SDK extracts id, _id, uid, or email
   }
 
   clearUser() {
@@ -94,7 +94,7 @@ export class HomeComponent implements OnInit {
 
 ```ts src/app/auth/auth.component.ts
 // After login:
-this.analytics.identifyUser(user.id)
+this.analytics.identifyUser(user)  // Pass full user object — SDK extracts id, _id, uid, or email automatically
 
 // After logout:
 this.analytics.clearUser()

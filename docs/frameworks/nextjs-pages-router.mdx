@@ -24,7 +24,6 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
 <Tabs>
   <Tab title="TypeScript (analytics.tsx)">
     ```tsx components/analytics.tsx
-    'use client'
     import { Analytiq, identify, reset, track } from 'analytiq/react'
     import { useEffect } from 'react'
     import { useAuth } from '../context/AuthContext'   // your existing auth
@@ -53,7 +52,6 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
   </Tab>
   <Tab title="JavaScript (analytics.js)">
     ```jsx components/analytics.js
-    'use client'
     import { Analytiq, identify, reset, track } from 'analytiq/react'
     import { useEffect } from 'react'
     import { useAuth } from '../context/AuthContext'
@@ -62,7 +60,7 @@ Create this file anywhere in your project. This is the **only place** Analytiq i
       const { user } = useAuth()
 
       useEffect(() => {
-        if (user && user.id) {
+        if (user) {
           identify(user)
         } else {
           reset()
@@ -184,13 +182,18 @@ For any specific action, import `track()` **from your `analytics.jsx` file** and
   </Tab>
   <Tab title="After a login / API call">
     ```jsx pages/login.jsx
+    import { useRouter } from 'next/router'
     import { track } from '../components/analytics'
 
-    async function handleLogin(email, password) {
-      const res = await api.post('/auth/login', { email, password })
+    export default function LoginPage() {
+      const router = useRouter()
 
-      track('login_completed', { method: 'email' })
-      router.push('/dashboard')
+      async function handleLogin(email, password) {
+        const res = await api.post('/auth/login', { email, password })
+
+        track('login_completed', { method: 'email' })
+        router.push('/dashboard')
+      }
     }
     ```
   </Tab>
