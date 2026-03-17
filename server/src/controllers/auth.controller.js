@@ -126,10 +126,11 @@ export const googleLogin = async (req, res) => {
         let user = await User.findOne({ email })
         if (!user) {
             const randomPassword = Math.random().toString(36).slice(-8) + 'A1!'
+            const hashedRandomPassword = await hashPassword(randomPassword)
             user = await User.create({
                 name: name,
                 email: email,
-                password: randomPassword
+                password: hashedRandomPassword
             })
         }
         const token = generateToken(user._id)
