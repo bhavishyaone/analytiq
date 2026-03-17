@@ -52,7 +52,7 @@ export const getEventsOverTimeService = async(projectId,days)=>{
 
         {
             $group:{
-                _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } },
+                _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp', timezone: 'Asia/Kolkata' } },
                 count: { $sum: 1 },
             }
         },
