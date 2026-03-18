@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { init, identify, reset } from './index.js';
+import { useEffect, useRef } from "react";
+import { init, identify, reset } from "./index.js";
 
 /**
  * <Analytiq /> — the core React initialization component.
@@ -9,7 +9,7 @@ import { init, identify, reset } from './index.js';
  *
  * @example
  * // src/App.jsx
- * import { Analytiq } from 'analytiq/react'
+ * import { Analytiq } from "analytiq/react"
  *
  * function App() {
  *   return (
@@ -25,18 +25,16 @@ export function Analytiq({
   autoPageViews = false,
   debug = false,
 }) {
-  const initialized = useRef(false);
-
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (!initialized.current) {
+    if (!isInitialized.current) {
       init(apiKey, { autoTrackPageViews: autoPageViews, debug });
-      initialized.current = true;
+      isInitialized.current = true;
     }
   }, [apiKey, autoPageViews, debug]);
 
   return null; 
 }
 
-export { identify, track, reset, batchTrack } from './index.js';
-
+export { identify, track, reset, batchTrack } from "./index.js";

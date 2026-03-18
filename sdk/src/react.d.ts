@@ -1,5 +1,5 @@
-import { FunctionComponent } from 'react';
-import { identify, track, reset, batchTrack } from './index';
+import { FunctionComponent } from "react";
+import { identify, track, reset, batchTrack } from "./index";
 
 export interface AnalytiqProps {
   /** Your Analytiq public API key from the dashboard Settings page. */
@@ -20,7 +20,7 @@ export interface AnalytiqProps {
  *
  * @example
  * // src/App.jsx
- * import { Analytiq } from 'analytiq/react'
+ * import { Analytiq } from "analytiq/react"
  *
  * function App() {
  *   return (
@@ -32,6 +32,5 @@ export interface AnalytiqProps {
  * }
  */
 export const Analytiq: FunctionComponent<AnalytiqProps>;
-
 
 export { identify, track, reset, batchTrack };

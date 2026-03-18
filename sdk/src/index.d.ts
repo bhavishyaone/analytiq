@@ -11,8 +11,6 @@ export interface EventProperties {
     [key: string]: string | number | boolean | null | undefined;
 }
 
-
-
 export interface BatchEvent {
     name: string;
     userId?: string;
@@ -26,8 +24,8 @@ export interface BatchEvent {
  * are automatically queued and flushed once init() is called.
  *
  * @example
- * import { init } from 'analytiq'
- * init('pk_live_xxxx', { host: 'https://your-api.onrender.com' })
+ * import { init } from "analytiq"
+ * init("pk_live_xxxx", { host: "https://your-api.onrender.com" })
  */
 export function init(apiKey: string, options?: InitOptions): void;
 
@@ -35,7 +33,7 @@ export function init(apiKey: string, options?: InitOptions): void;
  * Associate all future events with a specific user ID.
  *
  * @example
- * identify('user_123')
+ * identify("user_123")
  */
 export function identify(userId: string): void;
 
@@ -44,7 +42,7 @@ export function identify(userId: string): void;
  * Duplicate events fired within 300ms are automatically ignored.
  *
  * @example
- * track('button_click', { button: 'signup', page: '/home' })
+ * track("button_click", { button: "signup", page: "/home" })
  */
 export function track(eventName: string, properties?: EventProperties): void;
 
@@ -53,8 +51,8 @@ export function track(eventName: string, properties?: EventProperties): void;
  *
  * @example
  * batchTrack([
- *   { name: 'page_view', properties: { path: '/home' } },
- *   { name: 'button_click', properties: { button: 'signup' } },
+ *   { name: "page_view", properties: { path: "/home" } },
+ *   { name: "button_click", properties: { button: "signup" } },
  * ])
  */
 export function batchTrack(events: BatchEvent[]): void;

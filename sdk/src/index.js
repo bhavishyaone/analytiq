@@ -1,253 +1,248 @@
-let _apiKey = null;
-let _host = '';
-let _userId = null;
-let _initialized = false;
-let _debug = false;
+let currentApiKey = null;
+let backendUrl = "";
+let currentUserId = null;
+let isInitialized = false;
+let isDebugMode = false;
 
-let _queue = [];                           
-const _recentEvents = new Map();
+let eventQueue = [];
+const recentEvents = new Map();
 const DEDUP_WINDOW_MS = 300;
 
-
-const _lsGet = (key) => {
+const getFromStorage = (key) => {
   try {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
     return localStorage.getItem(key);
-  } catch { return null; }
+  } 
+  catch {
+    return null;
+  }
 };
-const _lsSet = (key, value) => {
+
+const saveToStorage = (key, value) => {
   try {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     localStorage.setItem(key, value);
-  } catch {}
+  } 
+  catch {}
 };
-const _lsRemove = (key) => {
+
+const removeFromStorage = (key) => {
   try {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     localStorage.removeItem(key);
-  } catch {}
+  } 
+  catch {}
 };
 
-const _log = (...args) => { if (_debug) console.log('[analytiq]', ...args); };
-
+const logMessage = (...args) => {
+  if (isDebugMode) console.log("[analytiq]", ...args);
+};
 
 export function init(apiKey, options = {}) {
+  if (isInitialized) return;
 
-  if (_initialized) return;
-  
   apiKey = apiKey?.trim();
 
   if (!apiKey) {
     console.error(
-      '[analytiq] API key is missing or undefined.\n' +
-      '  If using Vite    → import.meta.env.VITE_ANALYTIQ_KEY\n' +
-      '  If using Next.js → process.env.NEXT_PUBLIC_ANALYTIQ_KEY\n' +
-      '  Make sure the variable is defined in your .env file.'
+      "[analytiq] API key is missing or undefined.\n" +
+      " If using Vite    → import.meta.env.VITE_ANALYTIQ_KEY\n" +
+      " If using Next.js → process.env.NEXT_PUBLIC_ANALYTIQ_KEY\n" +
+      " Make sure the variable is defined in your .env file."
     );
     return;
   }
 
-  _apiKey = apiKey;
-  _host = options.host || 'https://analytiq-y63v.onrender.com';
-  _debug = options.debug === true;
+  currentApiKey = apiKey;
+  backendUrl = options.host || "https://analytiq-gooo.onrender.com";
+  isDebugMode = options.debug === true;
 
-
-  const savedUserId = _lsGet('_aq_uid');
-  if (savedUserId && !_userId) {
-    _userId = savedUserId;
-    _log('User identity restored from previous session:', _userId);
+  const savedUserId = getFromStorage("analytiq-user-id");
+  if (savedUserId && !currentUserId) {
+    currentUserId = savedUserId;
+    logMessage("User identity restored from previous session:", currentUserId);
   }
 
-  _initialized = true;
-  _log('Initialized successfully.', { host: _host, userId: _userId });
+  isInitialized = true;
+  logMessage("Initialized successfully.", { host: backendUrl, userId: currentUserId });
 
-
-  const offlineQueue = _lsGet('_aq_offline_queue');
+  const offlineQueue = getFromStorage("analytiq-offline-queue");
   if (offlineQueue) {
     try {
       const events = JSON.parse(offlineQueue);
       if (events.length > 0) {
-        _log(`Retrying ${events.length} offline event(s) from previous session...`);
-        events.forEach(({ path, body }) => _sendRequest(path, body));
-        _lsRemove('_aq_offline_queue');
+        logMessage(`Retrying ${events.length} offline event(s) from previous session...`);
+        events.forEach(({ path, body }) => sendNetworkRequest(path, body));
+        removeFromStorage("analytiq-offline-queue");
       }
-    } catch { _lsRemove('_aq_offline_queue'); }
+    } 
+    catch {
+      removeFromStorage("analytiq-offline-queue");
+    }
   }
 
-
-
-
-  if (_queue.length > 0) {
-    _log(`Flushing ${_queue.length} queued event(s)...`);
-    _queue.forEach(({ path, body }) => _sendRequest(path, body));
-    _queue = [];
+  if (eventQueue.length > 0) {
+    logMessage(`Flushing ${eventQueue.length} queued event(s)...`);
+    eventQueue.forEach(({ path, body }) => sendNetworkRequest(path, body));
+    eventQueue = [];
   }
 }
-
-
-
 
 export function identify(userData) {
   if (userData === undefined || userData === null) {
     console.warn(
-      '[analytiq] identify() called with null or undefined.\n' +
-      '  Call reset() to clear user session.'
+      "[analytiq] identify() called with null or undefined.\n" +
+      "  Call reset() to clear user session."
     );
     return;
   }
 
-
-  if (typeof userData === 'object' && !Array.isArray(userData)) {
+  if (typeof userData === "object" && !Array.isArray(userData)) {
     const extractedId = userData.id || userData._id || userData.uid || userData.email || userData.sub;
-    
+
     if (!extractedId) {
-      console.warn('[analytiq] identify() received an object, but could not find a valid ID field (id, _id, uid, email). User not identified.');
+      console.warn("[analytiq] identify() received an object, but could not find a valid ID field (id, _id, uid, email). User not identified.");
       return;
     }
-    _userId = String(extractedId);
-  } else if (typeof userData === 'string' || typeof userData === 'number') {
-
-    _userId = String(userData);
-  } else {
-    console.warn('[analytiq] identify() expects a string, number, or user object.');
+    currentUserId = String(extractedId);
+  } 
+  else if (typeof userData === "string" || typeof userData === "number") {
+    currentUserId = String(userData);
+  } 
+  else {
+    console.warn("[analytiq] identify() expects a string, number, or user object.");
     return;
   }
 
-  _lsSet('_aq_uid', _userId);
-  _log('User identified:', _userId);
+  saveToStorage("analytiq-user-id", currentUserId);
+  logMessage("User identified:", currentUserId);
 }
-
 
 export function reset() {
-  _userId = null;
-  _queue = [];
-  _recentEvents.clear();
+  currentUserId = null;
+  eventQueue = [];
+  recentEvents.clear();
 
+  removeFromStorage("analytiq-user-id");
+  removeFromStorage("analytiq-offline-queue");
 
-  _lsRemove('_aq_uid');
-
-
-  _lsRemove('_aq_offline_queue');
-
-  _log('SDK reset. User session cleared.');
-  console.log('[analytiq] SDK reset. User session cleared.');
+  logMessage("SDK reset. User session cleared.");
+  console.log("[analytiq] SDK reset. User session cleared.");
 }
 
-
 export function track(eventName, properties = {}) {
-  if (!eventName || typeof eventName !== 'string') {
-    console.warn('[analytiq] track() requires an event name as a string.');
+  if (!eventName || typeof eventName !== "string") {
+    console.warn("[analytiq] track() requires an event name as a string.");
     return;
   }
 
-
-  if (properties && typeof properties !== 'object') {
+  if (properties && typeof properties !== "object") {
     console.warn(`[analytiq] track("${eventName}") expects properties to be an object. Ignored.`);
     properties = {};
-  } else if (Array.isArray(properties) || properties === null) {
+  } 
+  else if (Array.isArray(properties) || properties === null) {
     properties = {};
   }
 
   const dedupKey = `${eventName}:${JSON.stringify(properties)}`;
-  const lastFired = _recentEvents.get(dedupKey);
+  const lastFired = recentEvents.get(dedupKey);
   const now = Date.now();
   if (lastFired && now - lastFired < DEDUP_WINDOW_MS) {
-    _log(`Duplicate event "${eventName}" ignored (fired within ${DEDUP_WINDOW_MS}ms).`);
+    logMessage(`Duplicate event "${eventName}" ignored (fired within ${DEDUP_WINDOW_MS}ms).`);
     return;
   }
-  _recentEvents.set(dedupKey, now);
+  recentEvents.set(dedupKey, now);
 
   const body = {
     name: eventName,
-    userId: _userId,
+    userId: currentUserId,
     properties,
     timestamp: new Date().toISOString(),
   };
 
-  if (!_initialized) {
-    _log(`SDK not initialized yet. Event "${eventName}" queued.`);
-    _queue.push({ path: '/api/events/track', body });
+  if (!isInitialized) {
+    logMessage(`SDK not initialized yet. Event "${eventName}" queued.`);
+    eventQueue.push({ path: "/api/events/track", body });
     return;
   }
 
-  _log(`Tracking event: "${eventName}"`, properties);
-  _sendRequest('/api/events/track', body);
+  logMessage(`Tracking event: "${eventName}"`, properties);
+  sendNetworkRequest("/api/events/track", body);
 }
-
 
 export function batchTrack(events = []) {
   if (!Array.isArray(events) || events.length === 0) {
-    console.warn('[analytiq] batchTrack() requires a non-empty array of events.');
+    console.warn("[analytiq] batchTrack() requires a non-empty array of events.");
     return;
   }
 
   const enrichedEvents = events.map((e) => ({
     name: e.name,
-    userId: e.userId || _userId,
+    userId: e.userId || currentUserId,
     properties: e.properties || {},
     timestamp: e.timestamp || new Date().toISOString(),
   }));
 
-  if (!_initialized) {
-    _log('SDK not initialized yet. Batch queued.');
-    _queue.push({ path: '/api/events/batch', body: { events: enrichedEvents } });
+  if (!isInitialized) {
+    logMessage("SDK not initialized yet. Batch queued.");
+    eventQueue.push({ path: "/api/events/batch", body: { events: enrichedEvents } });
     return;
   }
 
-  _log(`Batch tracking ${enrichedEvents.length} event(s).`);
-  _sendRequest('/api/events/batch', { events: enrichedEvents });
+  logMessage(`Batch tracking ${enrichedEvents.length} event(s).`);
+  sendNetworkRequest("/api/events/batch", { events: enrichedEvents });
 }
 
+async function sendNetworkRequest(path, body) {
+  if (typeof window === "undefined") return;
 
-async function _sendRequest(path, body) {
-
-  if (typeof window === 'undefined') return;
-
-  const url = `${_host}${path}`;
-  const reqOptions = {
-    method: 'POST',
+  const url = `${backendUrl}${path}`;
+  const requestOptions = {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': _apiKey,
+      "Content-Type": "application/json",
+      "x-api-key": currentApiKey,
     },
     body: JSON.stringify(body),
   };
 
   try {
-    const response = await fetch(url, reqOptions);
+    const response = await fetch(url, requestOptions);
     if (!response.ok) {
       console.warn(`[analytiq] Event tracking failed: ${response.status}`);
-    } else {
-      _log('Event sent successfully.');
+    } 
+    else {
+      logMessage("Event sent successfully.");
     }
-  } catch (err) {
-
-    _log('Network error. Saving event to offline queue...');
+  } 
+  catch (err) {
+    logMessage("Network error. Saving event to offline queue...");
     try {
-      const existing = JSON.parse(_lsGet('_aq_offline_queue') || '[]');
-      existing.push({ path, body });
-      _lsSet('_aq_offline_queue', JSON.stringify(existing));
-    } catch {}
-
+      const existingQueueItems = JSON.parse(getFromStorage("analytiq-offline-queue") || "[]");
+      existingQueueItems.push({ path, body });
+      saveToStorage("analytiq-offline-queue", JSON.stringify(existingQueueItems));
+    } 
+    catch {}
 
     setTimeout(async () => {
       try {
-        const retryResponse = await fetch(url, reqOptions);
+        const retryResponse = await fetch(url, requestOptions);
         if (!retryResponse.ok) {
           console.warn(`[analytiq] Retry also failed: ${retryResponse.status}`);
-        } else {
-
-          _log('Retry succeeded.');
+        } 
+        else {
+          logMessage("Retry succeeded.");
           try {
-            const existing = JSON.parse(_lsGet('_aq_offline_queue') || '[]');
-            const updated = existing.filter(
+            const existingQueueItems = JSON.parse(getFromStorage("analytiq-offline-queue") || "[]");
+            const updatedQueueItems = existingQueueItems.filter(
               (e) => JSON.stringify(e) !== JSON.stringify({ path, body })
             );
-            _lsSet('_aq_offline_queue', JSON.stringify(updated));
+            saveToStorage("analytiq-offline-queue", JSON.stringify(updatedQueueItems));
           } catch {}
         }
-      } catch {
-        console.warn('[analytiq] Retry failed. Event saved to offline queue for next session.');
+      }
+      catch {
+        console.warn("[analytiq] Retry failed. Event saved to offline queue for next session.");
       }
     }, 500);
   }
