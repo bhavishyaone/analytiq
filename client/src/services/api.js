@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 })
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
 })
@@ -18,11 +18,13 @@ api.interceptors.response.use(
             const isAuthMutation = (url.includes('/auth/me') && method === 'patch')
                                 || (url.includes('/auth/login') && method === 'post')
             if (!isAuthMutation) {
+                sessionStorage.removeItem('token')
                 localStorage.removeItem('token')
                 window.location.href = '/login'
             }
         }
         return Promise.reject(error)
+
     }
 )
 

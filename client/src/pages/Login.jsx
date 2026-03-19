@@ -36,22 +36,23 @@ export function Login() {
   const [errors, setErrors]     = useState({ email: '', password: '' })
   const [loginError, setLoginError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const { login, isAuthenticated } = useAuth()
+  const { login, logout, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const isDemo = searchParams.get('demo') === 'true'
 
+  if (isAuthenticated && !isDemo) return <Navigate to="/projects" replace />
+
   useEffect(() => {
     if (isDemo) {
-      setEmail('demo@analytiq.com')
-      setPassword('demo1234')
+      if (isAuthenticated) {
+        logout()
+      }
+      setEmail('demo@gmail.com')
+      setPassword('demo123')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDemo])
-
-
-
-
-  if (isAuthenticated) return <Navigate to="/projects" replace />
 
   const validate = () => {
     const newErrors = { email: '', password: '' }
@@ -231,7 +232,7 @@ export function Login() {
                 setErrors({ email: '', password: '' })
                 setLoading(true)
                 try {
-                  await login('demo@gmail.com', 'demo123')
+                  await login('demo@gmail.com', 'demo123', true)
                   navigate('/projects')
                 } catch {
                   setLoginError('Demo login failed. Run npm run seed first.')
